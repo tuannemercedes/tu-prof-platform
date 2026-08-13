@@ -36,9 +36,14 @@ export default function AlunoSidebar({
 
   return (
     <aside className="md:w-64 shrink-0 border-b md:border-b-0 md:border-r border-gray-200 p-4 flex flex-col gap-6 md:h-screen md:sticky md:top-0 md:overflow-y-auto">
-      <div>
-        <p className="font-semibold">Tu Prof</p>
-        <p className="text-xs text-gray-500 truncate">Olá, {nome}</p>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-semibold">Tu Prof</p>
+          <p className="text-xs text-gray-500 truncate">Olá, {nome}</p>
+        </div>
+        <div className="text-xs text-gray-500 shrink-0 pt-0.5">
+          <SignOutButton />
+        </div>
       </div>
 
       <nav className="flex flex-col gap-1">
@@ -100,9 +105,6 @@ export default function AlunoSidebar({
         <Link href="/aluno/perfil" className={linkClass("/aluno/perfil")}>
           Meu perfil
         </Link>
-        <div className="px-2 text-xs text-gray-500">
-          <SignOutButton />
-        </div>
         {appUrl && (
           <a
             href={appUrl}

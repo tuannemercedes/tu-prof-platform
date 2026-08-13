@@ -21,9 +21,15 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       <aside className="md:w-56 shrink-0 border-b md:border-b-0 md:border-r border-gray-200 p-4 flex md:flex-col gap-4">
-        <div className="flex-1 md:flex-none">
-          <p className="font-semibold">Tu Prof</p>
-          <p className="text-xs text-gray-500">Painel do admin</p>
+        <div className="flex-1 md:flex-none flex md:flex-col md:items-start items-center justify-between gap-1">
+          <div>
+            <p className="font-semibold">Tu Prof</p>
+            <p className="text-xs text-gray-500">Painel do admin</p>
+          </div>
+          <div className="text-xs text-gray-500 space-y-0.5 md:mt-2">
+            <p className="truncate hidden md:block">{profile.email}</p>
+            <SignOutButton />
+          </div>
         </div>
         <nav className="flex md:flex-col gap-1 text-sm overflow-x-auto">
           {NAV_ITEMS.map((item) => (
@@ -36,10 +42,6 @@ export default async function AdminLayout({
             </Link>
           ))}
         </nav>
-        <div className="md:mt-auto text-xs text-gray-500 space-y-1 flex md:block items-center gap-2">
-          <p className="truncate">{profile.email}</p>
-          <SignOutButton />
-        </div>
       </aside>
       <main className="flex-1 p-6">{children}</main>
     </div>
