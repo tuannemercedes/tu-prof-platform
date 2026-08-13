@@ -56,21 +56,26 @@ export default async function TurmasPage() {
                   </button>
                 </form>
               </div>
-              <form action={updateTurmaCalendario} className="flex gap-2">
+              <form action={updateTurmaCalendario} className="space-y-1">
                 <input type="hidden" name="id" value={turma.id} />
-                <input
-                  type="url"
-                  name="calendario_embed_url"
-                  defaultValue={turma.calendario_embed_url ?? ""}
-                  placeholder="Link de embed do Google Calendar (opcional)"
-                  className="flex-1 rounded-md border border-gray-300 px-2 py-1.5 text-xs"
-                />
-                <button
-                  type="submit"
-                  className="text-xs rounded-md border border-gray-300 px-3 py-1.5 hover:bg-gray-50"
-                >
-                  Salvar
-                </button>
+                <label className="text-xs font-medium text-gray-600 block">
+                  📅 Calendário (Google Calendar)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    name="calendario_embed_url"
+                    defaultValue={turma.calendario_embed_url ?? ""}
+                    placeholder="Cole aqui o link de embed do Google Calendar"
+                    className="flex-1 rounded-md border border-gray-300 px-2 py-1.5 text-xs"
+                  />
+                  <button
+                    type="submit"
+                    className="text-xs rounded-md border border-gray-300 px-3 py-1.5 hover:bg-gray-50"
+                  >
+                    Salvar
+                  </button>
+                </div>
               </form>
             </li>
           ))
