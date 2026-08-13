@@ -120,6 +120,13 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
         />
       )}
 
+      <div>
+        <label className="text-xs text-[var(--text-secondary)] block mb-1">
+          Capa (opcional) — aparece no card do aluno. Sem capa, mostramos um ícone do tipo.
+        </label>
+        <input type="file" name="capa" accept="image/*" className="bg-[var(--surface)] text-sm" />
+      </div>
+
       {(tipo === "video" || tipo === "playlist" || tipo === "podcast" || tipo === "link_externo") && (
         <input
           type="url"

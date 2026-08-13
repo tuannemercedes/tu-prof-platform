@@ -17,7 +17,7 @@ export default async function AlunoMateriaPage({
       supabase.from("materias").select("id, titulo").eq("id", id).single(),
       supabase
         .from("materiais")
-        .select("id, titulo, tipo, conteudo_html, arquivo_path, url, ordem, fase_id")
+        .select("id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, fase_id")
         .eq("materia_id", id)
         .order("ordem"),
       supabase.from("progresso").select("material_id, concluido").eq("aluno_id", user!.id),
@@ -37,6 +37,9 @@ export default async function AlunoMateriaPage({
           .createSignedUrl(m.arquivo_path, 3600);
         signedUrl = data?.signedUrl ?? null;
       }
+      const capaUrl = m.capa_path
+        ? supabase.storage.from("capas").getPublicUrl(m.capa_path).data.publicUrl
+        : null;
       return {
         id: m.id,
         titulo: m.titulo,
@@ -44,6 +47,7 @@ export default async function AlunoMateriaPage({
         conteudo_html: m.conteudo_html,
         url: m.url,
         signedUrl,
+        capaUrl,
         concluido: progressoMap.get(m.id) ?? false,
         fase_id: m.fase_id,
       };
@@ -70,9 +74,7 @@ export default async function AlunoMateriaPage({
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {materiaisDaFase.map((m) => (
-                <div key={m.id} id={`material-${m.id}`}>
-                  <MaterialCard material={m} />
-                </div>
+                <MaterialCard key={m.id} material={m} />
               ))}
             </div>
           </section>
@@ -86,9 +88,7 @@ export default async function AlunoMateriaPage({
           )}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {semFase.map((m) => (
-              <div key={m.id} id={`material-${m.id}`}>
-                <MaterialCard material={m} />
-              </div>
+              <MaterialCard key={m.id} material={m} />
             ))}
           </div>
         </section>

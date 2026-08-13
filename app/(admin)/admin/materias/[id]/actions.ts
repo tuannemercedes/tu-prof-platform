@@ -40,6 +40,7 @@ export async function createMaterial(formData: FormData) {
   let conteudo_html: string | null = null;
   let arquivo_path: string | null = null;
   let url: string | null = null;
+  let capa_path: string | null = null;
 
   if (tipo === "html") {
     conteudo_html = String(formData.get("conteudo_html") || "");
@@ -58,9 +59,19 @@ export async function createMaterial(formData: FormData) {
     if (!url) return { error: "Informe o link." };
   }
 
+  const capa = formData.get("capa") as File | null;
+  if (capa && capa.size > 0) {
+    const capaPath = `${materia_id}/${Date.now()}-${capa.name}`;
+    const { error: capaUploadError } = await supabase.storage
+      .from("capas")
+      .upload(capaPath, capa);
+    if (capaUploadError) return { error: capaUploadError.message };
+    capa_path = capaPath;
+  }
+
   const { data: material, error } = await supabase
     .from("materiais")
-    .insert({ materia_id, fase_id, tipo, titulo, conteudo_html, arquivo_path, url })
+    .insert({ materia_id, fase_id, tipo, titulo, conteudo_html, arquivo_path, capa_path, url })
     .select("id")
     .single();
 
