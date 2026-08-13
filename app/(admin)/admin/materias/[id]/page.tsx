@@ -21,15 +21,19 @@ export default async function MateriaDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: materia }, { data: materiais }, { data: turmas }] = await Promise.all([
-    supabase.from("materias").select("id, titulo").eq("id", id).single(),
-    supabase
-      .from("materiais")
-      .select("id, titulo, tipo, ordem, material_turmas(turma_id, turmas(nome))")
-      .eq("materia_id", id)
-      .order("ordem"),
-    supabase.from("turmas").select("id, nome").order("nome"),
-  ]);
+  const [{ data: materia }, { data: materiais }, { data: turmas }, { data: alunos }] =
+    await Promise.all([
+      supabase.from("materias").select("id, titulo").eq("id", id).single(),
+      supabase
+        .from("materiais")
+        .select(
+          "id, titulo, tipo, ordem, material_turmas(turma_id, turmas(nome)), material_alunos(aluno_id, profiles(nome, email))"
+        )
+        .eq("materia_id", id)
+        .order("ordem"),
+      supabase.from("turmas").select("id, nome").order("nome"),
+      supabase.from("profiles").select("id, nome, email").eq("role", "aluno").order("nome"),
+    ]);
 
   if (!materia) notFound();
 
@@ -42,7 +46,7 @@ export default async function MateriaDetailPage({
         <h1 className="text-lg font-semibold">{materia.titulo}</h1>
       </div>
 
-      <MaterialForm materiaId={id} turmas={turmas ?? []} />
+      <MaterialForm materiaId={id} turmas={turmas ?? []} alunos={alunos ?? []} />
 
       <ul className="divide-y divide-gray-200 border border-gray-200 rounded-lg">
         {materiais?.length ? (
@@ -53,14 +57,24 @@ export default async function MateriaDetailPage({
               .map((mt) => mt.turmas?.nome)
               .filter(Boolean);
 
+            const alunosDoMaterial = (
+              material.material_alunos as unknown as {
+                profiles: { nome: string | null; email: string } | null;
+              }[]
+            )
+              .map((ma) => ma.profiles?.nome || ma.profiles?.email)
+              .filter(Boolean);
+
+            const acessos = [...turmasDoMaterial, ...alunosDoMaterial.map((a) => `${a} (individual)`)];
+
             return (
               <li key={material.id} className="p-4 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium">{material.titulo}</p>
                   <p className="text-xs text-gray-500">
                     {TIPO_LABELS[material.tipo] ?? material.tipo}
-                    {turmasDoMaterial.length > 0 && ` · ${turmasDoMaterial.join(", ")}`}
-                    {turmasDoMaterial.length === 0 && " · nenhuma turma liberada ainda"}
+                    {acessos.length > 0 && ` · ${acessos.join(", ")}`}
+                    {acessos.length === 0 && " · ninguém tem acesso ainda"}
                   </p>
                 </div>
                 <form action={deleteMaterial}>

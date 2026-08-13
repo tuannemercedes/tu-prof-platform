@@ -15,9 +15,10 @@ const TIPOS = [
 type Props = {
   materiaId: string;
   turmas: { id: string; nome: string }[];
+  alunos: { id: string; nome: string | null; email: string }[];
 };
 
-export default function MaterialForm({ materiaId, turmas }: Props) {
+export default function MaterialForm({ materiaId, turmas, alunos }: Props) {
   const [tipo, setTipo] = useState("html");
   const [htmlPreview, setHtmlPreview] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -121,6 +122,22 @@ export default function MaterialForm({ materiaId, turmas }: Props) {
               <label key={turma.id} className="flex items-center gap-1.5">
                 <input type="checkbox" name="turmas" value={turma.id} />
                 {turma.nome}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {alunos.length > 0 && (
+        <div>
+          <p className="text-xs text-gray-500 mb-1">
+            Liberar para alunos específicos (opcional, além das turmas acima)
+          </p>
+          <div className="flex flex-wrap gap-3 text-sm">
+            {alunos.map((aluno) => (
+              <label key={aluno.id} className="flex items-center gap-1.5">
+                <input type="checkbox" name="alunos" value={aluno.id} />
+                {aluno.nome || aluno.email}
               </label>
             ))}
           </div>

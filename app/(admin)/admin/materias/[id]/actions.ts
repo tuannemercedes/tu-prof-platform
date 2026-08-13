@@ -8,6 +8,7 @@ export async function createMaterial(formData: FormData) {
   const tipo = String(formData.get("tipo") || "");
   const titulo = String(formData.get("titulo") || "").trim();
   const turmaIds = formData.getAll("turmas").map(String);
+  const alunoIds = formData.getAll("alunos").map(String);
 
   if (!materia_id || !titulo || !tipo) {
     return { error: "Preencha os campos obrigatórios." };
@@ -48,6 +49,12 @@ export async function createMaterial(formData: FormData) {
     await supabase
       .from("material_turmas")
       .insert(turmaIds.map((turma_id) => ({ material_id: material.id, turma_id })));
+  }
+
+  if (alunoIds.length && material) {
+    await supabase
+      .from("material_alunos")
+      .insert(alunoIds.map((aluno_id) => ({ material_id: material.id, aluno_id })));
   }
 
   revalidatePath(`/admin/materias/${materia_id}`);
