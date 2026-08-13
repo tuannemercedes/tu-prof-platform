@@ -16,9 +16,10 @@ type Props = {
   materiaId: string;
   turmas: { id: string; nome: string }[];
   alunos: { id: string; nome: string | null; email: string }[];
+  fases: { id: string; titulo: string }[];
 };
 
-export default function MaterialForm({ materiaId, turmas, alunos }: Props) {
+export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props) {
   const [tipo, setTipo] = useState("html");
   const [htmlPreview, setHtmlPreview] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export default function MaterialForm({ materiaId, turmas, alunos }: Props) {
           type="text"
           name="titulo"
           required
-          placeholder="Título do material"
+          placeholder="Título do material (aula)"
           className="rounded-md border border-gray-300 px-3 py-2 text-sm"
         />
         <select
@@ -68,6 +69,21 @@ export default function MaterialForm({ materiaId, turmas, alunos }: Props) {
           ))}
         </select>
       </div>
+
+      {fases.length > 0 && (
+        <select
+          name="fase_id"
+          defaultValue=""
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+        >
+          <option value="">Sem fase (fica direto na trilha)</option>
+          {fases.map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.titulo}
+            </option>
+          ))}
+        </select>
+      )}
 
       {tipo === "html" && (
         <div className="grid sm:grid-cols-2 gap-3">

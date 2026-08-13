@@ -6,7 +6,8 @@ export default async function ConfiguracoesPage() {
   const { data: config } = await supabase.from("configuracoes").select("chave, valor");
 
   const appTreinoUrl = config?.find((c) => c.chave === "app_treino_url")?.valor ?? "";
-  const appTreinoLabel = config?.find((c) => c.chave === "app_treino_label")?.valor ?? "UZUS";
+  const appTreinoLabel =
+    config?.find((c) => c.chave === "app_treino_label")?.valor ?? "UZUS - Seu simulador";
   const contatoUrl = config?.find((c) => c.chave === "contato_url")?.valor ?? "";
   const contatoLabel =
     config?.find((c) => c.chave === "contato_label")?.valor ?? "Fale comigo";
@@ -16,9 +17,9 @@ export default async function ConfiguracoesPage() {
       <div>
         <h1 className="text-lg font-semibold">Configurações</h1>
         <p className="text-sm text-gray-500">
-          O botão do UZUS aparece na seção FIA da barra lateral do aluno. Os
-          links de calendário são configurados por turma na página de{" "}
-          <span className="font-mono">Turmas</span>.
+          O botão do UZUS e o link de contato aparecem juntos no rodapé da
+          barra lateral do aluno. Os links de calendário são configurados por
+          turma na página de <span className="font-mono">Turmas</span>.
         </p>
       </div>
 
