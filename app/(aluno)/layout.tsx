@@ -29,9 +29,10 @@ export default async function AlunoLayout({
   const trilhas = todas.filter((m) => m.categoria !== "fia");
   const fia = todas.filter((m) => m.categoria === "fia");
 
-  const appTreinoUrl = config?.find((c) => c.chave === "app_treino_url")?.valor;
-  const appTreinoLabel =
-    config?.find((c) => c.chave === "app_treino_label")?.valor ?? "Acessar app de simulação";
+  const appUrl = config?.find((c) => c.chave === "app_treino_url")?.valor;
+  const appLabel = config?.find((c) => c.chave === "app_treino_label")?.valor ?? "UZUS";
+  const contatoUrl = config?.find((c) => c.chave === "contato_url")?.valor;
+  const contatoLabel = config?.find((c) => c.chave === "contato_label")?.valor;
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
@@ -39,8 +40,10 @@ export default async function AlunoLayout({
         nome={profile.nome || profile.email}
         trilhas={trilhas}
         fia={fia}
-        appTreinoUrl={appTreinoUrl}
-        appTreinoLabel={appTreinoLabel}
+        appUrl={appUrl}
+        appLabel={appLabel}
+        contatoUrl={contatoUrl}
+        contatoLabel={contatoLabel}
       />
       <main className="flex-1 p-4 md:p-6">{children}</main>
     </div>

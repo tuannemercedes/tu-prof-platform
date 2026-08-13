@@ -10,11 +10,21 @@ type Props = {
   nome: string;
   trilhas: Materia[];
   fia: Materia[];
-  appTreinoUrl?: string | null;
-  appTreinoLabel?: string | null;
+  appUrl?: string | null;
+  appLabel?: string | null;
+  contatoUrl?: string | null;
+  contatoLabel?: string | null;
 };
 
-export default function AlunoSidebar({ nome, trilhas, fia, appTreinoUrl, appTreinoLabel }: Props) {
+export default function AlunoSidebar({
+  nome,
+  trilhas,
+  fia,
+  appUrl,
+  appLabel,
+  contatoUrl,
+  contatoLabel,
+}: Props) {
   const pathname = usePathname();
 
   function linkClass(href: string) {
@@ -35,6 +45,9 @@ export default function AlunoSidebar({ nome, trilhas, fia, appTreinoUrl, appTrei
         <Link href="/aluno" className={linkClass("/aluno")}>
           Início
         </Link>
+        <Link href="/aluno/calendario" className={linkClass("/aluno/calendario")}>
+          Calendário
+        </Link>
       </nav>
 
       {trilhas.length > 0 && (
@@ -52,33 +65,47 @@ export default function AlunoSidebar({ nome, trilhas, fia, appTreinoUrl, appTrei
         </div>
       )}
 
-      {(fia.length > 0 || appTreinoUrl) && (
-        <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 px-2">
-            FIA
-          </p>
-          <nav className="flex flex-col gap-1">
-            {fia.map((t) => (
-              <Link key={t.id} href={`/aluno/materias/${t.id}`} className={linkClass(`/aluno/materias/${t.id}`)}>
-                {t.titulo}
-              </Link>
-            ))}
-            {appTreinoUrl && (
-              <a
-                href={appTreinoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block px-2 py-1.5 rounded-md text-sm hover:bg-gray-100 whitespace-nowrap"
-              >
-                {appTreinoLabel} ↗
-              </a>
-            )}
-          </nav>
-        </div>
-      )}
+      <div>
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 px-2">
+          FIA
+        </p>
+        <nav className="flex flex-col gap-1">
+          {fia.map((t) => (
+            <Link key={t.id} href={`/aluno/materias/${t.id}`} className={linkClass(`/aluno/materias/${t.id}`)}>
+              {t.titulo}
+            </Link>
+          ))}
+          {appUrl ? (
+            <a
+              href={appUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block px-2 py-1.5 rounded-md text-sm hover:bg-gray-100 whitespace-nowrap font-medium"
+            >
+              {appLabel} ↗
+            </a>
+          ) : (
+            <p className="px-2 py-1.5 text-sm text-gray-300 whitespace-nowrap" title="Configure o link em Configurações">
+              {appLabel || "UZUS"}
+            </p>
+          )}
+        </nav>
+      </div>
 
-      <div className="mt-auto pt-4 border-t border-gray-100 text-xs text-gray-500">
-        <SignOutButton />
+      <div className="mt-auto pt-4 border-t border-gray-100 space-y-3">
+        {contatoUrl && (
+          <a
+            href={contatoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block px-2 py-1.5 rounded-md text-sm hover:bg-gray-100 whitespace-nowrap"
+          >
+            {contatoLabel || "Fale comigo"} ↗
+          </a>
+        )}
+        <div className="px-2 text-xs text-gray-500">
+          <SignOutButton />
+        </div>
       </div>
     </aside>
   );

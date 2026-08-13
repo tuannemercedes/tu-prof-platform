@@ -8,7 +8,7 @@ export default async function AlunoHomePage() {
   const user = await getUser();
   const supabase = await createClient();
 
-  const [{ data: materiais }, { data: progresso }, { data: turmas }] = await Promise.all([
+  const [{ data: materiais }, { data: progresso }] = await Promise.all([
     supabase
       .from("materiais")
       .select("id, titulo, materia_id, materias(id, titulo, categoria)")
@@ -17,7 +17,6 @@ export default async function AlunoHomePage() {
       .from("progresso")
       .select("material_id, concluido, acessado_em")
       .eq("aluno_id", user!.id),
-    supabase.from("turmas").select("id, nome, calendario_embed_url"),
   ]);
 
   const progressoMap = new Map(
@@ -63,8 +62,6 @@ export default async function AlunoHomePage() {
       };
     }
   }
-
-  const calendarios = (turmas ?? []).filter((t) => t.calendario_embed_url);
 
   return (
     <div className="space-y-10">
@@ -128,24 +125,6 @@ export default async function AlunoHomePage() {
           </div>
         )}
       </section>
-
-      {calendarios.length > 0 && (
-        <section className="space-y-2">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-            Calendário
-          </h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            {calendarios.map((t) => (
-              <iframe
-                key={t.id}
-                src={t.calendario_embed_url!}
-                className="w-full h-[400px] rounded-lg border border-gray-200"
-                title={`Calendário ${t.nome}`}
-              />
-            ))}
-          </div>
-        </section>
-      )}
 
       {totalMateriais === 0 && (
         <p className="text-sm text-gray-500">Nenhum material liberado ainda.</p>
