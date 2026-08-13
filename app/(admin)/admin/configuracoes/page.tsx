@@ -11,6 +11,7 @@ export default async function ConfiguracoesPage() {
   const contatoUrl = config?.find((c) => c.chave === "contato_url")?.valor ?? "";
   const contatoLabel =
     config?.find((c) => c.chave === "contato_label")?.valor ?? "Fale comigo";
+  const recadoMentora = config?.find((c) => c.chave === "recado_mentora")?.valor ?? "";
 
   return (
     <div className="space-y-6 max-w-md">
@@ -24,6 +25,19 @@ export default async function ConfiguracoesPage() {
       </div>
 
       <form action={updateConfiguracoes} className="space-y-3 border border-gray-200 rounded-lg p-4">
+        <div>
+          <label className="text-xs text-gray-500 block mb-1">
+            Recado para os alunos (aparece no Início) — opcional
+          </label>
+          <textarea
+            name="recado_mentora"
+            defaultValue={recadoMentora}
+            rows={3}
+            placeholder="Ex: Bem-vindo(a)! Esse é o seu espaço para evoluir no inglês com confiança."
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm resize-y"
+          />
+        </div>
+        <hr className="border-gray-100" />
         <div>
           <label className="text-xs text-gray-500 block mb-1">Link do UZUS</label>
           <input

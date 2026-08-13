@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/dal";
+import { calcularJornada } from "@/lib/cronograma";
 
 type MateriaRelation = { id: string; titulo: string; categoria: string } | null;
 
@@ -8,16 +9,26 @@ export default async function AlunoHomePage() {
   const user = await getUser();
   const supabase = await createClient();
 
-  const [{ data: materiais }, { data: progresso }] = await Promise.all([
-    supabase
-      .from("materiais")
-      .select("id, titulo, materia_id, materias(id, titulo, categoria)")
-      .order("ordem"),
-    supabase
-      .from("progresso")
-      .select("material_id, concluido, acessado_em")
-      .eq("aluno_id", user!.id),
-  ]);
+  const [{ data: materiais }, { data: progresso }, { data: cronograma }, { data: config }] =
+    await Promise.all([
+      supabase
+        .from("materiais")
+        .select("id, titulo, materia_id, materias(id, titulo, categoria)")
+        .order("ordem"),
+      supabase
+        .from("progresso")
+        .select("material_id, concluido, acessado_em")
+        .eq("aluno_id", user!.id),
+      supabase
+        .from("cronograma_itens")
+        .select("id, data, tema, descricao")
+        .eq("aluno_id", user!.id)
+        .order("data"),
+      supabase.from("configuracoes").select("chave, valor").eq("chave", "recado_mentora"),
+    ]);
+
+  const recadoMentora = config?.[0]?.valor ?? null;
+  const { total: totalAulas, semanaAtual, proximaAula } = calcularJornada(cronograma ?? []);
 
   const progressoMap = new Map(
     (progresso ?? []).map((p) => [p.material_id, p])
@@ -66,8 +77,35 @@ export default async function AlunoHomePage() {
   return (
     <div className="space-y-10">
       <div>
+        {totalAulas > 0 && (
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+            Semana {semanaAtual} de {totalAulas}
+          </p>
+        )}
         <h1 className="text-lg font-semibold">Olá!</h1>
         <p className="text-sm text-gray-500">Aqui está um resumo do seu progresso.</p>
+      </div>
+
+      {recadoMentora && (
+        <div className="rounded-lg bg-black text-white p-4">
+          <p className="text-xs text-gray-300 uppercase tracking-wide mb-1">Recado da mentora</p>
+          <p className="text-sm leading-relaxed">{recadoMentora}</p>
+        </div>
+      )}
+
+      <div className="rounded-lg border border-gray-200 p-4">
+        <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Próxima aula</p>
+        {proximaAula ? (
+          <>
+            <p className="text-sm font-medium">{proximaAula.tema}</p>
+            <p className="text-xs text-gray-500">
+              {new Date(proximaAula.data + "T00:00:00").toLocaleDateString("pt-BR")}
+              {proximaAula.descricao ? ` · ${proximaAula.descricao}` : ""}
+            </p>
+          </>
+        ) : (
+          <p className="text-sm text-gray-500">Nenhuma aula agendada ainda.</p>
+        )}
       </div>
 
       {ultimoAcessado && (
