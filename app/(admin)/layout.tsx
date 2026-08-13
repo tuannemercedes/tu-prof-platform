@@ -19,19 +19,19 @@ export default async function AdminLayout({
   const profile = await requireAdmin();
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      <aside className="md:w-56 shrink-0 border-b md:border-b-0 md:border-r border-gray-200 p-4 flex md:flex-col gap-4">
-        <div className="flex-1 md:flex-none flex md:flex-col md:items-start items-center justify-between gap-1">
-          <div>
+    <div className="min-h-screen flex flex-col sm:flex-row">
+      <aside className="sm:w-56 shrink-0 border-b sm:border-b-0 sm:border-r border-gray-200 p-4 flex flex-col gap-4 sm:h-screen sm:sticky sm:top-0 sm:overflow-y-auto">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
             <p className="font-semibold">Tu Prof</p>
             <p className="text-xs text-gray-500">Painel do admin</p>
           </div>
-          <div className="text-xs text-gray-500 space-y-0.5 md:mt-2">
-            <p className="truncate hidden md:block">{profile.email}</p>
+          <div className="text-xs text-gray-500 shrink-0">
             <SignOutButton />
           </div>
         </div>
-        <nav className="flex md:flex-col gap-1 text-sm overflow-x-auto">
+        <p className="text-xs text-gray-500 truncate -mt-2">{profile.email}</p>
+        <nav className="flex flex-col gap-1 text-sm">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
@@ -43,7 +43,7 @@ export default async function AdminLayout({
           ))}
         </nav>
       </aside>
-      <main className="flex-1 p-6">{children}</main>
+      <main className="flex-1 p-4 sm:p-6 min-w-0">{children}</main>
     </div>
   );
 }

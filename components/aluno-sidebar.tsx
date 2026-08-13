@@ -51,7 +51,7 @@ export default function AlunoSidebar({
   }
 
   return (
-    <aside className="md:w-64 shrink-0 border-b md:border-b-0 md:border-r border-gray-200 p-4 flex flex-col gap-6 md:h-screen md:sticky md:top-0 md:overflow-y-auto">
+    <aside className="sm:w-64 shrink-0 border-b sm:border-b-0 sm:border-r border-gray-200 p-4 flex flex-col gap-6 sm:h-screen sm:sticky sm:top-0 sm:overflow-y-auto">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-semibold">Tu Prof</p>

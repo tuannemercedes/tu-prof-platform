@@ -96,7 +96,7 @@ export default async function AlunoLayout({
   const contatoLabel = config?.find((c) => c.chave === "contato_label")?.valor;
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col sm:flex-row">
       <AlunoSidebar
         nome={profile.nome || profile.email}
         trilhas={trilhas}
@@ -106,7 +106,7 @@ export default async function AlunoLayout({
         contatoUrl={contatoUrl}
         contatoLabel={contatoLabel}
       />
-      <main className="flex-1 p-4 md:p-6">{children}</main>
+      <main className="flex-1 p-4 sm:p-6 min-w-0">{children}</main>
     </div>
   );
 }
