@@ -7,9 +7,10 @@ type Props = {
   itemId: string;
   texto: string;
   defaultChecked: boolean;
+  readOnly?: boolean;
 };
 
-export default function PlannerItemCheckbox({ itemId, texto, defaultChecked }: Props) {
+export default function PlannerItemCheckbox({ itemId, texto, defaultChecked, readOnly = false }: Props) {
   const [checked, setChecked] = useState(defaultChecked);
   const [isPending, startTransition] = useTransition();
 
@@ -26,8 +27,8 @@ export default function PlannerItemCheckbox({ itemId, texto, defaultChecked }: P
       <input
         type="checkbox"
         checked={checked}
-        onChange={handleChange}
-        disabled={isPending}
+        onChange={readOnly ? undefined : handleChange}
+        disabled={isPending || readOnly}
         className="mt-0.5"
       />
       <span className={checked ? "line-through text-gray-400" : ""}>{texto}</span>

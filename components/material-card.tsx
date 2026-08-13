@@ -21,18 +21,31 @@ export type MaterialCardData = {
   concluido: boolean;
 };
 
-export default function MaterialCard({ material }: { material: MaterialCardData }) {
+export default function MaterialCard({
+  material,
+  readOnly = false,
+}: {
+  material: MaterialCardData;
+  readOnly?: boolean;
+}) {
   const embedUrl = material.url ? getEmbedUrl(material.url) : null;
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 space-y-3">
-      <AccessTracker materialId={material.id} />
+      {!readOnly && <AccessTracker materialId={material.id} />}
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-sm font-medium">{material.titulo}</p>
           <p className="text-xs text-gray-400">{TIPO_LABELS[material.tipo] ?? material.tipo}</p>
         </div>
-        <ProgressCheckbox materialId={material.id} defaultChecked={material.concluido} />
+        {readOnly ? (
+          <label className="flex items-center gap-1.5 text-xs text-gray-400 whitespace-nowrap">
+            <input type="checkbox" checked={material.concluido} disabled />
+            Concluído
+          </label>
+        ) : (
+          <ProgressCheckbox materialId={material.id} defaultChecked={material.concluido} />
+        )}
       </div>
 
       {material.tipo === "html" && material.conteudo_html && (

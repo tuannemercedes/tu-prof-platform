@@ -43,7 +43,7 @@ export default async function AlunosPage() {
                   <div>
                     <p className="text-sm font-medium">{aluno.nome || aluno.email}</p>
                     <p className="text-xs text-gray-500">{aluno.email}</p>
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex flex-wrap gap-2 mt-2">
                       <Link
                         href={`/admin/alunos/${aluno.id}/cronograma`}
                         className="text-xs font-medium rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50"
@@ -55,6 +55,12 @@ export default async function AlunosPage() {
                         className="text-xs font-medium rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50"
                       >
                         ✅ Planner
+                      </Link>
+                      <Link
+                        href={`/admin/alunos/${aluno.id}/preview`}
+                        className="text-xs font-medium rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50"
+                      >
+                        👁️ Visualizar
                       </Link>
                     </div>
                   </div>
