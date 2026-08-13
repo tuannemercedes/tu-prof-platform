@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { updateAlunoTurmas } from "./actions";
 import AddAlunoForm from "@/components/add-aluno-form";
+import ResetPasswordButton from "@/components/reset-password-button";
 
 export default async function AlunosPage() {
   const supabase = await createClient();
@@ -19,9 +20,9 @@ export default async function AlunosPage() {
       <div>
         <h1 className="text-lg font-semibold">Alunos</h1>
         <p className="text-sm text-gray-500">
-          Ao adicionar, o aluno já pode entrar em{" "}
-          <span className="font-mono">/login</span> com o e-mail informado —
-          avise-o por fora (WhatsApp, e-mail) que o acesso está liberado.
+          Ao adicionar, uma senha é gerada — envie o e-mail e a senha pro
+          aluno por fora (WhatsApp, etc). Ele entra em{" "}
+          <span className="font-mono">/login</span> com esses dados.
         </p>
       </div>
 
@@ -35,8 +36,13 @@ export default async function AlunosPage() {
             );
             return (
               <li key={aluno.id} className="p-4 space-y-2">
-                <p className="text-sm font-medium">{aluno.nome || aluno.email}</p>
-                <p className="text-xs text-gray-500">{aluno.email}</p>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium">{aluno.nome || aluno.email}</p>
+                    <p className="text-xs text-gray-500">{aluno.email}</p>
+                  </div>
+                  <ResetPasswordButton alunoId={aluno.id} />
+                </div>
                 <form action={updateAlunoTurmas} className="flex flex-wrap items-center gap-3">
                   <input type="hidden" name="aluno_id" value={aluno.id} />
                   {turmas?.map((turma) => (

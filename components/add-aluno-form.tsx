@@ -9,27 +9,42 @@ type Props = {
 
 export default function AddAlunoForm({ turmas }: Props) {
   const [error, setError] = useState<string | null>(null);
+  const [created, setCreated] = useState<{ email: string; password: string } | null>(null);
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
   function handleSubmit(formData: FormData) {
     setError(null);
+    setCreated(null);
     startTransition(async () => {
       const result = await addAluno(formData);
       if (result?.error) {
         setError(result.error);
-      } else {
+      } else if (result?.password) {
         formRef.current?.reset();
+        setCreated({ email: result.email, password: result.password });
       }
     });
   }
 
   return (
-    <form
-      ref={formRef}
-      action={handleSubmit}
-      className="space-y-3 border border-gray-200 rounded-lg p-4"
-    >
+    <div className="space-y-3">
+      {created && (
+        <div className="text-sm bg-green-50 border border-green-200 rounded-md p-3 space-y-1">
+          <p className="text-green-800 font-medium">Aluno criado! Envie esses dados a ele (WhatsApp, etc):</p>
+          <p className="text-green-900">
+            E-mail: <span className="font-mono">{created.email}</span>
+          </p>
+          <p className="text-green-900">
+            Senha: <span className="font-mono font-semibold">{created.password}</span>
+          </p>
+        </div>
+      )}
+      <form
+        ref={formRef}
+        action={handleSubmit}
+        className="space-y-3 border border-gray-200 rounded-lg p-4"
+      >
       <div className="grid sm:grid-cols-2 gap-3">
         <input
           type="email"
@@ -67,6 +82,7 @@ export default function AddAlunoForm({ turmas }: Props) {
       >
         {isPending ? "Adicionando..." : "Adicionar aluno"}
       </button>
-    </form>
+      </form>
+    </div>
   );
 }

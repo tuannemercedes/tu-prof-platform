@@ -5,10 +5,21 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function createMateria(formData: FormData) {
   const titulo = String(formData.get("titulo") || "").trim();
+  const categoria = String(formData.get("categoria") || "trilha");
   if (!titulo) return;
 
   const supabase = await createClient();
-  await supabase.from("materias").insert({ titulo });
+  await supabase.from("materias").insert({ titulo, categoria });
+  revalidatePath("/admin/materias");
+}
+
+export async function updateMateriaCategoria(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const categoria = String(formData.get("categoria") || "");
+  if (!id || !categoria) return;
+
+  const supabase = await createClient();
+  await supabase.from("materias").update({ categoria }).eq("id", id);
   revalidatePath("/admin/materias");
 }
 

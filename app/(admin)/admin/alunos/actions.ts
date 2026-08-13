@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { generatePassword } from "@/lib/password";
 
 export async function addAluno(formData: FormData) {
   const email = String(formData.get("email") || "").trim().toLowerCase();
@@ -12,8 +13,10 @@ export async function addAluno(formData: FormData) {
   if (!email) return { error: "Informe um e-mail." };
 
   const admin = createAdminClient();
+  const password = generatePassword();
   const { data, error } = await admin.auth.admin.createUser({
     email,
+    password,
     email_confirm: true,
   });
 
@@ -40,7 +43,17 @@ export async function addAluno(formData: FormData) {
   }
 
   revalidatePath("/admin/alunos");
-  return { success: true };
+  return { success: true, email, password };
+}
+
+export async function resetAlunoPassword(alunoId: string) {
+  const admin = createAdminClient();
+  const password = generatePassword();
+
+  const { error } = await admin.auth.admin.updateUserById(alunoId, { password });
+  if (error) return { error: error.message };
+
+  return { success: true, password };
 }
 
 export async function updateAlunoTurmas(formData: FormData) {

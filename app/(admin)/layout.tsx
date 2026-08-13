@@ -35,7 +35,7 @@ export default async function AdminLayout({
             </Link>
           ))}
         </nav>
-        <div className="hidden md:block mt-auto text-xs text-gray-500 space-y-2">
+        <div className="md:mt-auto text-xs text-gray-500 space-y-1 flex md:block items-center gap-2">
           <p className="truncate">{profile.email}</p>
           <SignOutButton />
         </div>

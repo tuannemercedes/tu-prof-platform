@@ -1,19 +1,16 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export async function sendMagicLink(formData: FormData) {
+export async function signIn(formData: FormData) {
   const email = String(formData.get("email") || "").trim();
-  if (!email) return { error: "Informe um e-mail." };
+  const password = String(formData.get("password") || "");
+  if (!email || !password) return { error: "Preencha e-mail e senha." };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
-    },
-  });
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-  if (error) return { error: error.message };
-  return { success: true };
+  if (error) return { error: "E-mail ou senha incorretos." };
+  redirect("/");
 }

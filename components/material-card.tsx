@@ -1,5 +1,6 @@
 import { getEmbedUrl } from "@/lib/embed";
 import ProgressCheckbox from "./progress-checkbox";
+import AccessTracker from "./access-tracker";
 
 const TIPO_LABELS: Record<string, string> = {
   html: "Página interativa",
@@ -25,6 +26,7 @@ export default function MaterialCard({ material }: { material: MaterialCardData 
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 space-y-3">
+      <AccessTracker materialId={material.id} />
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-sm font-medium">{material.titulo}</p>
