@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { updateAlunoTurmas } from "./actions";
 import AddAlunoForm from "@/components/add-aluno-form";
@@ -40,6 +41,20 @@ export default async function AlunosPage() {
                   <div>
                     <p className="text-sm font-medium">{aluno.nome || aluno.email}</p>
                     <p className="text-xs text-gray-500">{aluno.email}</p>
+                    <div className="flex gap-3 mt-1">
+                      <Link
+                        href={`/admin/alunos/${aluno.id}/cronograma`}
+                        className="text-xs text-gray-500 hover:underline"
+                      >
+                        Cronograma
+                      </Link>
+                      <Link
+                        href={`/admin/alunos/${aluno.id}/planner`}
+                        className="text-xs text-gray-500 hover:underline"
+                      >
+                        Planner
+                      </Link>
+                    </div>
                   </div>
                   <ResetPasswordButton alunoId={aluno.id} />
                 </div>

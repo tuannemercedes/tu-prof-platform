@@ -45,6 +45,12 @@ export default function AlunoSidebar({
         <Link href="/aluno" className={linkClass("/aluno")}>
           Início
         </Link>
+        <Link href="/aluno/cronograma" className={linkClass("/aluno/cronograma")}>
+          Cronograma
+        </Link>
+        <Link href="/aluno/planner" className={linkClass("/aluno/planner")}>
+          Planner
+        </Link>
         <Link href="/aluno/calendario" className={linkClass("/aluno/calendario")}>
           Calendário
         </Link>
@@ -103,6 +109,9 @@ export default function AlunoSidebar({
             {contatoLabel || "Fale comigo"} ↗
           </a>
         )}
+        <Link href="/aluno/perfil" className={linkClass("/aluno/perfil")}>
+          Meu perfil
+        </Link>
         <div className="px-2 text-xs text-gray-500">
           <SignOutButton />
         </div>
