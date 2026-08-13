@@ -71,32 +71,20 @@ export default function AlunoSidebar({
         </div>
       )}
 
-      <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 px-2">
-          FIA
-        </p>
-        <nav className="flex flex-col gap-1">
-          {fia.map((t) => (
-            <Link key={t.id} href={`/aluno/materias/${t.id}`} className={linkClass(`/aluno/materias/${t.id}`)}>
-              {t.titulo}
-            </Link>
-          ))}
-          {appUrl ? (
-            <a
-              href={appUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block px-2 py-1.5 rounded-md text-sm hover:bg-gray-100 whitespace-nowrap font-medium"
-            >
-              {appLabel} ↗
-            </a>
-          ) : (
-            <p className="px-2 py-1.5 text-sm text-gray-300 whitespace-nowrap" title="Configure o link em Configurações">
-              {appLabel || "UZUS"}
-            </p>
-          )}
-        </nav>
-      </div>
+      {fia.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 px-2">
+            FIA
+          </p>
+          <nav className="flex flex-col gap-1">
+            {fia.map((t) => (
+              <Link key={t.id} href={`/aluno/materias/${t.id}`} className={linkClass(`/aluno/materias/${t.id}`)}>
+                {t.titulo}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
 
       <div className="mt-auto pt-4 border-t border-gray-100 space-y-3">
         {contatoUrl && (
@@ -115,6 +103,16 @@ export default function AlunoSidebar({
         <div className="px-2 text-xs text-gray-500">
           <SignOutButton />
         </div>
+        {appUrl && (
+          <a
+            href={appUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block text-center rounded-md bg-black text-white text-sm font-medium px-3 py-2.5 hover:bg-gray-800 transition-colors"
+          >
+            {appLabel || "UZUS"} ↗
+          </a>
+        )}
       </div>
     </aside>
   );

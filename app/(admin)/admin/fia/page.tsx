@@ -1,36 +1,36 @@
 import { createClient } from "@/lib/supabase/server";
-import { createMateria } from "./actions";
+import { createMateria } from "@/app/(admin)/admin/materias/actions";
 import MateriaList, { type Materia } from "@/components/materia-list";
 
-export default async function MateriasPage() {
+export default async function FiaPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("materias")
     .select("id, titulo, categoria, materiais(count)")
-    .eq("categoria", "trilha")
+    .eq("categoria", "fia")
     .order("titulo");
 
-  const trilhas = (data ?? []) as unknown as Materia[];
+  const fia = (data ?? []) as unknown as Materia[];
 
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
-        <h1 className="text-lg font-semibold">Matérias</h1>
+        <h1 className="text-lg font-semibold">FIA</h1>
         <p className="text-sm text-gray-500">
-          Trilhas de aprendizagem — os assuntos principais (ex: &quot;Espanhol
-          Básico&quot;). Cada uma agrupa materiais (HTML interativo, PDFs,
-          vídeos, links). Pra playlists, filmes, biblioteca e afins, use a
-          seção <strong>FIA</strong> no menu.
+          Ferramentas didáticas extras — playlists de música, filmes e
+          séries, biblioteca, flashcards, e afins. Crie uma matéria pra cada
+          categoria e adicione os materiais dentro (links, vídeos, PDFs).
+          Aparece na barra lateral do aluno assim que tiver algo dentro.
         </p>
       </div>
 
       <form action={createMateria} className="flex gap-2">
-        <input type="hidden" name="categoria" value="trilha" />
+        <input type="hidden" name="categoria" value="fia" />
         <input
           type="text"
           name="titulo"
           required
-          placeholder="Nome da matéria"
+          placeholder="Nome (ex: Playlists, Filmes e Séries, Biblioteca)"
           className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
         />
         <button
@@ -41,7 +41,7 @@ export default async function MateriasPage() {
         </button>
       </form>
 
-      <MateriaList materias={trilhas} />
+      <MateriaList materias={fia} />
     </div>
   );
 }

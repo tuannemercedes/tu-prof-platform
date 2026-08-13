@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { href: "/admin/turmas", label: "Turmas" },
   { href: "/admin/alunos", label: "Alunos" },
   { href: "/admin/materias", label: "Matérias" },
+  { href: "/admin/fia", label: "FIA" },
   { href: "/admin/configuracoes", label: "Configurações" },
 ];
 
