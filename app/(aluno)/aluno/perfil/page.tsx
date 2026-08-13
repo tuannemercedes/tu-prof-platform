@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/dal";
 import PerfilForm from "@/components/perfil-form";
+import SenhaForm from "@/components/senha-form";
 
 export default async function AlunoPerfilPage() {
   const user = await getUser();
@@ -20,6 +21,11 @@ export default async function AlunoPerfilPage() {
       </div>
 
       <PerfilForm nomeAtual={profile?.nome ?? ""} />
+
+      <div className="pt-6 border-t border-gray-100">
+        <h2 className="text-sm font-semibold mb-3">Alterar senha</h2>
+        <SenhaForm />
+      </div>
     </div>
   );
 }
