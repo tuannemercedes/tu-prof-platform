@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createTurma, deleteTurma, updateTurmaCalendario } from "./actions";
 
@@ -45,6 +46,12 @@ export default async function TurmasPage() {
                     {(turma.turma_membros as unknown as { count: number }[])[0]?.count ?? 0}{" "}
                     aluno(s)
                   </p>
+                  <Link
+                    href={`/admin/turmas/${turma.id}/conteudos`}
+                    className="text-xs font-medium rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50 inline-block mt-2"
+                  >
+                    📦 Conteúdos
+                  </Link>
                 </div>
                 <form action={deleteTurma}>
                   <input type="hidden" name="id" value={turma.id} />

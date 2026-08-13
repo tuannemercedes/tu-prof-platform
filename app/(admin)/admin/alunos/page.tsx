@@ -57,6 +57,12 @@ export default async function AlunosPage() {
                         ✅ Planner
                       </Link>
                       <Link
+                        href={`/admin/alunos/${aluno.id}/conteudos`}
+                        className="text-xs font-medium rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50"
+                      >
+                        📦 Conteúdos
+                      </Link>
+                      <Link
                         href={`/admin/alunos/${aluno.id}/preview`}
                         className="text-xs font-medium rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50"
                       >
