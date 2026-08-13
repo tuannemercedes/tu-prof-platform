@@ -44,7 +44,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
     <form
       ref={formRef}
       action={handleSubmit}
-      className="space-y-3 border border-gray-200 rounded-lg p-4"
+      className="space-y-3 border border-[var(--border)] rounded-lg p-4"
     >
       <input type="hidden" name="materia_id" value={materiaId} />
 
@@ -54,13 +54,13 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
           name="titulo"
           required
           placeholder="Título do material (aula)"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
         <select
           name="tipo"
           value={tipo}
           onChange={(e) => setTipo(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         >
           {TIPOS.map((t) => (
             <option key={t.value} value={t.value}>
@@ -74,7 +74,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
         <select
           name="fase_id"
           defaultValue=""
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         >
           <option value="">Sem fase (fica direto na trilha)</option>
           {fases.map((f) => (
@@ -92,10 +92,10 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
             required
             rows={10}
             placeholder="Cole aqui o código HTML gerado no ChatGPT/Claude"
-            className="rounded-md border border-gray-300 px-3 py-2 text-xs font-mono"
+            className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-3 py-2 text-xs font-mono"
             onChange={(e) => setHtmlPreview(e.target.value)}
           />
-          <div className="rounded-md border border-gray-300 overflow-hidden">
+          <div className="rounded-md border border-[var(--border-strong)] overflow-hidden">
             {htmlPreview ? (
               <iframe
                 sandbox="allow-scripts"
@@ -104,7 +104,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
                 title="Pré-visualização"
               />
             ) : (
-              <p className="text-xs text-gray-400 p-3">A pré-visualização aparece aqui.</p>
+              <p className="text-xs text-[var(--text-faint)] p-3">A pré-visualização aparece aqui.</p>
             )}
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
           name="arquivo"
           accept="application/pdf"
           required
-          className="text-sm"
+          className="bg-[var(--surface)] text-sm"
         />
       )}
 
@@ -126,13 +126,13 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
           name="url"
           required
           placeholder="https://..."
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
       )}
 
       {turmas.length > 0 && (
         <div>
-          <p className="text-xs text-gray-500 mb-1">Liberar para quais turmas?</p>
+          <p className="text-xs text-[var(--text-secondary)] mb-1">Liberar para quais turmas?</p>
           <div className="flex flex-wrap gap-3 text-sm">
             {turmas.map((turma) => (
               <label key={turma.id} className="flex items-center gap-1.5">
@@ -146,7 +146,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
 
       {alunos.length > 0 && (
         <div>
-          <p className="text-xs text-gray-500 mb-1">
+          <p className="text-xs text-[var(--text-secondary)] mb-1">
             Liberar para alunos específicos (opcional, além das turmas acima)
           </p>
           <div className="flex flex-wrap gap-3 text-sm">
@@ -160,12 +160,12 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
 
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-md bg-black text-white text-sm font-medium px-4 py-2 disabled:opacity-50"
+        className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 disabled:opacity-50 btn-glow"
       >
         {isPending ? "Salvando..." : "Adicionar material"}
       </button>

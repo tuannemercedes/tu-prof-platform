@@ -33,11 +33,11 @@ export default async function PlannerAlunoPage({
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
-        <Link href="/admin/alunos" className="text-xs text-gray-500 hover:underline">
+        <Link href="/admin/alunos" className="text-xs text-[var(--text-secondary)] hover:underline">
           ← Alunos
         </Link>
         <h1 className="text-lg font-semibold">Planner — {aluno.nome || aluno.email}</h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--text-secondary)]">
           Tarefas diárias organizadas por semana. Cada item vira um checkbox que o
           aluno marca no próprio ritmo.
         </p>
@@ -47,18 +47,18 @@ export default async function PlannerAlunoPage({
 
       {[...semanas.entries()].map(([semana, diasDaSemana]) => (
         <section key={semana} className="space-y-3">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
             Semana {semana}
           </h2>
           <div className="space-y-3">
             {diasDaSemana!.map((dia) => (
-              <div key={dia.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+              <div key={dia.id} className="border border-[var(--border)] rounded-lg p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium">{dia.titulo}</p>
                   <form action={deletePlannerDia}>
                     <input type="hidden" name="id" value={dia.id} />
                     <input type="hidden" name="aluno_id" value={id} />
-                    <button type="submit" className="text-xs text-gray-400 hover:text-red-600">
+                    <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
                       Excluir dia
                     </button>
                   </form>
@@ -71,7 +71,7 @@ export default async function PlannerAlunoPage({
                       <form action={deletePlannerItem}>
                         <input type="hidden" name="id" value={item.id} />
                         <input type="hidden" name="aluno_id" value={id} />
-                        <button type="submit" className="text-xs text-gray-400 hover:text-red-600">
+                        <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
                           Excluir
                         </button>
                       </form>
@@ -87,11 +87,11 @@ export default async function PlannerAlunoPage({
                     name="texto"
                     required
                     placeholder="Nova tarefa (ex: Leia 5 frases em voz alta)"
-                    className="flex-1 rounded-md border border-gray-300 px-2 py-1.5 text-xs"
+                    className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-2 py-1.5 text-xs"
                   />
                   <button
                     type="submit"
-                    className="text-xs rounded-md border border-gray-300 px-3 py-1.5 hover:bg-gray-50"
+                    className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)]"
                   >
                     Adicionar
                   </button>
@@ -103,7 +103,7 @@ export default async function PlannerAlunoPage({
       ))}
 
       {!dias?.length && (
-        <p className="text-sm text-gray-500">Nenhum dia criado ainda.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Nenhum dia criado ainda.</p>
       )}
     </div>
   );

@@ -21,7 +21,7 @@ export default function ProgressCheckbox({ materialId, defaultChecked }: Props) 
   }
 
   return (
-    <label className="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap">
+    <label className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)] whitespace-nowrap">
       <input
         type="checkbox"
         checked={checked}

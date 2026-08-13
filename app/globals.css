@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
+/* ===== Tu Prof — design tokens ===========================================
+   Paleta: Bege Areia / Azul Noite / Ouro Antigo / Marrom Profundo /
+   Terracota Vibrante / Creme (+ secundária: Terroso Editorial, Bronze
+   Escovado, Marrom Chocolate, Cinza Quente).
+   Tema controlado via [data-theme] em <html> (ver app/layout.tsx). */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ede3d2;
+  --surface: #f7f4ee;
+  --surface-2: #e6dcc5;
+  --surface-3: #dcd0b8;
+  --border: #cfc6ba;
+  --border-strong: #b7a98f;
+  --border-soft: #e2d9c6;
+
+  --text-primary: #2b1e17;
+  --text-secondary: #5c4030;
+  --text-faint: #8a6a3d;
+
+  --accent: #c46a43;
+  --accent-hover: #a8562f;
+  --accent-contrast: #f7f4ee;
+  --accent-secondary: #c8a66b;
+  --accent-secondary-contrast: #2b1e17;
+
+  --success-bg: #e7eedf;
+  --success-text: #4b6b3a;
+  --warning-bg: #f3e6c9;
+  --warning-text: #7a5a17;
+  --danger-bg: #f5e1dc;
+  --danger-text: #b23b2e;
+  --info-bg: #e2e9f0;
+  --info-text: #3a5878;
+
+  --glow-accent: rgba(196, 106, 67, 0.35);
+  --glow-secondary: rgba(200, 166, 107, 0.35);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0d1b2a;
+  --surface: #15283b;
+  --surface-2: #1b3348;
+  --surface-3: #223e56;
+  --border: #2c4a63;
+  --border-strong: #3d6383;
+  --border-soft: #1f3446;
+
+  --text-primary: #f7f4ee;
+  --text-secondary: #cfc6ba;
+  --text-faint: #ac9770;
+
+  --accent: #c8a66b;
+  --accent-hover: #d9be8c;
+  --accent-contrast: #0d1b2a;
+  --accent-secondary: #c46a43;
+  --accent-secondary-contrast: #f7f4ee;
+
+  --success-bg: rgba(107, 155, 86, 0.18);
+  --success-text: #8fc26f;
+  --warning-bg: rgba(200, 166, 107, 0.18);
+  --warning-text: #e0c48c;
+  --danger-bg: rgba(196, 106, 67, 0.18);
+  --danger-text: #e08469;
+  --info-bg: rgba(122, 150, 184, 0.18);
+  --info-text: #9db8d6;
+
+  --glow-accent: rgba(200, 166, 107, 0.45);
+  --glow-secondary: rgba(196, 106, 67, 0.35);
+
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ===== Efeitos de luz / profundidade ===================================== */
+
+.glow-spot {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card-elevated {
+  box-shadow:
+    0 1px 2px rgba(13, 27, 42, 0.06),
+    0 8px 24px -12px rgba(13, 27, 42, 0.18);
+}
+
+[data-theme="dark"] .card-elevated {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 12px 32px -12px rgba(0, 0, 0, 0.55);
+}
+
+.card-lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 8px rgba(13, 27, 42, 0.08),
+    0 16px 32px -16px rgba(13, 27, 42, 0.28);
+}
+
+[data-theme="dark"] .card-lift:hover {
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.35),
+    0 16px 40px -16px rgba(0, 0, 0, 0.65);
+}
+
+.btn-glow {
+  transition: box-shadow 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+}
+
+.btn-glow:hover {
+  box-shadow: 0 8px 24px -8px var(--glow-accent);
+  transform: translateY(-1px);
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/dal";
 import { calcularJornada } from "@/lib/cronograma";
+import ProgressRing from "@/components/progress-ring";
 
 type MateriaRelation = { id: string; titulo: string; categoria: string } | null;
 
@@ -78,65 +79,76 @@ export default async function AlunoHomePage() {
     <div className="space-y-10">
       <div>
         {totalAulas > 0 && (
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+          <p className="text-xs font-semibold text-[var(--text-faint)] uppercase tracking-wide mb-1">
             Semana {semanaAtual} de {totalAulas}
           </p>
         )}
         <h1 className="text-lg font-semibold">Olá!</h1>
-        <p className="text-sm text-gray-500">Aqui está um resumo do seu progresso.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Aqui está um resumo do seu progresso.</p>
       </div>
 
       {recadoMentora && (
-        <div className="rounded-lg bg-black text-white p-4">
-          <p className="text-xs text-gray-300 uppercase tracking-wide mb-1">Recado da mentora</p>
+        <div className="rounded-lg bg-[var(--accent)] text-[var(--accent-contrast)] p-4">
+          <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">Recado da mentora</p>
           <p className="text-sm leading-relaxed">{recadoMentora}</p>
         </div>
       )}
 
-      <div className="rounded-lg border border-gray-200 p-4">
-        <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Próxima aula</p>
+      <div className="rounded-lg border border-[var(--border)] p-4">
+        <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">Próxima aula</p>
         {proximaAula ? (
           <>
             <p className="text-sm font-medium">{proximaAula.tema}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-[var(--text-secondary)]">
               {new Date(proximaAula.data + "T00:00:00").toLocaleDateString("pt-BR")}
               {proximaAula.descricao ? ` · ${proximaAula.descricao}` : ""}
             </p>
           </>
         ) : (
-          <p className="text-sm text-gray-500">Nenhuma aula agendada ainda.</p>
+          <p className="text-sm text-[var(--text-secondary)]">Nenhuma aula agendada ainda.</p>
         )}
       </div>
 
       {ultimoAcessado && (
         <Link
           href={`/aluno/materias/${ultimoAcessado.trilhaId}`}
-          className="block rounded-lg border border-gray-200 p-4 hover:border-gray-300 transition-colors"
+          className="block rounded-lg border border-[var(--border)] p-4 hover:border-[var(--border-strong)] transition-colors"
         >
-          <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">
+          <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">
             Continuar de onde parou
           </p>
           <p className="text-sm font-medium">{ultimoAcessado.materialTitulo}</p>
-          <p className="text-xs text-gray-500">{ultimoAcessado.trilhaTitulo} →</p>
+          <p className="text-xs text-[var(--text-secondary)]">{ultimoAcessado.trilhaTitulo} →</p>
         </Link>
       )}
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+        <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
           Seu progresso
         </h2>
-        <div className="rounded-lg border border-gray-200 p-4 space-y-2">
-          <div className="flex items-baseline justify-between">
-            <p className="text-2xl font-semibold">{percentualGeral}%</p>
-            <p className="text-xs text-gray-500">
-              {totalConcluidos} de {totalMateriais} materiais concluídos
-            </p>
-          </div>
-          <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-            <div
-              className="h-full bg-black rounded-full transition-all"
-              style={{ width: `${percentualGeral}%` }}
-            />
+        <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 card-elevated">
+          <div
+            className="glow-spot -right-10 -top-10 w-40 h-40"
+            style={{ background: "var(--glow-accent)" }}
+          />
+          <div className="relative flex flex-col sm:flex-row items-center sm:items-center gap-6">
+            <div className="relative shrink-0 flex items-center justify-center" style={{ width: 152, height: 152 }}>
+              <ProgressRing value={percentualGeral} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-bold tabular-nums">{percentualGeral}%</span>
+                <span className="text-[10px] text-[var(--text-faint)] uppercase tracking-wide mt-0.5">
+                  concluído
+                </span>
+              </div>
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">
+                Progresso geral
+              </p>
+              <p className="text-sm text-[var(--text-secondary)]">
+                {totalConcluidos} de {totalMateriais} materiais concluídos
+              </p>
+            </div>
           </div>
         </div>
 
@@ -146,15 +158,15 @@ export default async function AlunoHomePage() {
               <Link
                 key={id}
                 href={`/aluno/materias/${id}`}
-                className="rounded-lg border border-gray-200 p-3 hover:border-gray-300 transition-colors"
+                className="card-lift rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 hover:border-[var(--border-strong)] transition-colors"
               >
                 <p className="text-sm font-medium">{t.titulo}</p>
-                <p className="text-xs text-gray-500 mb-1.5">
+                <p className="text-xs text-[var(--text-secondary)] mb-1.5">
                   {t.concluidos}/{t.total}
                 </p>
-                <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                <div className="h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden">
                   <div
-                    className="h-full bg-black rounded-full"
+                    className="h-full bg-[var(--accent)] rounded-full"
                     style={{ width: `${t.total ? (t.concluidos / t.total) * 100 : 0}%` }}
                   />
                 </div>
@@ -165,7 +177,7 @@ export default async function AlunoHomePage() {
       </section>
 
       {totalMateriais === 0 && (
-        <p className="text-sm text-gray-500">Nenhum material liberado ainda.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado ainda.</p>
       )}
     </div>
   );

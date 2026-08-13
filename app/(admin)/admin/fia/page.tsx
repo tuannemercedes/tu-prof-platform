@@ -16,7 +16,7 @@ export default async function FiaPage() {
     <div className="space-y-8 max-w-2xl">
       <div>
         <h1 className="text-lg font-semibold">FIA</h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--text-secondary)]">
           Ferramentas didáticas extras — playlists de música, filmes e
           séries, biblioteca, flashcards, e afins. Crie uma matéria pra cada
           categoria e adicione os materiais dentro (links, vídeos, PDFs).
@@ -31,11 +31,11 @@ export default async function FiaPage() {
           name="titulo"
           required
           placeholder="Nome (ex: Playlists, Filmes e Séries, Biblioteca)"
-          className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
         <button
           type="submit"
-          className="rounded-md bg-black text-white text-sm font-medium px-4 py-2"
+          className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
         >
           Criar
         </button>

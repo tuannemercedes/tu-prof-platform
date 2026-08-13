@@ -38,18 +38,18 @@ export default async function PreviewNav({ alunoId }: { alunoId: string }) {
   const base = `/admin/alunos/${alunoId}/preview`;
 
   const linkStyle =
-    "text-xs rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50 whitespace-nowrap";
+    "text-xs rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)] whitespace-nowrap";
 
   return (
-    <div className="mb-6 border border-gray-200 rounded-lg p-3 space-y-2 bg-gray-50">
+    <div className="mb-6 border border-[var(--border)] rounded-lg p-3 space-y-2 bg-[var(--surface-2)]">
       <div className="flex items-center justify-between gap-4">
         <div>
           <span className="text-sm font-medium">Visualizando: {aluno.nome || aluno.email}</span>{" "}
-          <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">
+          <span className="text-xs bg-[var(--warning-bg)] text-[var(--warning-text)] px-2 py-0.5 rounded">
             Somente leitura
           </span>
         </div>
-        <Link href="/admin/alunos" className="text-xs text-gray-500 hover:underline whitespace-nowrap">
+        <Link href="/admin/alunos" className="text-xs text-[var(--text-secondary)] hover:underline whitespace-nowrap">
           ← Voltar pra Alunos
         </Link>
       </div>

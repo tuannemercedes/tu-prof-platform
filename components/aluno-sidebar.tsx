@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import SignOutButton from "./sign-out-button";
+import ThemeToggle from "./theme-toggle";
 
 type MaterialStatus = { id: string; titulo: string; concluido: boolean };
 type Fase = { id: string; titulo: string; materiais: MaterialStatus[] };
@@ -47,7 +48,7 @@ export default function AlunoSidebar({
   function linkClass(href: string) {
     const active = pathname === href;
     return `block px-2 py-1.5 rounded-md text-sm whitespace-nowrap ${
-      active ? "bg-black text-white" : "hover:bg-gray-100"
+      active ? "bg-[var(--accent)] text-[var(--accent-contrast)]" : "hover:bg-[var(--surface-3)]"
     }`;
   }
 
@@ -57,37 +58,45 @@ export default function AlunoSidebar({
 
   return (
     <>
-      <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-gray-200">
+      <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
         <p className="font-semibold">Tu Prof</p>
-        <button
-          type="button"
-          onClick={() => setMenuAberto(true)}
-          aria-label="Abrir menu"
-          className="text-xl leading-none px-2 py-1"
-        >
-          ☰
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setMenuAberto(true)}
+            aria-label="Abrir menu"
+            className="text-xl leading-none px-2 py-1"
+          >
+            ☰
+          </button>
+        </div>
       </div>
 
       {menuAberto && (
         <div
-          className="sm:hidden fixed inset-0 bg-black/30 z-40"
+          className="sm:hidden fixed inset-0 bg-[var(--accent)]/30 z-40"
           onClick={() => setMenuAberto(false)}
         />
       )}
 
       <aside
         onClick={fecharAoClicarLink}
-        className={`fixed sm:static inset-y-0 left-0 z-50 w-72 sm:w-64 bg-white shrink-0 border-r border-gray-200 p-4 flex flex-col gap-6 overflow-y-auto sm:h-screen sm:sticky sm:top-0 transform transition-transform duration-200 ${
+        className={`fixed sm:static inset-y-0 left-0 z-50 w-72 sm:w-64 bg-[var(--surface)] shrink-0 border-r border-[var(--border)] p-4 flex flex-col gap-6 overflow-y-auto sm:h-screen sm:sticky sm:top-0 transform transition-transform duration-200 ${
           menuAberto ? "translate-x-0" : "-translate-x-full"
         } sm:translate-x-0`}
       >
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
+        <div className="relative flex items-start justify-between gap-2">
+          <div
+            className="glow-spot hidden sm:block -left-6 -top-6 w-24 h-24"
+            style={{ background: "var(--glow-secondary)" }}
+          />
+          <div className="min-w-0 relative">
             <p className="font-semibold hidden sm:block">Tu Prof</p>
-            <p className="text-xs text-gray-500 truncate">Olá, {nome}</p>
+            <p className="text-xs text-[var(--text-secondary)] truncate">Olá, {nome}</p>
           </div>
-          <div className="flex items-center gap-2 shrink-0 text-xs text-gray-500 pt-0.5">
+          <div className="flex items-center gap-2 shrink-0 text-xs text-[var(--text-secondary)] pt-0.5 relative">
+            <ThemeToggle />
             <SignOutButton />
             <button
               type="button"
@@ -117,7 +126,7 @@ export default function AlunoSidebar({
 
         {trilhas.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 px-2">
+            <p className="text-xs font-semibold text-[var(--text-faint)] uppercase tracking-wide mb-1 px-2">
               Trilhas de aprendizagem
             </p>
             <nav className="flex flex-col gap-1">
@@ -134,43 +143,43 @@ export default function AlunoSidebar({
                     <button
                       type="button"
                       onClick={() => setExpandido(aberta ? null : t.id)}
-                      className="w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-sm hover:bg-gray-100"
+                      className="w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-sm hover:bg-[var(--surface-3)]"
                     >
                       <span className="truncate">{t.titulo}</span>
                       <span className="flex items-center gap-1 shrink-0">
-                        <span className="text-[10px] text-gray-400">
+                        <span className="text-[10px] text-[var(--text-faint)]">
                           {totalConcluidos}/{totalMateriais}
                         </span>
-                        <span className={`text-gray-400 transition-transform ${aberta ? "rotate-90" : ""}`}>
+                        <span className={`text-[var(--text-faint)] transition-transform ${aberta ? "rotate-90" : ""}`}>
                           ›
                         </span>
                       </span>
                     </button>
 
                     {aberta && (
-                      <div className="ml-2 pl-2 border-l border-gray-200 space-y-2 py-1">
+                      <div className="ml-2 pl-2 border-l border-[var(--border)] space-y-2 py-1">
                         {t.fases.map((fase) => {
                           const { total, concluidos, pct } = faseProgresso(fase);
                           return (
                             <div key={fase.id} className="space-y-1">
                               <div className="px-2">
                                 <div className="flex items-center justify-between">
-                                  <p className="text-xs font-medium text-gray-600">{fase.titulo}</p>
+                                  <p className="text-xs font-medium text-[var(--text-secondary)]">{fase.titulo}</p>
                                   <span
                                     className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                                       pct === 100
-                                        ? "bg-green-100 text-green-700"
+                                        ? "bg-[var(--success-bg)] text-[var(--success-text)]"
                                         : pct > 0
-                                          ? "bg-blue-100 text-blue-700"
-                                          : "bg-gray-100 text-gray-500"
+                                          ? "bg-[var(--info-bg)] text-[var(--info-text)]"
+                                          : "bg-[var(--surface-3)] text-[var(--text-secondary)]"
                                     }`}
                                   >
                                     {pct === 100 ? "Concluído" : pct > 0 ? "Em progresso" : "A começar"}
                                   </span>
                                 </div>
-                                <div className="h-1 rounded-full bg-gray-100 overflow-hidden mt-1">
+                                <div className="h-1 rounded-full bg-[var(--surface-3)] overflow-hidden mt-1">
                                   <div
-                                    className="h-full bg-black rounded-full"
+                                    className="h-full bg-[var(--accent)] rounded-full"
                                     style={{ width: `${pct}%` }}
                                   />
                                 </div>
@@ -180,16 +189,16 @@ export default function AlunoSidebar({
                                   <Link
                                     key={m.id}
                                     href={`/aluno/materias/${t.id}#material-${m.id}`}
-                                    className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs hover:bg-gray-100 text-gray-600"
+                                    className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs hover:bg-[var(--surface-3)] text-[var(--text-secondary)]"
                                   >
-                                    <span className={m.concluido ? "text-green-600" : "text-gray-300"}>
+                                    <span className={m.concluido ? "text-[var(--success-text)]" : "text-[var(--text-faint)]"}>
                                       {m.concluido ? "✓" : "○"}
                                     </span>
                                     <span className="truncate">{m.titulo}</span>
                                   </Link>
                                 ))}
                                 {concluidos === total && total === 0 && (
-                                  <p className="px-2 text-xs text-gray-400">Nenhuma aula ainda.</p>
+                                  <p className="px-2 text-xs text-[var(--text-faint)]">Nenhuma aula ainda.</p>
                                 )}
                               </div>
                             </div>
@@ -202,9 +211,9 @@ export default function AlunoSidebar({
                               <Link
                                 key={m.id}
                                 href={`/aluno/materias/${t.id}#material-${m.id}`}
-                                className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs hover:bg-gray-100 text-gray-600"
+                                className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs hover:bg-[var(--surface-3)] text-[var(--text-secondary)]"
                               >
-                                <span className={m.concluido ? "text-green-600" : "text-gray-300"}>
+                                <span className={m.concluido ? "text-[var(--success-text)]" : "text-[var(--text-faint)]"}>
                                   {m.concluido ? "✓" : "○"}
                                 </span>
                                 <span className="truncate">{m.titulo}</span>
@@ -215,7 +224,7 @@ export default function AlunoSidebar({
 
                         <Link
                           href={`/aluno/materias/${t.id}`}
-                          className="block px-2 py-1 text-xs text-gray-500 hover:underline"
+                          className="block px-2 py-1 text-xs text-[var(--text-secondary)] hover:underline"
                         >
                           Ver trilha completa →
                         </Link>
@@ -230,7 +239,7 @@ export default function AlunoSidebar({
 
         {fia.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 px-2">
+            <p className="text-xs font-semibold text-[var(--text-faint)] uppercase tracking-wide mb-1 px-2">
               FIA
             </p>
             <nav className="flex flex-col gap-1">
@@ -243,7 +252,7 @@ export default function AlunoSidebar({
           </div>
         )}
 
-        <div className="mt-auto pt-4 border-t border-gray-100 space-y-3">
+        <div className="mt-auto pt-4 border-t border-[var(--border-soft)] space-y-3">
           <Link href="/aluno/perfil" className={linkClass("/aluno/perfil")}>
             Meu perfil
           </Link>
@@ -253,7 +262,7 @@ export default function AlunoSidebar({
               href={contatoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-center rounded-md bg-black text-white text-sm font-medium px-3 py-2.5 hover:bg-gray-800 transition-colors"
+              className="block text-center rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-3 py-2.5 hover:bg-[var(--accent-hover)] transition-colors btn-glow"
             >
               {contatoLabel || "Fale comigo"} ↗
             </a>
@@ -263,7 +272,7 @@ export default function AlunoSidebar({
               href={appUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-center rounded-md bg-black text-white text-sm font-medium px-3 py-2.5 hover:bg-gray-800 transition-colors"
+              className="block text-center rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-3 py-2.5 hover:bg-[var(--accent-hover)] transition-colors btn-glow"
             >
               {appLabel || "UZUS - Seu simulador"} ↗
             </a>

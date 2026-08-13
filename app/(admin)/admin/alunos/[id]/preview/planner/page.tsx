@@ -30,12 +30,12 @@ export default async function PreviewPlannerPage({
       <PreviewNav alunoId={id} />
       <div>
         <h1 className="text-lg font-semibold">Planner</h1>
-        <p className="text-sm text-gray-500">Tarefas de estudo, no ritmo do aluno.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Tarefas de estudo, no ritmo do aluno.</p>
       </div>
 
       {[...semanas.entries()].map(([semana, diasDaSemana]) => (
         <section key={semana} className="space-y-3">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
             Semana {semana}
           </h2>
           <div className="space-y-4">
@@ -43,11 +43,11 @@ export default async function PreviewPlannerPage({
               const itens = dia.planner_itens as Item[];
               const concluidos = itens.filter((i) => i.concluido).length;
               return (
-                <div key={dia.id} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                <div key={dia.id} className="border border-[var(--border)] rounded-lg p-4 space-y-3">
                   <div className="flex items-baseline justify-between">
                     <p className="text-sm font-medium">{dia.titulo}</p>
                     {itens.length > 0 && (
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-[var(--text-faint)]">
                         {concluidos}/{itens.length}
                       </p>
                     )}
@@ -57,7 +57,7 @@ export default async function PreviewPlannerPage({
                     <iframe
                       sandbox="allow-scripts"
                       srcDoc={dia.conteudo_html}
-                      className="w-full h-[320px] rounded-md border border-gray-100"
+                      className="w-full h-[320px] rounded-md border border-[var(--border-soft)]"
                       title={dia.titulo}
                     />
                   )}
@@ -82,7 +82,7 @@ export default async function PreviewPlannerPage({
         </section>
       ))}
 
-      {!dias?.length && <p className="text-sm text-gray-500">Planner ainda não foi montado.</p>}
+      {!dias?.length && <p className="text-sm text-[var(--text-secondary)]">Planner ainda não foi montado.</p>}
     </div>
   );
 }

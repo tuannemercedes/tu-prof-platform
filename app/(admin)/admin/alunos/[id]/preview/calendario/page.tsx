@@ -27,13 +27,13 @@ export default async function PreviewCalendarioPage({
             <iframe
               key={t.id}
               src={t.calendario_embed_url!}
-              className="w-full h-[500px] rounded-lg border border-gray-200"
+              className="w-full h-[500px] rounded-lg border border-[var(--border)]"
               title={`Calendário ${t.nome}`}
             />
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-500">Nenhum calendário configurado ainda.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Nenhum calendário configurado ainda.</p>
       )}
     </div>
   );

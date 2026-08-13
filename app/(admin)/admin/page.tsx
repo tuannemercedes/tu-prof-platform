@@ -23,10 +23,10 @@ export default async function AdminHomePage() {
         {cards.map((card) => (
           <div
             key={card.label}
-            className="rounded-lg border border-gray-200 p-4"
+            className="rounded-lg border border-[var(--border)] p-4"
           >
             <p className="text-2xl font-semibold">{card.value}</p>
-            <p className="text-sm text-gray-500">{card.label}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{card.label}</p>
           </div>
         ))}
       </div>

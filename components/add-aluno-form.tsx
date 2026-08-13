@@ -30,12 +30,12 @@ export default function AddAlunoForm({ turmas }: Props) {
   return (
     <div className="space-y-3">
       {created && (
-        <div className="text-sm bg-green-50 border border-green-200 rounded-md p-3 space-y-1">
-          <p className="text-green-800 font-medium">Aluno criado! Envie esses dados a ele (WhatsApp, etc):</p>
-          <p className="text-green-900">
+        <div className="text-sm bg-[var(--success-bg)] border border-[var(--success-text)]/30 rounded-md p-3 space-y-1">
+          <p className="text-[var(--success-text)] font-medium">Aluno criado! Envie esses dados a ele (WhatsApp, etc):</p>
+          <p className="text-[var(--success-text)]">
             E-mail: <span className="font-mono">{created.email}</span>
           </p>
-          <p className="text-green-900">
+          <p className="text-[var(--success-text)]">
             Senha: <span className="font-mono font-semibold">{created.password}</span>
           </p>
         </div>
@@ -43,7 +43,7 @@ export default function AddAlunoForm({ turmas }: Props) {
       <form
         ref={formRef}
         action={handleSubmit}
-        className="space-y-3 border border-gray-200 rounded-lg p-4"
+        className="space-y-3 border border-[var(--border)] rounded-lg p-4"
       >
       <div className="grid sm:grid-cols-2 gap-3">
         <input
@@ -51,13 +51,13 @@ export default function AddAlunoForm({ turmas }: Props) {
           name="email"
           required
           placeholder="e-mail do aluno"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
         <input
           type="text"
           name="nome"
           placeholder="nome (opcional)"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
       </div>
       {turmas.length ? (
@@ -70,15 +70,15 @@ export default function AddAlunoForm({ turmas }: Props) {
           ))}
         </div>
       ) : (
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-[var(--text-faint)]">
           Crie uma turma primeiro para poder associar o aluno a ela.
         </p>
       )}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-md bg-black text-white text-sm font-medium px-4 py-2 disabled:opacity-50"
+        className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 disabled:opacity-50 btn-glow"
       >
         {isPending ? "Adicionando..." : "Adicionar aluno"}
       </button>

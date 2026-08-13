@@ -26,43 +26,43 @@ export default function SenhaForm() {
   return (
     <form ref={formRef} action={handleSubmit} className="space-y-3">
       <div>
-        <label className="text-xs text-gray-500 block mb-1">Senha atual</label>
+        <label className="text-xs text-[var(--text-secondary)] block mb-1">Senha atual</label>
         <input
           type="password"
           name="senhaAtual"
           required
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
       </div>
       <div>
-        <label className="text-xs text-gray-500 block mb-1">Nova senha</label>
+        <label className="text-xs text-[var(--text-secondary)] block mb-1">Nova senha</label>
         <input
           type="password"
           name="novaSenha"
           required
           minLength={6}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
       </div>
       <div>
-        <label className="text-xs text-gray-500 block mb-1">Confirmar nova senha</label>
+        <label className="text-xs text-[var(--text-secondary)] block mb-1">Confirmar nova senha</label>
         <input
           type="password"
           name="confirmarSenha"
           required
           minLength={6}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
       </div>
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-md bg-black text-white text-sm font-medium px-4 py-2 disabled:opacity-50"
+        className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 disabled:opacity-50 btn-glow"
       >
         {isPending ? "Salvando..." : "Alterar senha"}
       </button>
-      {erro && <p className="text-sm text-red-600">{erro}</p>}
-      {sucesso && <p className="text-sm text-green-700">Senha atualizada!</p>}
+      {erro && <p className="text-sm text-[var(--danger-text)]">{erro}</p>}
+      {sucesso && <p className="text-sm text-[var(--success-text)]">Senha atualizada!</p>}
     </form>
   );
 }

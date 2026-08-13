@@ -16,7 +16,7 @@ export default async function MateriasPage() {
     <div className="space-y-8 max-w-2xl">
       <div>
         <h1 className="text-lg font-semibold">Matérias</h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--text-secondary)]">
           Trilhas de aprendizagem — os assuntos principais (ex: &quot;Espanhol
           Básico&quot;). Cada uma agrupa materiais (HTML interativo, PDFs,
           vídeos, links). Pra playlists, filmes, biblioteca e afins, use a
@@ -31,11 +31,11 @@ export default async function MateriasPage() {
           name="titulo"
           required
           placeholder="Nome da matéria"
-          className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
         <button
           type="submit"
-          className="rounded-md bg-black text-white text-sm font-medium px-4 py-2"
+          className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
         >
           Criar
         </button>

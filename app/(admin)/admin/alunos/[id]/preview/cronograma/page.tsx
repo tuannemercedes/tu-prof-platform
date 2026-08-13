@@ -20,25 +20,25 @@ export default async function PreviewCronogramaPage({
       <PreviewNav alunoId={id} />
       <div>
         <h1 className="text-lg font-semibold">Cronograma</h1>
-        <p className="text-sm text-gray-500">Sua trajetória ao longo da mentoria.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Sua trajetória ao longo da mentoria.</p>
       </div>
 
       {itens?.length ? (
         <ol className="space-y-4">
           {itens.map((item) => (
-            <li key={item.id} className="border-l-2 border-gray-200 pl-4">
-              <p className="text-xs text-gray-400">
+            <li key={item.id} className="border-l-2 border-[var(--border)] pl-4">
+              <p className="text-xs text-[var(--text-faint)]">
                 {item.data
                   ? new Date(item.data + "T00:00:00").toLocaleDateString("pt-BR")
                   : "Sem data"}
               </p>
               <p className="text-sm font-medium">{item.tema}</p>
-              {item.descricao && <p className="text-sm text-gray-500">{item.descricao}</p>}
+              {item.descricao && <p className="text-sm text-[var(--text-secondary)]">{item.descricao}</p>}
             </li>
           ))}
         </ol>
       ) : (
-        <p className="text-sm text-gray-500">Cronograma ainda não foi montado.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Cronograma ainda não foi montado.</p>
       )}
     </div>
   );

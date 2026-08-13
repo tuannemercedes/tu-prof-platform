@@ -58,7 +58,7 @@ export default async function PreviewMateriaPage({
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-500">Nenhum material liberado aqui ainda.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado aqui ainda.</p>
       )}
     </div>
   );

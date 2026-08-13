@@ -90,38 +90,38 @@ export default async function AlunoConteudosPage({
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <Link href="/admin/alunos" className="text-xs text-gray-500 hover:underline">
+        <Link href="/admin/alunos" className="text-xs text-[var(--text-secondary)] hover:underline">
           ← Alunos
         </Link>
         <h1 className="text-lg font-semibold">Conteúdos de {aluno.nome || aluno.email}</h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--text-secondary)]">
           {totalLiberados} de {totalMateriais} materiais liberados para este aluno.
         </p>
       </div>
 
       {trilhas.length === 0 && (
-        <p className="text-sm text-gray-500">Nenhum material cadastrado ainda.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Nenhum material cadastrado ainda.</p>
       )}
 
       {trilhas.map((trilha) => (
         <section key={trilha.titulo} className="space-y-2">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
             {trilha.titulo}
             {trilha.categoria === "fia" && " (FIA)"}
           </h2>
-          <ul className="divide-y divide-gray-200 border border-gray-200 rounded-lg">
+          <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg">
             {trilha.materiais.map((m) => (
               <li key={m.id} className="p-3 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium">{m.titulo}</p>
-                  <p className="text-xs text-gray-500">{TIPO_LABELS[m.tipo] ?? m.tipo}</p>
+                  <p className="text-xs text-[var(--text-secondary)]">{TIPO_LABELS[m.tipo] ?? m.tipo}</p>
                 </div>
                 {m.liberado ? (
-                  <span className="text-xs font-medium text-green-700 bg-green-50 px-2 py-1 rounded-md whitespace-nowrap">
+                  <span className="text-xs font-medium text-[var(--success-text)] bg-[var(--success-bg)] px-2 py-1 rounded-md whitespace-nowrap">
                     ✅ {m.via.join(", ")}
                   </span>
                 ) : (
-                  <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-md whitespace-nowrap">
+                  <span className="text-xs font-medium text-[var(--text-faint)] bg-[var(--surface-2)] px-2 py-1 rounded-md whitespace-nowrap">
                     ⬜ não liberado
                   </span>
                 )}

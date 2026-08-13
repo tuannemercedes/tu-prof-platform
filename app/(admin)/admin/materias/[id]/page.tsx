@@ -59,7 +59,7 @@ export default async function MateriaDetailPage({
       <li key={material.id} className="p-3 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-medium">{material.titulo}</p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-[var(--text-secondary)]">
             {TIPO_LABELS[material.tipo] ?? material.tipo}
             {acessos.length > 0 && ` · ${acessos.join(", ")}`}
             {acessos.length === 0 && " · ninguém tem acesso ainda"}
@@ -68,7 +68,7 @@ export default async function MateriaDetailPage({
         <form action={deleteMaterial}>
           <input type="hidden" name="id" value={material.id} />
           <input type="hidden" name="materia_id" value={id} />
-          <button type="submit" className="text-xs text-gray-400 hover:text-red-600">
+          <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
             Excluir
           </button>
         </form>
@@ -81,17 +81,17 @@ export default async function MateriaDetailPage({
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
-        <Link href="/admin/materias" className="text-xs text-gray-500 hover:underline">
+        <Link href="/admin/materias" className="text-xs text-[var(--text-secondary)] hover:underline">
           ← Matérias
         </Link>
         <h1 className="text-lg font-semibold">{materia.titulo}</h1>
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+        <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
           Fases (módulos)
         </h2>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-[var(--text-secondary)]">
           Organize os materiais em fases (ex: &quot;Módulo 1 — Básico&quot;). O
           aluno vê o progresso de cada fase na barra lateral.
         </p>
@@ -102,11 +102,11 @@ export default async function MateriaDetailPage({
             name="titulo"
             required
             placeholder="Nome da fase (ex: Módulo 1)"
-            className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
           <button
             type="submit"
-            className="rounded-md bg-black text-white text-sm font-medium px-4 py-2"
+            className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
           >
             Criar
           </button>
@@ -117,22 +117,22 @@ export default async function MateriaDetailPage({
             {fases.map((fase) => {
               const materiaisDaFase = (materiais ?? []).filter((m) => m.fase_id === fase.id);
               return (
-                <div key={fase.id} className="border border-gray-200 rounded-lg">
-                  <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-gray-50">
+                <div key={fase.id} className="border border-[var(--border)] rounded-lg">
+                  <div className="flex items-center justify-between p-3 border-b border-[var(--border-soft)] bg-[var(--surface-2)]">
                     <p className="text-sm font-medium">{fase.titulo}</p>
                     <form action={deleteFase}>
                       <input type="hidden" name="id" value={fase.id} />
                       <input type="hidden" name="materia_id" value={id} />
-                      <button type="submit" className="text-xs text-gray-400 hover:text-red-600">
+                      <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
                         Excluir fase
                       </button>
                     </form>
                   </div>
-                  <ul className="divide-y divide-gray-100">
+                  <ul className="divide-y divide-[var(--border-soft)]">
                     {materiaisDaFase.length ? (
                       materiaisDaFase.map(renderMaterial)
                     ) : (
-                      <li className="p-3 text-xs text-gray-400">Nenhum material nessa fase ainda.</li>
+                      <li className="p-3 text-xs text-[var(--text-faint)]">Nenhum material nessa fase ainda.</li>
                     )}
                   </ul>
                 </div>
@@ -140,14 +140,14 @@ export default async function MateriaDetailPage({
             })}
           </div>
         ) : (
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-[var(--text-faint)]">
             Nenhuma fase ainda — sem fases, os materiais aparecem direto na trilha.
           </p>
         )}
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+        <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
           Adicionar material
         </h2>
         <MaterialForm materiaId={id} turmas={turmas ?? []} alunos={alunos ?? []} fases={fases ?? []} />
@@ -155,10 +155,10 @@ export default async function MateriaDetailPage({
 
       {materiaisSemFase.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
             Sem fase
           </h2>
-          <ul className="divide-y divide-gray-200 border border-gray-200 rounded-lg">
+          <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg">
             {materiaisSemFase.map(renderMaterial)}
           </ul>
         </section>

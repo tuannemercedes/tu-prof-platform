@@ -26,7 +26,7 @@ export default function PlannerDiaForm({ alunoId }: { alunoId: string }) {
     <form
       ref={formRef}
       action={handleSubmit}
-      className="space-y-3 border border-gray-200 rounded-lg p-4"
+      className="space-y-3 border border-[var(--border)] rounded-lg p-4"
     >
       <input type="hidden" name="aluno_id" value={alunoId} />
       <div className="grid sm:grid-cols-[100px_1fr] gap-3">
@@ -36,14 +36,14 @@ export default function PlannerDiaForm({ alunoId }: { alunoId: string }) {
           min={1}
           defaultValue={1}
           placeholder="Semana"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
         <input
           type="text"
           name="titulo"
           required
           placeholder="Título do dia (ex: Dia 1)"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
       </div>
 
@@ -52,10 +52,10 @@ export default function PlannerDiaForm({ alunoId }: { alunoId: string }) {
           name="conteudo_html"
           rows={8}
           placeholder="Conteúdo do dia (HTML opcional — texto, vídeo embutido, imagem)"
-          className="rounded-md border border-gray-300 px-3 py-2 text-xs font-mono"
+          className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-3 py-2 text-xs font-mono"
           onChange={(e) => setHtmlPreview(e.target.value)}
         />
-        <div className="rounded-md border border-gray-300 overflow-hidden">
+        <div className="rounded-md border border-[var(--border-strong)] overflow-hidden">
           {htmlPreview ? (
             <iframe
               sandbox="allow-scripts"
@@ -64,17 +64,17 @@ export default function PlannerDiaForm({ alunoId }: { alunoId: string }) {
               title="Pré-visualização"
             />
           ) : (
-            <p className="text-xs text-gray-400 p-3">A pré-visualização aparece aqui.</p>
+            <p className="text-xs text-[var(--text-faint)] p-3">A pré-visualização aparece aqui.</p>
           )}
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
 
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-md bg-black text-white text-sm font-medium px-4 py-2 disabled:opacity-50"
+        className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 disabled:opacity-50 btn-glow"
       >
         {isPending ? "Salvando..." : "Adicionar dia"}
       </button>

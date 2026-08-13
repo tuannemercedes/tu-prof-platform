@@ -18,23 +18,23 @@ export default function PerfilForm({ nomeAtual }: { nomeAtual: string }) {
   return (
     <form action={handleSubmit} className="space-y-3">
       <div>
-        <label className="text-xs text-gray-500 block mb-1">Nome</label>
+        <label className="text-xs text-[var(--text-secondary)] block mb-1">Nome</label>
         <input
           type="text"
           name="nome"
           defaultValue={nomeAtual}
           placeholder="Seu nome"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
       </div>
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-md bg-black text-white text-sm font-medium px-4 py-2 disabled:opacity-50"
+        className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 disabled:opacity-50 btn-glow"
       >
         {isPending ? "Salvando..." : "Salvar"}
       </button>
-      {saved && <p className="text-sm text-green-700">Salvo!</p>}
+      {saved && <p className="text-sm text-[var(--success-text)]">Salvo!</p>}
     </form>
   );
 }

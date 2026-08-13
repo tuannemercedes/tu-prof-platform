@@ -31,15 +31,15 @@ export default function MaterialCard({
   const embedUrl = material.url ? getEmbedUrl(material.url) : null;
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 space-y-3">
+    <div className="border border-[var(--border)] rounded-lg p-4 space-y-3">
       {!readOnly && <AccessTracker materialId={material.id} />}
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-sm font-medium">{material.titulo}</p>
-          <p className="text-xs text-gray-400">{TIPO_LABELS[material.tipo] ?? material.tipo}</p>
+          <p className="text-xs text-[var(--text-faint)]">{TIPO_LABELS[material.tipo] ?? material.tipo}</p>
         </div>
         {readOnly ? (
-          <label className="flex items-center gap-1.5 text-xs text-gray-400 whitespace-nowrap">
+          <label className="flex items-center gap-1.5 text-xs text-[var(--text-faint)] whitespace-nowrap">
             <input type="checkbox" checked={material.concluido} disabled />
             Concluído
           </label>
@@ -52,7 +52,7 @@ export default function MaterialCard({
         <iframe
           sandbox="allow-scripts"
           srcDoc={material.conteudo_html}
-          className="w-full h-[480px] rounded-md border border-gray-100"
+          className="w-full h-[480px] rounded-md border border-[var(--border-soft)]"
           title={material.titulo}
         />
       )}
@@ -63,12 +63,12 @@ export default function MaterialCard({
             href={material.signedUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-[var(--accent)] hover:underline"
           >
             Abrir PDF →
           </a>
         ) : (
-          <p className="text-xs text-gray-400">Arquivo indisponível.</p>
+          <p className="text-xs text-[var(--text-faint)]">Arquivo indisponível.</p>
         ))}
 
       {material.tipo !== "html" &&
@@ -77,7 +77,7 @@ export default function MaterialCard({
         (embedUrl ? (
           <iframe
             src={embedUrl}
-            className="w-full h-[180px] rounded-md border border-gray-100"
+            className="w-full h-[180px] rounded-md border border-[var(--border-soft)]"
             allow="encrypted-media; autoplay"
             title={material.titulo}
           />
@@ -86,7 +86,7 @@ export default function MaterialCard({
             href={material.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-[var(--accent)] hover:underline"
           >
             Abrir →
           </a>

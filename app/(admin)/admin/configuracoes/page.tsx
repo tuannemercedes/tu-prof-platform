@@ -17,16 +17,16 @@ export default async function ConfiguracoesPage() {
     <div className="space-y-6 max-w-md">
       <div>
         <h1 className="text-lg font-semibold">Configurações</h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--text-secondary)]">
           O botão do UZUS e o link de contato aparecem juntos no rodapé da
           barra lateral do aluno. Os links de calendário são configurados por
           turma na página de <span className="font-mono">Turmas</span>.
         </p>
       </div>
 
-      <form action={updateConfiguracoes} className="space-y-3 border border-gray-200 rounded-lg p-4">
+      <form action={updateConfiguracoes} className="space-y-3 border border-[var(--border)] rounded-lg p-4">
         <div>
-          <label className="text-xs text-gray-500 block mb-1">
+          <label className="text-xs text-[var(--text-secondary)] block mb-1">
             Recado para os alunos (aparece no Início) — opcional
           </label>
           <textarea
@@ -34,32 +34,32 @@ export default async function ConfiguracoesPage() {
             defaultValue={recadoMentora}
             rows={3}
             placeholder="Ex: Bem-vindo(a)! Esse é o seu espaço para evoluir no inglês com confiança."
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm resize-y"
+            className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm resize-y"
           />
         </div>
-        <hr className="border-gray-100" />
+        <hr className="border-[var(--border-soft)]" />
         <div>
-          <label className="text-xs text-gray-500 block mb-1">Link do UZUS</label>
+          <label className="text-xs text-[var(--text-secondary)] block mb-1">Link do UZUS</label>
           <input
             type="url"
             name="app_treino_url"
             defaultValue={appTreinoUrl}
             placeholder="https://..."
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
         </div>
         <div>
-          <label className="text-xs text-gray-500 block mb-1">Texto do botão</label>
+          <label className="text-xs text-[var(--text-secondary)] block mb-1">Texto do botão</label>
           <input
             type="text"
             name="app_treino_label"
             defaultValue={appTreinoLabel}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
         </div>
-        <hr className="border-gray-100" />
+        <hr className="border-[var(--border-soft)]" />
         <div>
-          <label className="text-xs text-gray-500 block mb-1">
+          <label className="text-xs text-[var(--text-secondary)] block mb-1">
             Link de contato (WhatsApp, e-mail...) — opcional
           </label>
           <input
@@ -67,21 +67,21 @@ export default async function ConfiguracoesPage() {
             name="contato_url"
             defaultValue={contatoUrl}
             placeholder="https://wa.me/55..."
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
         </div>
         <div>
-          <label className="text-xs text-gray-500 block mb-1">Texto do link de contato</label>
+          <label className="text-xs text-[var(--text-secondary)] block mb-1">Texto do link de contato</label>
           <input
             type="text"
             name="contato_label"
             defaultValue={contatoLabel}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
         </div>
         <button
           type="submit"
-          className="rounded-md bg-black text-white text-sm font-medium px-4 py-2"
+          className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
         >
           Salvar
         </button>

@@ -29,9 +29,9 @@ export default function PlannerItemCheckbox({ itemId, texto, defaultChecked, rea
         checked={checked}
         onChange={readOnly ? undefined : handleChange}
         disabled={isPending || readOnly}
-        className="mt-0.5"
+        className="bg-[var(--surface)] mt-0.5"
       />
-      <span className={checked ? "line-through text-gray-400" : ""}>{texto}</span>
+      <span className={checked ? "line-through text-[var(--text-faint)]" : ""}>{texto}</span>
     </label>
   );
 }

@@ -17,12 +17,12 @@ export default async function AlunoPerfilPage() {
     <div className="space-y-6 max-w-sm">
       <div>
         <h1 className="text-lg font-semibold">Meu perfil</h1>
-        <p className="text-sm text-gray-500">{profile?.email}</p>
+        <p className="text-sm text-[var(--text-secondary)]">{profile?.email}</p>
       </div>
 
       <PerfilForm nomeAtual={profile?.nome ?? ""} />
 
-      <div className="pt-6 border-t border-gray-100">
+      <div className="pt-6 border-t border-[var(--border-soft)]">
         <h2 className="text-sm font-semibold mb-3">Alterar senha</h2>
         <SenhaForm />
       </div>

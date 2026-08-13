@@ -57,7 +57,7 @@ export default async function AlunoMateriaPage({
       <h1 className="text-lg font-semibold">{materia.titulo}</h1>
 
       {(fases?.length ?? 0) === 0 && semFase.length === 0 && (
-        <p className="text-sm text-gray-500">Nenhum material liberado aqui ainda.</p>
+        <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado aqui ainda.</p>
       )}
 
       {fases?.map((fase) => {
@@ -65,7 +65,7 @@ export default async function AlunoMateriaPage({
         if (!materiaisDaFase.length) return null;
         return (
           <section key={fase.id} className="space-y-3">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+            <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
               {fase.titulo}
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -82,7 +82,7 @@ export default async function AlunoMateriaPage({
       {semFase.length > 0 && (
         <section className="space-y-3">
           {(fases?.length ?? 0) > 0 && (
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Outros</h2>
+            <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Outros</h2>
           )}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {semFase.map((m) => (

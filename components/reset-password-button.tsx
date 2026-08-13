@@ -21,12 +21,12 @@ export default function ResetPasswordButton({ alunoId }: { alunoId: string }) {
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        className="text-xs rounded-md border border-gray-300 px-3 py-1 hover:bg-gray-50 disabled:opacity-50"
+        className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1 hover:bg-[var(--surface-2)] disabled:opacity-50"
       >
         {isPending ? "Gerando..." : "Redefinir senha"}
       </button>
       {password && (
-        <span className="text-xs text-green-700">
+        <span className="text-xs text-[var(--success-text)]">
           Nova senha: <span className="font-mono font-semibold">{password}</span>
         </span>
       )}

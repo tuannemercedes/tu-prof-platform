@@ -20,7 +20,7 @@ export default async function AlunosPage() {
     <div className="space-y-8 max-w-2xl">
       <div>
         <h1 className="text-lg font-semibold">Alunos</h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-[var(--text-secondary)]">
           Ao adicionar, uma senha é gerada — envie o e-mail e a senha pro
           aluno por fora (WhatsApp, etc). Ele entra em{" "}
           <span className="font-mono">/login</span> com esses dados. Use os
@@ -31,7 +31,7 @@ export default async function AlunosPage() {
 
       <AddAlunoForm turmas={turmas ?? []} />
 
-      <ul className="divide-y divide-gray-200 border border-gray-200 rounded-lg">
+      <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg">
         {alunos?.length ? (
           alunos.map((aluno) => {
             const turmaIdsDoAluno = new Set(
@@ -42,29 +42,29 @@ export default async function AlunosPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium">{aluno.nome || aluno.email}</p>
-                    <p className="text-xs text-gray-500">{aluno.email}</p>
+                    <p className="text-xs text-[var(--text-secondary)]">{aluno.email}</p>
                     <div className="flex flex-wrap gap-2 mt-2">
                       <Link
                         href={`/admin/alunos/${aluno.id}/cronograma`}
-                        className="text-xs font-medium rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50"
+                        className="text-xs font-medium rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)]"
                       >
                         📅 Cronograma
                       </Link>
                       <Link
                         href={`/admin/alunos/${aluno.id}/planner`}
-                        className="text-xs font-medium rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50"
+                        className="text-xs font-medium rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)]"
                       >
                         ✅ Planner
                       </Link>
                       <Link
                         href={`/admin/alunos/${aluno.id}/conteudos`}
-                        className="text-xs font-medium rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50"
+                        className="text-xs font-medium rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)]"
                       >
                         📦 Conteúdos
                       </Link>
                       <Link
                         href={`/admin/alunos/${aluno.id}/preview`}
-                        className="text-xs font-medium rounded-md border border-gray-300 px-2.5 py-1 hover:bg-gray-50"
+                        className="text-xs font-medium rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)]"
                       >
                         👁️ Visualizar
                       </Link>
@@ -87,7 +87,7 @@ export default async function AlunosPage() {
                   ))}
                   <button
                     type="submit"
-                    className="text-xs rounded-md border border-gray-300 px-3 py-1 hover:bg-gray-50"
+                    className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1 hover:bg-[var(--surface-2)]"
                   >
                     Salvar turmas
                   </button>
@@ -96,7 +96,7 @@ export default async function AlunosPage() {
             );
           })
         ) : (
-          <li className="p-4 text-sm text-gray-500">Nenhum aluno ainda.</li>
+          <li className="p-4 text-sm text-[var(--text-secondary)]">Nenhum aluno ainda.</li>
         )}
       </ul>
     </div>

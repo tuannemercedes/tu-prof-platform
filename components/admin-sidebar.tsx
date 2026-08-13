@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import SignOutButton from "./sign-out-button";
+import ThemeToggle from "./theme-toggle";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Início" },
@@ -24,37 +25,45 @@ export default function AdminSidebar({ email }: { email: string }) {
 
   return (
     <>
-      <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-gray-200">
+      <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
         <p className="font-semibold">Tu Prof</p>
-        <button
-          type="button"
-          onClick={() => setMenuAberto(true)}
-          aria-label="Abrir menu"
-          className="text-xl leading-none px-2 py-1"
-        >
-          ☰
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setMenuAberto(true)}
+            aria-label="Abrir menu"
+            className="text-xl leading-none px-2 py-1"
+          >
+            ☰
+          </button>
+        </div>
       </div>
 
       {menuAberto && (
         <div
-          className="sm:hidden fixed inset-0 bg-black/30 z-40"
+          className="sm:hidden fixed inset-0 bg-[var(--accent)]/30 z-40"
           onClick={() => setMenuAberto(false)}
         />
       )}
 
       <aside
         onClick={fecharAoClicarLink}
-        className={`fixed sm:static inset-y-0 left-0 z-50 w-72 sm:w-56 bg-white shrink-0 border-r border-gray-200 p-4 flex flex-col gap-4 overflow-y-auto sm:h-screen sm:sticky sm:top-0 transform transition-transform duration-200 ${
+        className={`fixed sm:static inset-y-0 left-0 z-50 w-72 sm:w-56 bg-[var(--surface)] shrink-0 border-r border-[var(--border)] p-4 flex flex-col gap-4 overflow-y-auto sm:h-screen sm:sticky sm:top-0 transform transition-transform duration-200 ${
           menuAberto ? "translate-x-0" : "-translate-x-full"
         } sm:translate-x-0`}
       >
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
+        <div className="relative flex items-start justify-between gap-2">
+          <div
+            className="glow-spot hidden sm:block -left-6 -top-6 w-24 h-24"
+            style={{ background: "var(--glow-secondary)" }}
+          />
+          <div className="min-w-0 relative">
             <p className="font-semibold hidden sm:block">Tu Prof</p>
-            <p className="text-xs text-gray-500">Painel do admin</p>
+            <p className="text-xs text-[var(--text-secondary)]">Painel do admin</p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 relative">
+            <ThemeToggle />
             <SignOutButton />
             <button
               type="button"
@@ -66,7 +75,7 @@ export default function AdminSidebar({ email }: { email: string }) {
             </button>
           </div>
         </div>
-        <p className="text-xs text-gray-500 truncate -mt-2">{email}</p>
+        <p className="text-xs text-[var(--text-secondary)] truncate -mt-2">{email}</p>
         <nav className="flex flex-col gap-1 text-sm">
           {NAV_ITEMS.map((item) => {
             const active = pathname === item.href;
@@ -75,7 +84,7 @@ export default function AdminSidebar({ email }: { email: string }) {
                 key={item.href}
                 href={item.href}
                 className={`px-2 py-1.5 rounded-md whitespace-nowrap ${
-                  active ? "bg-black text-white" : "hover:bg-gray-100"
+                  active ? "bg-[var(--accent)] text-[var(--accent-contrast)]" : "hover:bg-[var(--surface-3)]"
                 }`}
               >
                 {item.label}
