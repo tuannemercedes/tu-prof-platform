@@ -42,6 +42,7 @@ export default function AlunoSidebar({
 }: Props) {
   const pathname = usePathname();
   const [expandido, setExpandido] = useState<string | null>(null);
+  const [menuAberto, setMenuAberto] = useState(false);
 
   function linkClass(href: string) {
     const active = pathname === href;
@@ -50,187 +51,225 @@ export default function AlunoSidebar({
     }`;
   }
 
+  function fecharAoClicarLink(e: React.MouseEvent) {
+    if ((e.target as HTMLElement).closest("a")) setMenuAberto(false);
+  }
+
   return (
-    <aside className="sm:w-64 shrink-0 border-b sm:border-b-0 sm:border-r border-gray-200 p-4 flex flex-col gap-6 sm:h-screen sm:sticky sm:top-0 sm:overflow-y-auto">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="font-semibold">Tu Prof</p>
-          <p className="text-xs text-gray-500 truncate">Olá, {nome}</p>
-        </div>
-        <div className="text-xs text-gray-500 shrink-0 pt-0.5">
-          <SignOutButton />
-        </div>
+    <>
+      <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-gray-200">
+        <p className="font-semibold">Tu Prof</p>
+        <button
+          type="button"
+          onClick={() => setMenuAberto(true)}
+          aria-label="Abrir menu"
+          className="text-xl leading-none px-2 py-1"
+        >
+          ☰
+        </button>
       </div>
 
-      <nav className="flex flex-col gap-1">
-        <Link href="/aluno" className={linkClass("/aluno")}>
-          Início
-        </Link>
-        <Link href="/aluno/cronograma" className={linkClass("/aluno/cronograma")}>
-          Cronograma
-        </Link>
-        <Link href="/aluno/planner" className={linkClass("/aluno/planner")}>
-          Planner
-        </Link>
-        <Link href="/aluno/calendario" className={linkClass("/aluno/calendario")}>
-          Calendário
-        </Link>
-      </nav>
+      {menuAberto && (
+        <div
+          className="sm:hidden fixed inset-0 bg-black/30 z-40"
+          onClick={() => setMenuAberto(false)}
+        />
+      )}
 
-      {trilhas.length > 0 && (
-        <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 px-2">
-            Trilhas de aprendizagem
-          </p>
-          <nav className="flex flex-col gap-1">
-            {trilhas.map((t) => {
-              const aberta = expandido === t.id;
-              const totalMateriais =
-                t.fases.reduce((acc, f) => acc + f.materiais.length, 0) + t.materiaisSemFase.length;
-              const totalConcluidos =
-                t.fases.reduce((acc, f) => acc + f.materiais.filter((m) => m.concluido).length, 0) +
-                t.materiaisSemFase.filter((m) => m.concluido).length;
+      <aside
+        onClick={fecharAoClicarLink}
+        className={`fixed sm:static inset-y-0 left-0 z-50 w-72 sm:w-64 bg-white shrink-0 border-r border-gray-200 p-4 flex flex-col gap-6 overflow-y-auto sm:h-screen sm:sticky sm:top-0 transform transition-transform duration-200 ${
+          menuAberto ? "translate-x-0" : "-translate-x-full"
+        } sm:translate-x-0`}
+      >
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="font-semibold hidden sm:block">Tu Prof</p>
+            <p className="text-xs text-gray-500 truncate">Olá, {nome}</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 text-xs text-gray-500 pt-0.5">
+            <SignOutButton />
+            <button
+              type="button"
+              onClick={() => setMenuAberto(false)}
+              aria-label="Fechar menu"
+              className="sm:hidden text-lg leading-none px-1"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
 
-              return (
-                <div key={t.id}>
-                  <button
-                    type="button"
-                    onClick={() => setExpandido(aberta ? null : t.id)}
-                    className="w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-sm hover:bg-gray-100"
-                  >
-                    <span className="truncate">{t.titulo}</span>
-                    <span className="flex items-center gap-1 shrink-0">
-                      <span className="text-[10px] text-gray-400">
-                        {totalConcluidos}/{totalMateriais}
+        <nav className="flex flex-col gap-1">
+          <Link href="/aluno" className={linkClass("/aluno")}>
+            Início
+          </Link>
+          <Link href="/aluno/cronograma" className={linkClass("/aluno/cronograma")}>
+            Cronograma
+          </Link>
+          <Link href="/aluno/planner" className={linkClass("/aluno/planner")}>
+            Planner
+          </Link>
+          <Link href="/aluno/calendario" className={linkClass("/aluno/calendario")}>
+            Calendário
+          </Link>
+        </nav>
+
+        {trilhas.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 px-2">
+              Trilhas de aprendizagem
+            </p>
+            <nav className="flex flex-col gap-1">
+              {trilhas.map((t) => {
+                const aberta = expandido === t.id;
+                const totalMateriais =
+                  t.fases.reduce((acc, f) => acc + f.materiais.length, 0) + t.materiaisSemFase.length;
+                const totalConcluidos =
+                  t.fases.reduce((acc, f) => acc + f.materiais.filter((m) => m.concluido).length, 0) +
+                  t.materiaisSemFase.filter((m) => m.concluido).length;
+
+                return (
+                  <div key={t.id}>
+                    <button
+                      type="button"
+                      onClick={() => setExpandido(aberta ? null : t.id)}
+                      className="w-full flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-sm hover:bg-gray-100"
+                    >
+                      <span className="truncate">{t.titulo}</span>
+                      <span className="flex items-center gap-1 shrink-0">
+                        <span className="text-[10px] text-gray-400">
+                          {totalConcluidos}/{totalMateriais}
+                        </span>
+                        <span className={`text-gray-400 transition-transform ${aberta ? "rotate-90" : ""}`}>
+                          ›
+                        </span>
                       </span>
-                      <span className={`text-gray-400 transition-transform ${aberta ? "rotate-90" : ""}`}>
-                        ›
-                      </span>
-                    </span>
-                  </button>
+                    </button>
 
-                  {aberta && (
-                    <div className="ml-2 pl-2 border-l border-gray-200 space-y-2 py-1">
-                      {t.fases.map((fase) => {
-                        const { total, concluidos, pct } = faseProgresso(fase);
-                        return (
-                          <div key={fase.id} className="space-y-1">
-                            <div className="px-2">
-                              <div className="flex items-center justify-between">
-                                <p className="text-xs font-medium text-gray-600">{fase.titulo}</p>
-                                <span
-                                  className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                                    pct === 100
-                                      ? "bg-green-100 text-green-700"
-                                      : pct > 0
-                                        ? "bg-blue-100 text-blue-700"
-                                        : "bg-gray-100 text-gray-500"
-                                  }`}
-                                >
-                                  {pct === 100 ? "Concluído" : pct > 0 ? "Em progresso" : "A começar"}
-                                </span>
-                              </div>
-                              <div className="h-1 rounded-full bg-gray-100 overflow-hidden mt-1">
-                                <div
-                                  className="h-full bg-black rounded-full"
-                                  style={{ width: `${pct}%` }}
-                                />
-                              </div>
-                            </div>
-                            <div className="flex flex-col">
-                              {fase.materiais.map((m) => (
-                                <Link
-                                  key={m.id}
-                                  href={`/aluno/materias/${t.id}#material-${m.id}`}
-                                  className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs hover:bg-gray-100 text-gray-600"
-                                >
-                                  <span className={m.concluido ? "text-green-600" : "text-gray-300"}>
-                                    {m.concluido ? "✓" : "○"}
+                    {aberta && (
+                      <div className="ml-2 pl-2 border-l border-gray-200 space-y-2 py-1">
+                        {t.fases.map((fase) => {
+                          const { total, concluidos, pct } = faseProgresso(fase);
+                          return (
+                            <div key={fase.id} className="space-y-1">
+                              <div className="px-2">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs font-medium text-gray-600">{fase.titulo}</p>
+                                  <span
+                                    className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                                      pct === 100
+                                        ? "bg-green-100 text-green-700"
+                                        : pct > 0
+                                          ? "bg-blue-100 text-blue-700"
+                                          : "bg-gray-100 text-gray-500"
+                                    }`}
+                                  >
+                                    {pct === 100 ? "Concluído" : pct > 0 ? "Em progresso" : "A começar"}
                                   </span>
-                                  <span className="truncate">{m.titulo}</span>
-                                </Link>
-                              ))}
-                              {concluidos === total && total === 0 && (
-                                <p className="px-2 text-xs text-gray-400">Nenhuma aula ainda.</p>
-                              )}
+                                </div>
+                                <div className="h-1 rounded-full bg-gray-100 overflow-hidden mt-1">
+                                  <div
+                                    className="h-full bg-black rounded-full"
+                                    style={{ width: `${pct}%` }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex flex-col">
+                                {fase.materiais.map((m) => (
+                                  <Link
+                                    key={m.id}
+                                    href={`/aluno/materias/${t.id}#material-${m.id}`}
+                                    className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs hover:bg-gray-100 text-gray-600"
+                                  >
+                                    <span className={m.concluido ? "text-green-600" : "text-gray-300"}>
+                                      {m.concluido ? "✓" : "○"}
+                                    </span>
+                                    <span className="truncate">{m.titulo}</span>
+                                  </Link>
+                                ))}
+                                {concluidos === total && total === 0 && (
+                                  <p className="px-2 text-xs text-gray-400">Nenhuma aula ainda.</p>
+                                )}
+                              </div>
                             </div>
+                          );
+                        })}
+
+                        {t.materiaisSemFase.length > 0 && (
+                          <div className="flex flex-col">
+                            {t.materiaisSemFase.map((m) => (
+                              <Link
+                                key={m.id}
+                                href={`/aluno/materias/${t.id}#material-${m.id}`}
+                                className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs hover:bg-gray-100 text-gray-600"
+                              >
+                                <span className={m.concluido ? "text-green-600" : "text-gray-300"}>
+                                  {m.concluido ? "✓" : "○"}
+                                </span>
+                                <span className="truncate">{m.titulo}</span>
+                              </Link>
+                            ))}
                           </div>
-                        );
-                      })}
+                        )}
 
-                      {t.materiaisSemFase.length > 0 && (
-                        <div className="flex flex-col">
-                          {t.materiaisSemFase.map((m) => (
-                            <Link
-                              key={m.id}
-                              href={`/aluno/materias/${t.id}#material-${m.id}`}
-                              className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs hover:bg-gray-100 text-gray-600"
-                            >
-                              <span className={m.concluido ? "text-green-600" : "text-gray-300"}>
-                                {m.concluido ? "✓" : "○"}
-                              </span>
-                              <span className="truncate">{m.titulo}</span>
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-
-                      <Link
-                        href={`/aluno/materias/${t.id}`}
-                        className="block px-2 py-1 text-xs text-gray-500 hover:underline"
-                      >
-                        Ver trilha completa →
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </nav>
-        </div>
-      )}
-
-      {fia.length > 0 && (
-        <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 px-2">
-            FIA
-          </p>
-          <nav className="flex flex-col gap-1">
-            {fia.map((t) => (
-              <Link key={t.id} href={`/aluno/materias/${t.id}`} className={linkClass(`/aluno/materias/${t.id}`)}>
-                {t.titulo}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
-
-      <div className="mt-auto pt-4 border-t border-gray-100 space-y-3">
-        <Link href="/aluno/perfil" className={linkClass("/aluno/perfil")}>
-          Meu perfil
-        </Link>
-
-        {contatoUrl && (
-          <a
-            href={contatoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block text-center rounded-md bg-black text-white text-sm font-medium px-3 py-2.5 hover:bg-gray-800 transition-colors"
-          >
-            {contatoLabel || "Fale comigo"} ↗
-          </a>
+                        <Link
+                          href={`/aluno/materias/${t.id}`}
+                          className="block px-2 py-1 text-xs text-gray-500 hover:underline"
+                        >
+                          Ver trilha completa →
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </nav>
+          </div>
         )}
-        {appUrl && (
-          <a
-            href={appUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block text-center rounded-md bg-black text-white text-sm font-medium px-3 py-2.5 hover:bg-gray-800 transition-colors"
-          >
-            {appLabel || "UZUS - Seu simulador"} ↗
-          </a>
+
+        {fia.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1 px-2">
+              FIA
+            </p>
+            <nav className="flex flex-col gap-1">
+              {fia.map((t) => (
+                <Link key={t.id} href={`/aluno/materias/${t.id}`} className={linkClass(`/aluno/materias/${t.id}`)}>
+                  {t.titulo}
+                </Link>
+              ))}
+            </nav>
+          </div>
         )}
-      </div>
-    </aside>
+
+        <div className="mt-auto pt-4 border-t border-gray-100 space-y-3">
+          <Link href="/aluno/perfil" className={linkClass("/aluno/perfil")}>
+            Meu perfil
+          </Link>
+
+          {contatoUrl && (
+            <a
+              href={contatoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center rounded-md bg-black text-white text-sm font-medium px-3 py-2.5 hover:bg-gray-800 transition-colors"
+            >
+              {contatoLabel || "Fale comigo"} ↗
+            </a>
+          )}
+          {appUrl && (
+            <a
+              href={appUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center rounded-md bg-black text-white text-sm font-medium px-3 py-2.5 hover:bg-gray-800 transition-colors"
+            >
+              {appLabel || "UZUS - Seu simulador"} ↗
+            </a>
+          )}
+        </div>
+      </aside>
+    </>
   );
 }
