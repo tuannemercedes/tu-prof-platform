@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getClubeAcessoParaAluno } from "@/lib/clube";
 
 type Row = {
   materia_id: string;
@@ -10,7 +11,7 @@ type Row = {
 
 export default async function PreviewNav({ alunoId }: { alunoId: string }) {
   const supabase = await createClient();
-  const [{ data: aluno }, { data: materiaisRows }] = await Promise.all([
+  const [{ data: aluno }, { data: materiaisRows }, temClube] = await Promise.all([
     supabase.from("profiles").select("id, nome, email").eq("id", alunoId).single(),
     supabase
       .from("materiais")
@@ -18,6 +19,7 @@ export default async function PreviewNav({ alunoId }: { alunoId: string }) {
         "materia_id, materias(id, titulo, categoria), material_turmas(turma_id, turmas(turma_membros(aluno_id))), material_alunos(aluno_id)"
       )
       .order("materia_id"),
+    getClubeAcessoParaAluno(supabase, alunoId),
   ]);
 
   if (!aluno) return null;
@@ -66,6 +68,11 @@ export default async function PreviewNav({ alunoId }: { alunoId: string }) {
         <Link href={`${base}/calendario`} className={linkStyle}>
           Calendário
         </Link>
+        {temClube && (
+          <Link href={`${base}/clube`} className={linkStyle}>
+            Clube de Conversação
+          </Link>
+        )}
         {trilhas.map((t) => (
           <Link key={t.id} href={`${base}/materias/${t.id}`} className={linkStyle}>
             {t.titulo}
