@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { createPlanner, deletePlanner } from "./actions";
+import { createPlanner } from "./actions";
 import SubmitButton from "@/components/submit-button";
+import PlannerRowActions from "@/components/planner-row-actions";
 
 export default async function PlannerPage() {
   const supabase = await createClient();
@@ -52,12 +53,7 @@ export default async function PlannerPage() {
                     {totalDias} dia(s) · liberado pra {totalTurmas} turma(s) e {totalAlunos} aluno(s)
                   </p>
                 </Link>
-                <form action={deletePlanner}>
-                  <input type="hidden" name="id" value={p.id} />
-                  <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
-                    Excluir
-                  </button>
-                </form>
+                <PlannerRowActions id={p.id} titulo={p.titulo} />
               </li>
             );
           })
