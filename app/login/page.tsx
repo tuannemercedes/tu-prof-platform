@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { signIn } from "./actions";
 import ThemeToggle from "@/components/theme-toggle";
 
@@ -53,6 +54,12 @@ export default function LoginPage() {
           </button>
           {error && <p className="text-sm text-[var(--danger-text)] text-center">{error}</p>}
         </form>
+
+        <p className="text-center text-sm">
+          <Link href="/esqueci-senha" className="text-[var(--text-secondary)] hover:underline">
+            Esqueci minha senha
+          </Link>
+        </p>
       </div>
     </main>
   );
