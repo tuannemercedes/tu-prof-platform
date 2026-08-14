@@ -9,6 +9,7 @@ import {
   updatePlannerAcesso,
 } from "./actions";
 import { updatePlannerTitulo } from "@/app/(admin)/admin/planner/actions";
+import SubmitButton from "@/components/submit-button";
 
 export default async function PlannerDetailPage({
   params,
@@ -66,12 +67,9 @@ export default async function PlannerDetailPage({
             required
             className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-1.5 text-lg font-semibold"
           />
-          <button
-            type="submit"
-            className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] shrink-0"
-          >
+          <SubmitButton className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] shrink-0 whitespace-nowrap">
             Salvar nome
-          </button>
+          </SubmitButton>
         </form>
         <p className="text-sm text-[var(--text-secondary)]">
           Tarefas diárias organizadas por semana. Cada item vira um checkbox que
@@ -145,12 +143,13 @@ export default async function PlannerDetailPage({
                     placeholder="Link (opcional)"
                     className="bg-[var(--surface)] w-40 rounded-md border border-[var(--border-strong)] px-2 py-1.5 text-xs"
                   />
-                  <button
-                    type="submit"
-                    className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)]"
+                  <SubmitButton
+                    className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] whitespace-nowrap"
+                    pendingText="Adicionando..."
+                    savedText="✓ Adicionado!"
                   >
                     Adicionar
-                  </button>
+                  </SubmitButton>
                 </form>
               </div>
             ))}
@@ -209,12 +208,12 @@ export default async function PlannerDetailPage({
             </div>
           ) : null}
 
-          <button
-            type="submit"
-            className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
+          <SubmitButton
+            className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow whitespace-nowrap"
+            savedText="✓ Liberação salva!"
           >
             Salvar liberação
-          </button>
+          </SubmitButton>
         </form>
       </section>
     </div>

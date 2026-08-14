@@ -13,6 +13,7 @@ export default function PlannerDiaForm({
   semanasExistentes: number[];
 }) {
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const proximaSemana = semanasExistentes.length ? Math.max(...semanasExistentes) + 1 : 1;
@@ -25,6 +26,7 @@ export default function PlannerDiaForm({
       formData.set("semana", String(formData.get("nova_semana") || proximaSemana));
     }
     setError(null);
+    setSaved(false);
     startTransition(async () => {
       const result = await createPlannerDia(formData);
       if (result?.error) {
@@ -32,6 +34,8 @@ export default function PlannerDiaForm({
       } else {
         formRef.current?.reset();
         setSemanaOpcao(semanasExistentes.length ? String(semanasExistentes[semanasExistentes.length - 1]) : NOVA_SEMANA);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
       }
     });
   }
@@ -80,7 +84,7 @@ export default function PlannerDiaForm({
         disabled={isPending}
         className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 disabled:opacity-50 btn-glow"
       >
-        {isPending ? "Criando..." : "+ Novo dia"}
+        {isPending ? "Criando..." : saved ? "✓ Dia criado!" : "+ Novo dia"}
       </button>
       {error && <p className="w-full text-sm text-[var(--danger-text)]">{error}</p>}
     </form>

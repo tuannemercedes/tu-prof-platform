@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createMateria } from "./actions";
 import MateriaList, { type Materia } from "@/components/materia-list";
+import SubmitButton from "@/components/submit-button";
 
 export default async function MateriasPage() {
   const supabase = await createClient();
@@ -33,12 +34,13 @@ export default async function MateriasPage() {
           placeholder="Nome da matéria"
           className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
-        <button
-          type="submit"
-          className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
+        <SubmitButton
+          className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow whitespace-nowrap"
+          pendingText="Criando..."
+          savedText="✓ Criado!"
         >
           Criar
-        </button>
+        </SubmitButton>
       </form>
 
       <MateriaList materias={trilhas} />

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { updateAlunoTurmas } from "./actions";
 import AddAlunoForm from "@/components/add-aluno-form";
 import ResetPasswordButton from "@/components/reset-password-button";
+import SubmitButton from "@/components/submit-button";
 
 export default async function AlunosPage() {
   const supabase = await createClient();
@@ -80,12 +81,9 @@ export default async function AlunosPage() {
                       {turma.nome}
                     </label>
                   ))}
-                  <button
-                    type="submit"
-                    className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1 hover:bg-[var(--surface-2)]"
-                  >
+                  <SubmitButton className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1 hover:bg-[var(--surface-2)] whitespace-nowrap">
                     Salvar turmas
-                  </button>
+                  </SubmitButton>
                 </form>
               </li>
             );

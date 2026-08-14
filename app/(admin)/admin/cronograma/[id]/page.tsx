@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createCronogramaItem, deleteCronogramaItem, updateCronogramaAcesso } from "./actions";
 import { updateCronogramaTitulo } from "@/app/(admin)/admin/cronograma/actions";
+import SubmitButton from "@/components/submit-button";
 
 export default async function CronogramaDetailPage({
   params,
@@ -42,12 +43,9 @@ export default async function CronogramaDetailPage({
             required
             className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-1.5 text-lg font-semibold"
           />
-          <button
-            type="submit"
-            className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] shrink-0"
-          >
+          <SubmitButton className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] shrink-0 whitespace-nowrap">
             Salvar nome
-          </button>
+          </SubmitButton>
         </form>
       </div>
 
@@ -119,12 +117,13 @@ export default async function CronogramaDetailPage({
             placeholder="Descrição (opcional)"
             className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-2 py-1.5 text-sm"
           />
-          <button
-            type="submit"
+          <SubmitButton
             className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-3 py-1.5 btn-glow whitespace-nowrap"
+            pendingText="Adicionando..."
+            savedText="✓ Adicionado!"
           >
             + Linha
-          </button>
+          </SubmitButton>
         </form>
       </section>
 
@@ -175,12 +174,12 @@ export default async function CronogramaDetailPage({
             </div>
           ) : null}
 
-          <button
-            type="submit"
-            className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
+          <SubmitButton
+            className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow whitespace-nowrap"
+            savedText="✓ Liberação salva!"
           >
             Salvar liberação
-          </button>
+          </SubmitButton>
         </form>
       </section>
     </div>

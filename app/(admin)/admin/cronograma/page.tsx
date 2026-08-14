@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createCronograma, deleteCronograma } from "./actions";
+import SubmitButton from "@/components/submit-button";
 
 export default async function CronogramaPage() {
   const supabase = await createClient();
@@ -28,12 +29,13 @@ export default async function CronogramaPage() {
           placeholder="Nome do cronograma (ex: Turma de setembro)"
           className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
-        <button
-          type="submit"
-          className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
+        <SubmitButton
+          className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow whitespace-nowrap"
+          pendingText="Criando..."
+          savedText="✓ Criado!"
         >
           Criar
-        </button>
+        </SubmitButton>
       </form>
 
       <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg">

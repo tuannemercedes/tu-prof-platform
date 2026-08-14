@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createTurma, deleteTurma, updateTurmaCalendario, updateTurmaNome } from "./actions";
+import SubmitButton from "@/components/submit-button";
 
 export default async function TurmasPage() {
   const supabase = await createClient();
@@ -27,12 +28,13 @@ export default async function TurmasPage() {
           placeholder="Nome da turma"
           className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
-        <button
-          type="submit"
-          className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
+        <SubmitButton
+          className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow whitespace-nowrap"
+          pendingText="Criando..."
+          savedText="✓ Criado!"
         >
           Criar
-        </button>
+        </SubmitButton>
       </form>
 
       <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg">
@@ -50,12 +52,9 @@ export default async function TurmasPage() {
                       required
                       className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-2 py-1 text-sm font-medium"
                     />
-                    <button
-                      type="submit"
-                      className="text-xs rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)] shrink-0"
-                    >
+                    <SubmitButton className="text-xs rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)] shrink-0 whitespace-nowrap">
                       Salvar
-                    </button>
+                    </SubmitButton>
                   </form>
                   <p className="text-xs text-[var(--text-secondary)] mt-1">
                     {(turma.turma_membros as unknown as { count: number }[])[0]?.count ?? 0}{" "}
@@ -91,12 +90,9 @@ export default async function TurmasPage() {
                     placeholder="Cole aqui o link de embed do Google Calendar"
                     className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-2 py-1.5 text-xs"
                   />
-                  <button
-                    type="submit"
-                    className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)]"
-                  >
+                  <SubmitButton className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] whitespace-nowrap">
                     Salvar
-                  </button>
+                  </SubmitButton>
                 </div>
               </form>
             </li>

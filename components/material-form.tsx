@@ -23,11 +23,13 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
   const [tipo, setTipo] = useState("html");
   const [htmlPreview, setHtmlPreview] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
   function handleSubmit(formData: FormData) {
     setError(null);
+    setSaved(false);
     startTransition(async () => {
       const result = await createMaterial(formData);
       if (result?.error) {
@@ -36,6 +38,8 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
         formRef.current?.reset();
         setHtmlPreview("");
         setTipo("html");
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2500);
       }
     });
   }
@@ -174,7 +178,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
         disabled={isPending}
         className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 disabled:opacity-50 btn-glow"
       >
-        {isPending ? "Salvando..." : "Adicionar material"}
+        {isPending ? "Salvando..." : saved ? "✓ Material adicionado!" : "Adicionar material"}
       </button>
     </form>
   );

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import MaterialForm from "@/components/material-form";
+import SubmitButton from "@/components/submit-button";
 import { createFase, deleteFase, deleteMaterial } from "./actions";
 import { updateMateriaTitulo } from "@/app/(admin)/admin/materias/actions";
 
@@ -94,12 +95,9 @@ export default async function MateriaDetailPage({
             required
             className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-1.5 text-lg font-semibold"
           />
-          <button
-            type="submit"
-            className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] shrink-0"
-          >
+          <SubmitButton className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] shrink-0 whitespace-nowrap">
             Salvar nome
-          </button>
+          </SubmitButton>
         </form>
       </div>
 
@@ -120,12 +118,13 @@ export default async function MateriaDetailPage({
             placeholder="Nome da fase (ex: Módulo 1)"
             className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
-          <button
-            type="submit"
-            className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
+          <SubmitButton
+            className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow whitespace-nowrap"
+            pendingText="Criando..."
+            savedText="✓ Criada!"
           >
             Criar
-          </button>
+          </SubmitButton>
         </form>
 
         {fases?.length ? (

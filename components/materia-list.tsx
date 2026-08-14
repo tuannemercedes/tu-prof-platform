@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CategoriaSelect from "@/components/categoria-select";
+import SubmitButton from "@/components/submit-button";
 import {
   updateMateriaCategoria,
   updateMateriaTitulo,
@@ -55,12 +56,9 @@ export default function MateriaList({ materias }: { materias: Materia[] }) {
               required
               className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-2 py-1.5 text-sm font-medium"
             />
-            <button
-              type="submit"
-              className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)]"
-            >
+            <SubmitButton className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] whitespace-nowrap">
               Salvar nome
-            </button>
+            </SubmitButton>
           </form>
         </li>
       ))}

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { updateConfiguracoes } from "./actions";
+import SubmitButton from "@/components/submit-button";
 
 export default async function ConfiguracoesPage() {
   const supabase = await createClient();
@@ -79,12 +80,9 @@ export default async function ConfiguracoesPage() {
             className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
         </div>
-        <button
-          type="submit"
-          className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow"
-        >
+        <SubmitButton className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow whitespace-nowrap">
           Salvar
-        </button>
+        </SubmitButton>
       </form>
     </div>
   );
