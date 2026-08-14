@@ -138,6 +138,24 @@ export async function updateMaterial(formData: FormData) {
   const { error } = await supabase.from("materiais").update(updates).eq("id", id);
   if (error) return { error: error.message };
 
+  const turmaIds = formData.getAll("turmas").map(String);
+  const alunoIds = formData.getAll("alunos").map(String);
+
+  await supabase.from("material_turmas").delete().eq("material_id", id);
+  await supabase.from("material_alunos").delete().eq("material_id", id);
+
+  if (turmaIds.length) {
+    await supabase
+      .from("material_turmas")
+      .insert(turmaIds.map((turma_id) => ({ material_id: id, turma_id })));
+  }
+
+  if (alunoIds.length) {
+    await supabase
+      .from("material_alunos")
+      .insert(alunoIds.map((aluno_id) => ({ material_id: id, aluno_id })));
+  }
+
   revalidatePath(`/admin/materias/${materia_id}`);
   return { success: true };
 }

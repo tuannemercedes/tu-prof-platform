@@ -52,6 +52,14 @@ export default async function MateriaDetailPage({
       ...alunosDoMaterial.map((a) => `${a} (individual)`),
     ] as string[];
 
+    const turmaIdsLiberadas = (
+      material.material_turmas as unknown as { turma_id: string }[]
+    ).map((mt) => mt.turma_id);
+
+    const alunoIdsLiberados = (
+      material.material_alunos as unknown as { aluno_id: string }[]
+    ).map((ma) => ma.aluno_id);
+
     return (
       <MaterialRow
         key={material.id}
@@ -59,6 +67,10 @@ export default async function MateriaDetailPage({
         materiaId={id}
         acessos={acessos}
         fases={fases ?? []}
+        turmas={turmas ?? []}
+        alunos={alunos ?? []}
+        turmaIdsLiberadas={turmaIdsLiberadas}
+        alunoIdsLiberados={alunoIdsLiberados}
         deleteAction={deleteMaterial}
       />
     );

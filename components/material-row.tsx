@@ -26,10 +26,24 @@ type Props = {
   materiaId: string;
   acessos: string[];
   fases: { id: string; titulo: string }[];
+  turmas: { id: string; nome: string }[];
+  alunos: { id: string; nome: string | null; email: string }[];
+  turmaIdsLiberadas: string[];
+  alunoIdsLiberados: string[];
   deleteAction: (formData: FormData) => void;
 };
 
-export default function MaterialRow({ material, materiaId, acessos, fases, deleteAction }: Props) {
+export default function MaterialRow({
+  material,
+  materiaId,
+  acessos,
+  fases,
+  turmas,
+  alunos,
+  turmaIdsLiberadas,
+  alunoIdsLiberados,
+  deleteAction,
+}: Props) {
   const [editing, setEditing] = useState(false);
   const [htmlPreview, setHtmlPreview] = useState(material.conteudo_html ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -158,6 +172,46 @@ export default function MaterialRow({ material, materiaId, acessos, fases, delet
             </label>
             <input type="file" name="capa" accept="image/*" className="bg-[var(--surface)] text-sm" />
           </div>
+
+          {turmas.length > 0 && (
+            <div>
+              <p className="text-xs text-[var(--text-secondary)] mb-1">Liberado para quais turmas?</p>
+              <div className="flex flex-wrap gap-3 text-sm">
+                {turmas.map((turma) => (
+                  <label key={turma.id} className="flex items-center gap-1.5">
+                    <input
+                      type="checkbox"
+                      name="turmas"
+                      value={turma.id}
+                      defaultChecked={turmaIdsLiberadas.includes(turma.id)}
+                    />
+                    {turma.nome}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {alunos.length > 0 && (
+            <div>
+              <p className="text-xs text-[var(--text-secondary)] mb-1">
+                Liberado para alunos específicos (opcional, além das turmas acima)
+              </p>
+              <div className="flex flex-wrap gap-3 text-sm">
+                {alunos.map((aluno) => (
+                  <label key={aluno.id} className="flex items-center gap-1.5">
+                    <input
+                      type="checkbox"
+                      name="alunos"
+                      value={aluno.id}
+                      defaultChecked={alunoIdsLiberados.includes(aluno.id)}
+                    />
+                    {aluno.nome || aluno.email}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
 
