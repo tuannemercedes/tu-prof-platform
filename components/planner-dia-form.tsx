@@ -1,15 +1,15 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { createPlannerDia } from "@/app/(admin)/admin/alunos/[id]/planner/actions";
+import { createPlannerDia } from "@/app/(admin)/admin/planner/[id]/actions";
 
 const NOVA_SEMANA = "__nova__";
 
 export default function PlannerDiaForm({
-  alunoId,
+  plannerId,
   semanasExistentes,
 }: {
-  alunoId: string;
+  plannerId: string;
   semanasExistentes: number[];
 }) {
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export default function PlannerDiaForm({
       action={handleSubmit}
       className="flex flex-wrap gap-2 border border-[var(--border)] rounded-lg p-4"
     >
-      <input type="hidden" name="aluno_id" value={alunoId} />
+      <input type="hidden" name="planner_id" value={plannerId} />
 
       <select
         name="semana"

@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import PlannerItemCheckbox from "@/components/planner-item-checkbox";
 import PreviewNav from "@/components/preview-nav";
-
-type Item = { id: string; texto: string; concluido: boolean; link_url: string | null };
+import { getPlannerDiasParaAluno, type PlannerItem as Item } from "@/lib/planner";
 
 export default async function PreviewPlannerPage({
   params,
@@ -12,12 +11,7 @@ export default async function PreviewPlannerPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: dias } = await supabase
-    .from("planner_dias")
-    .select("id, semana, titulo, conteudo_html, planner_itens(id, texto, concluido, link_url)")
-    .eq("aluno_id", id)
-    .order("semana")
-    .order("ordem");
+  const dias = await getPlannerDiasParaAluno(supabase, id);
 
   const semanas = new Map<number, typeof dias>();
   (dias ?? []).forEach((dia) => {

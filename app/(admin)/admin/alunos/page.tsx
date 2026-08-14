@@ -24,12 +24,15 @@ export default async function AlunosPage() {
           Ao adicionar, uma senha é gerada — envie o e-mail e a senha pro
           aluno por fora (WhatsApp, etc). Ele entra em{" "}
           <span className="font-mono">/login</span> com esses dados. O
-          cronograma agora é montado em{" "}
+          cronograma e o planner agora são montados em{" "}
           <Link href="/admin/cronograma" className="underline">
             Cronograma
           </Link>{" "}
-          e liberado por turma/aluno; use o botão <strong>Planner</strong> em
-          cada aluno para as tarefas individuais dele.
+          e{" "}
+          <Link href="/admin/planner" className="underline">
+            Planner
+          </Link>{" "}
+          e liberados por turma/aluno.
         </p>
       </div>
 
@@ -48,12 +51,6 @@ export default async function AlunosPage() {
                     <p className="text-sm font-medium">{aluno.nome || aluno.email}</p>
                     <p className="text-xs text-[var(--text-secondary)]">{aluno.email}</p>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      <Link
-                        href={`/admin/alunos/${aluno.id}/planner`}
-                        className="text-xs font-medium rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)]"
-                      >
-                        ✅ Planner
-                      </Link>
                       <Link
                         href={`/admin/alunos/${aluno.id}/conteudos`}
                         className="text-xs font-medium rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)]"
