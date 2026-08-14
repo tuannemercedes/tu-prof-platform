@@ -5,6 +5,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import SignOutButton from "./sign-out-button";
 import ThemeToggle from "./theme-toggle";
+import Logo from "./logo";
 
 type MaterialStatus = { id: string; titulo: string; concluido: boolean };
 type Fase = { id: string; titulo: string; materiais: MaterialStatus[] };
@@ -59,7 +60,7 @@ export default function AlunoSidebar({
   return (
     <>
       <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
-        <p className="font-semibold">Tu Prof</p>
+        <Logo />
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <button
@@ -92,7 +93,7 @@ export default function AlunoSidebar({
             style={{ background: "var(--glow-secondary)" }}
           />
           <div className="min-w-0 relative">
-            <p className="font-semibold hidden sm:block">Tu Prof</p>
+            <Logo className="hidden sm:inline-block" />
             <p className="text-xs text-[var(--text-secondary)] truncate">Olá, {nome}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0 text-xs text-[var(--text-secondary)] pt-0.5 relative">

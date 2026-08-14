@@ -5,6 +5,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import SignOutButton from "./sign-out-button";
 import ThemeToggle from "./theme-toggle";
+import Logo from "./logo";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Início" },
@@ -28,7 +29,7 @@ export default function AdminSidebar({ email }: { email: string }) {
   return (
     <>
       <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
-        <p className="font-semibold">Tu Prof</p>
+        <Logo />
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <button
@@ -61,7 +62,7 @@ export default function AdminSidebar({ email }: { email: string }) {
             style={{ background: "var(--glow-secondary)" }}
           />
           <div className="min-w-0 relative">
-            <p className="font-semibold hidden sm:block">Tu Prof</p>
+            <Logo className="hidden sm:inline-block" />
             <p className="text-xs text-[var(--text-secondary)]">Painel do admin</p>
           </div>
           <div className="flex items-center gap-2 shrink-0 relative">

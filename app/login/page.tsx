@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { signIn } from "./actions";
 import ThemeToggle from "@/components/theme-toggle";
+import Logo from "@/components/logo";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
@@ -24,7 +25,9 @@ export default function LoginPage() {
       </div>
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center space-y-1">
-          <h1 className="text-xl font-semibold">Tu Prof</h1>
+          <h1>
+            <Logo className="text-3xl" />
+          </h1>
           <p className="text-sm text-[var(--text-secondary)]">
             Entre com seu e-mail e senha para acessar seus materiais.
           </p>

@@ -79,6 +79,7 @@
   --color-surface: var(--surface);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-playfair);
 }
 
 body {
@@ -134,4 +135,27 @@ body {
 .btn-glow:hover {
   box-shadow: 0 8px 24px -8px var(--glow-accent);
   transform: translateY(-1px);
+}
+
+/* ===== Logo (wordmark) ===================================================== */
+
+.logo-tu {
+  background: linear-gradient(180deg, #e8e8e8 0%, #a8a8a8 45%, #6b6b6b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+[data-theme="dark"] .logo-tu {
+  background: linear-gradient(180deg, #ffffff 0%, #d4d4d4 45%, #9a9a9a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.logo-prof {
+  background: linear-gradient(180deg, #f3dfa6 0%, #c8a66b 45%, #8a6a3d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
