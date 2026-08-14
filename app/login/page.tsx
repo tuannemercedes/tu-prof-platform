@@ -19,11 +19,24 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative min-h-screen flex items-center justify-center px-4">
-      <div className="absolute top-4 right-4">
+    <main className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster="/videos/login-bg-poster.jpg"
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="/videos/login-bg.mp4" type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 bg-black/55" />
+
+      <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
-      <div className="w-full max-w-sm space-y-6">
+
+      <div className="relative z-10 w-full max-w-sm space-y-6 bg-[var(--surface)]/90 backdrop-blur-md border border-[var(--border)] rounded-2xl p-8 card-elevated">
         <div className="text-center space-y-1">
           <h1>
             <Logo className="text-3xl" />
