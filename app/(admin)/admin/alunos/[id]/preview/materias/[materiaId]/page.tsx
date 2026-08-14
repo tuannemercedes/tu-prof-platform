@@ -17,7 +17,7 @@ export default async function PreviewMateriaPage({
       supabase
         .from("materiais")
         .select(
-          "id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, material_turmas(turma_id), material_alunos(aluno_id)"
+          "id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, visivel_todos, material_turmas(turma_id), material_alunos(aluno_id)"
         )
         .eq("materia_id", materiaId)
         .order("ordem"),
@@ -31,6 +31,7 @@ export default async function PreviewMateriaPage({
   const turmaIdsDoAluno = new Set((turmaMembros ?? []).map((tm) => tm.turma_id));
 
   const liberados = (materiais ?? []).filter((m) => {
+    if (m.visivel_todos) return true;
     const viaTurma = (m.material_turmas as { turma_id: string }[]).some((mt) =>
       turmaIdsDoAluno.has(mt.turma_id)
     );

@@ -1,37 +1,22 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getClubeAcessoParaAluno } from "@/lib/clube";
-
-type Row = {
-  materia_id: string;
-  materias: { id: string; titulo: string; categoria: string } | null;
-  material_turmas: { turmas: { turma_membros: { aluno_id: string }[] } | null }[];
-  material_alunos: { aluno_id: string }[];
-};
+import { getMateriaisParaAluno } from "@/lib/materiais";
 
 export default async function PreviewNav({ alunoId }: { alunoId: string }) {
   const supabase = await createClient();
-  const [{ data: aluno }, { data: materiaisRows }, temClube] = await Promise.all([
+  const [{ data: aluno }, materiaisAcessiveis, temClube] = await Promise.all([
     supabase.from("profiles").select("id, nome, email").eq("id", alunoId).single(),
-    supabase
-      .from("materiais")
-      .select(
-        "materia_id, materias(id, titulo, categoria), material_turmas(turma_id, turmas(turma_membros(aluno_id))), material_alunos(aluno_id)"
-      )
-      .order("materia_id"),
+    getMateriaisParaAluno(supabase, alunoId),
     getClubeAcessoParaAluno(supabase, alunoId),
   ]);
 
   if (!aluno) return null;
 
   const materiasMap = new Map<string, { id: string; titulo: string; categoria: string }>();
-  ((materiaisRows ?? []) as unknown as Row[]).forEach((row) => {
+  materiaisAcessiveis.forEach((row) => {
     if (!row.materias) return;
-    const viaTurma = row.material_turmas.some((mt) =>
-      mt.turmas?.turma_membros.some((tm) => tm.aluno_id === alunoId)
-    );
-    const viaAluno = row.material_alunos.some((ma) => ma.aluno_id === alunoId);
-    if (viaTurma || viaAluno) materiasMap.set(row.materias.id, row.materias);
+    materiasMap.set(row.materias.id, row.materias);
   });
 
   const todas = [...materiasMap.values()];

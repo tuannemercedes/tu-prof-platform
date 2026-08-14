@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import PreviewNav from "@/components/preview-nav";
 import { calcularJornada, getCronogramaItensParaAluno } from "@/lib/cronograma";
 import { getPlannerDiasParaAluno } from "@/lib/planner";
+import { getMateriaisParaAluno } from "@/lib/materiais";
 import ProgressRing from "@/components/progress-ring";
 
 type MateriaRelation = { id: string; titulo: string; categoria: string } | null;
@@ -15,12 +16,9 @@ export default async function PreviewHomePage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: materiais }, { data: progresso }, cronograma, { data: config }, planners] =
+  const [materiais, { data: progresso }, cronograma, { data: config }, planners] =
     await Promise.all([
-      supabase
-        .from("materiais")
-        .select("id, titulo, materia_id, materias(id, titulo, categoria)")
-        .order("ordem"),
+      getMateriaisParaAluno(supabase, id),
       supabase
         .from("progresso")
         .select("material_id, concluido, acessado_em")
