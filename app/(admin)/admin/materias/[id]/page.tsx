@@ -2,18 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import MaterialForm from "@/components/material-form";
+import MaterialRow from "@/components/material-row";
 import SubmitButton from "@/components/submit-button";
 import { createFase, deleteFase, deleteMaterial } from "./actions";
 import { updateMateriaTitulo } from "@/app/(admin)/admin/materias/actions";
-
-const TIPO_LABELS: Record<string, string> = {
-  html: "Página HTML",
-  pdf: "PDF",
-  video: "Vídeo",
-  playlist: "Playlist",
-  podcast: "Podcast",
-  link_externo: "Link externo",
-};
 
 export default async function MateriaDetailPage({
   params,
@@ -29,7 +21,7 @@ export default async function MateriaDetailPage({
       supabase
         .from("materiais")
         .select(
-          "id, titulo, tipo, ordem, fase_id, material_turmas(turma_id, turmas(nome)), material_alunos(aluno_id, profiles(nome, email))"
+          "id, titulo, tipo, ordem, fase_id, conteudo_html, url, material_turmas(turma_id, turmas(nome)), material_alunos(aluno_id, profiles(nome, email))"
         )
         .eq("materia_id", id)
         .order("ordem"),
@@ -55,26 +47,20 @@ export default async function MateriaDetailPage({
       .map((ma) => ma.profiles?.nome || ma.profiles?.email)
       .filter(Boolean);
 
-    const acessos = [...turmasDoMaterial, ...alunosDoMaterial.map((a) => `${a} (individual)`)];
+    const acessos = [
+      ...turmasDoMaterial,
+      ...alunosDoMaterial.map((a) => `${a} (individual)`),
+    ] as string[];
 
     return (
-      <li key={material.id} className="p-3 flex items-center justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium">{material.titulo}</p>
-          <p className="text-xs text-[var(--text-secondary)]">
-            {TIPO_LABELS[material.tipo] ?? material.tipo}
-            {acessos.length > 0 && ` · ${acessos.join(", ")}`}
-            {acessos.length === 0 && " · ninguém tem acesso ainda"}
-          </p>
-        </div>
-        <form action={deleteMaterial}>
-          <input type="hidden" name="id" value={material.id} />
-          <input type="hidden" name="materia_id" value={id} />
-          <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
-            Excluir
-          </button>
-        </form>
-      </li>
+      <MaterialRow
+        key={material.id}
+        material={material}
+        materiaId={id}
+        acessos={acessos}
+        fases={fases ?? []}
+        deleteAction={deleteMaterial}
+      />
     );
   }
 

@@ -94,6 +94,54 @@ export async function createMaterial(formData: FormData) {
   return { success: true };
 }
 
+export async function updateMaterial(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const materia_id = String(formData.get("materia_id") || "");
+  const fase_id = String(formData.get("fase_id") || "") || null;
+  const tipo = String(formData.get("tipo") || "");
+  const titulo = String(formData.get("titulo") || "").trim();
+
+  if (!id || !titulo) return { error: "Preencha os campos obrigatórios." };
+
+  const supabase = await createClient();
+  const updates: Record<string, unknown> = { titulo, fase_id };
+
+  if (tipo === "html") {
+    const conteudo_html = String(formData.get("conteudo_html") || "");
+    if (!conteudo_html.trim()) return { error: "Cole o código HTML do material." };
+    updates.conteudo_html = conteudo_html;
+  } else if (tipo === "pdf") {
+    const arquivo = formData.get("arquivo") as File | null;
+    if (arquivo && arquivo.size > 0) {
+      const path = `${materia_id}/${Date.now()}-${arquivo.name}`;
+      const { error: uploadError } = await supabase.storage.from("materiais").upload(path, arquivo);
+      if (uploadError) return { error: uploadError.message };
+      updates.arquivo_path = path;
+    }
+  } else {
+    const url = String(formData.get("url") || "").trim();
+    if (!url) return { error: "Informe o link." };
+    updates.url = url;
+  }
+
+  const capa = formData.get("capa") as File | null;
+  if (capa && capa.size > 0) {
+    const ext = capa.name.includes(".") ? capa.name.split(".").pop()!.toLowerCase().slice(0, 10) : "jpg";
+    const capaPath = `${materia_id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+    const { error: capaUploadError } = await supabase.storage
+      .from("capas")
+      .upload(capaPath, capa, { contentType: capa.type || undefined });
+    if (capaUploadError) return { error: `Erro ao enviar a capa: ${capaUploadError.message}` };
+    updates.capa_path = capaPath;
+  }
+
+  const { error } = await supabase.from("materiais").update(updates).eq("id", id);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/admin/materias/${materia_id}`);
+  return { success: true };
+}
+
 export async function deleteMaterial(formData: FormData) {
   const id = String(formData.get("id") || "");
   const materia_id = String(formData.get("materia_id") || "");
