@@ -29,6 +29,7 @@ export default async function PlannerAlunoPage({
     if (!semanas.has(dia.semana)) semanas.set(dia.semana, []);
     semanas.get(dia.semana)!.push(dia);
   });
+  const semanasExistentes = [...semanas.keys()].sort((a, b) => a - b);
 
   return (
     <div className="space-y-8 max-w-2xl">
@@ -43,7 +44,7 @@ export default async function PlannerAlunoPage({
         </p>
       </div>
 
-      <PlannerDiaForm alunoId={id} />
+      <PlannerDiaForm alunoId={id} semanasExistentes={semanasExistentes} />
 
       {[...semanas.entries()].map(([semana, diasDaSemana]) => (
         <section key={semana} className="space-y-3">

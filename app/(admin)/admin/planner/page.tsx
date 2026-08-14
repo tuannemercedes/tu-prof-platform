@@ -23,19 +23,24 @@ export default async function PlannerListPage() {
         {alunos?.length ? (
           alunos.map((aluno) => {
             const totalDias = (aluno.planner_dias as unknown as { count: number }[])[0]?.count ?? 0;
+            const temPlanner = totalDias > 0;
             return (
               <li key={aluno.id} className="p-4 flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium">{aluno.nome || aluno.email}</p>
                   <p className="text-xs text-[var(--text-secondary)]">
-                    {totalDias} dia(s) no planner
+                    {temPlanner ? `${totalDias} dia(s) no planner` : "Nenhum planner ainda"}
                   </p>
                 </div>
                 <Link
                   href={`/admin/alunos/${aluno.id}/planner`}
-                  className="text-xs font-medium rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)] whitespace-nowrap"
+                  className={
+                    temPlanner
+                      ? "text-xs font-medium rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)] whitespace-nowrap"
+                      : "text-xs font-medium rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] px-2.5 py-1 btn-glow whitespace-nowrap"
+                  }
                 >
-                  Editar planner
+                  {temPlanner ? "Editar planner" : "+ Criar planner"}
                 </Link>
               </li>
             );
