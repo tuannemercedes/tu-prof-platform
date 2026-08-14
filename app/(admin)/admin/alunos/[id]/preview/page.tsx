@@ -68,6 +68,7 @@ export default async function PreviewHomePage({
   }
 
   const base = `/admin/alunos/${id}/preview`;
+  const temAlgumConteudo = totalMateriais > 0 || totalTarefas > 0 || totalAulas > 0;
 
   return (
     <div className="space-y-10">
@@ -89,104 +90,118 @@ export default async function PreviewHomePage({
         </div>
       )}
 
-      <div className="rounded-lg border border-[var(--border)] p-4">
-        <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">Próxima aula</p>
-        {proximaAula ? (
-          <>
-            <p className="text-sm font-medium">{proximaAula.tema}</p>
-            <p className="text-xs text-[var(--text-secondary)]">
-              {new Date(proximaAula.data + "T00:00:00").toLocaleDateString("pt-BR")}
-              {proximaAula.descricao ? ` · ${proximaAula.descricao}` : ""}
-            </p>
-          </>
-        ) : (
-          <p className="text-sm text-[var(--text-secondary)]">Nenhuma aula agendada ainda.</p>
-        )}
-      </div>
-
-      {ultimoAcessado && (
-        <div className="block rounded-lg border border-[var(--border)] p-4">
-          <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">Continuar de onde parou</p>
-          <p className="text-sm font-medium">{ultimoAcessado.materialTitulo}</p>
-          <p className="text-xs text-[var(--text-secondary)]">{ultimoAcessado.trilhaTitulo} →</p>
+      {!temAlgumConteudo ? (
+        <div className="rounded-2xl border border-dashed border-[var(--border-strong)] bg-[var(--surface)] p-8 text-center space-y-2">
+          <p className="text-2xl">👋</p>
+          <p className="text-sm font-medium">Este aluno ainda não tem nada liberado</p>
+          <p className="text-sm text-[var(--text-secondary)] max-w-sm mx-auto">
+            Assim que você liberar materiais, um cronograma ou tarefas, eles aparecem aqui.
+          </p>
         </div>
-      )}
-
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Seu progresso</h2>
-        <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 card-elevated">
-          <div
-            className="glow-spot -right-10 -top-10 w-40 h-40"
-            style={{ background: "var(--glow-accent)" }}
-          />
-          <div className="relative flex flex-col sm:flex-row items-center sm:items-center gap-6">
-            <div className="relative shrink-0 flex items-center justify-center" style={{ width: 152, height: 152 }}>
-              <ProgressRing value={percentualGeral} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold tabular-nums">{percentualGeral}%</span>
-                <span className="text-[10px] text-[var(--text-faint)] uppercase tracking-wide mt-0.5">
-                  concluído
-                </span>
-              </div>
-            </div>
-            <div className="flex-1 text-center sm:text-left">
-              <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">
-                Progresso geral
-              </p>
-              <p className="text-sm text-[var(--text-secondary)]">
-                {totalConcluidos} de {totalMateriais} materiais concluídos
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {porTrilha.size > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[...porTrilha.entries()].map(([trilhaId, t]) => (
-              <Link
-                key={trilhaId}
-                href={`${base}/materias/${trilhaId}`}
-                className="card-lift rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 hover:border-[var(--border-strong)] transition-colors"
-              >
-                <p className="text-sm font-medium">{t.titulo}</p>
-                <p className="text-xs text-[var(--text-secondary)] mb-1.5">
-                  {t.concluidos}/{t.total}
+      ) : (
+        <>
+          <div className="rounded-lg border border-[var(--border)] p-4">
+            <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">Próxima aula</p>
+            {proximaAula ? (
+              <>
+                <p className="text-sm font-medium">{proximaAula.tema}</p>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  {new Date(proximaAula.data + "T00:00:00").toLocaleDateString("pt-BR")}
+                  {proximaAula.descricao ? ` · ${proximaAula.descricao}` : ""}
                 </p>
+              </>
+            ) : (
+              <p className="text-sm text-[var(--text-secondary)]">Nenhuma aula agendada ainda.</p>
+            )}
+          </div>
+
+          {ultimoAcessado && (
+            <div className="block rounded-lg border border-[var(--border)] p-4">
+              <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">Continuar de onde parou</p>
+              <p className="text-sm font-medium">{ultimoAcessado.materialTitulo}</p>
+              <p className="text-xs text-[var(--text-secondary)]">{ultimoAcessado.trilhaTitulo} →</p>
+            </div>
+          )}
+
+          {totalMateriais > 0 ? (
+            <section className="space-y-3">
+              <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Seu progresso</h2>
+              <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 card-elevated">
+                <div
+                  className="glow-spot -right-10 -top-10 w-40 h-40"
+                  style={{ background: "var(--glow-accent)" }}
+                />
+                <div className="relative flex flex-col sm:flex-row items-center sm:items-center gap-6">
+                  <div className="relative shrink-0 flex items-center justify-center" style={{ width: 152, height: 152 }}>
+                    <ProgressRing value={percentualGeral} />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-3xl font-bold tabular-nums">{percentualGeral}%</span>
+                      <span className="text-[10px] text-[var(--text-faint)] uppercase tracking-wide mt-0.5">
+                        concluído
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 text-center sm:text-left">
+                    <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">
+                      Progresso geral
+                    </p>
+                    <p className="text-sm text-[var(--text-secondary)]">
+                      {totalConcluidos} de {totalMateriais} materiais concluídos
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {porTrilha.size > 0 && (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {[...porTrilha.entries()].map(([trilhaId, t]) => (
+                    <Link
+                      key={trilhaId}
+                      href={`${base}/materias/${trilhaId}`}
+                      className="card-lift rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 hover:border-[var(--border-strong)] transition-colors"
+                    >
+                      <p className="text-sm font-medium">{t.titulo}</p>
+                      <p className="text-xs text-[var(--text-secondary)] mb-1.5">
+                        {t.concluidos}/{t.total}
+                      </p>
+                      <div className="h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden">
+                        <div
+                          className="h-full bg-[var(--accent)] rounded-full"
+                          style={{ width: `${t.total ? (t.concluidos / t.total) * 100 : 0}%` }}
+                        />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </section>
+          ) : (
+            <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado ainda.</p>
+          )}
+
+          {totalTarefas > 0 && (
+            <section className="space-y-3">
+              <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+                Planner
+              </h2>
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+                <div className="flex items-baseline justify-between mb-1.5">
+                  <p className="text-xl font-semibold tabular-nums">{pctPlanner}%</p>
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {tarefasConcluidas} de {totalTarefas} tarefas concluídas
+                  </p>
+                </div>
                 <div className="h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden">
                   <div
-                    className="h-full bg-[var(--accent)] rounded-full"
-                    style={{ width: `${t.total ? (t.concluidos / t.total) * 100 : 0}%` }}
+                    className="h-full bg-[var(--accent-secondary)] rounded-full"
+                    style={{ width: `${pctPlanner}%` }}
                   />
                 </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {totalTarefas > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
-            Planner
-          </h2>
-          <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-            <div className="flex items-baseline justify-between mb-1.5">
-              <p className="text-xl font-semibold tabular-nums">{pctPlanner}%</p>
-              <p className="text-xs text-[var(--text-secondary)]">
-                {tarefasConcluidas} de {totalTarefas} tarefas concluídas
-              </p>
-            </div>
-            <div className="h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden">
-              <div
-                className="h-full bg-[var(--accent-secondary)] rounded-full"
-                style={{ width: `${pctPlanner}%` }}
-              />
-            </div>
-          </div>
-        </section>
+              </div>
+            </section>
+          )}
+        </>
       )}
-
-      {totalMateriais === 0 && <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado ainda.</p>}
     </div>
   );
 }
