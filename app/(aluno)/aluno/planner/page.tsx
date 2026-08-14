@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/dal";
 import PlannerItemCheckbox from "@/components/planner-item-checkbox";
 
-type Item = { id: string; texto: string; concluido: boolean };
+type Item = { id: string; texto: string; concluido: boolean; link_url: string | null };
 
 export default async function AlunoPlannerPage() {
   const user = await getUser();
@@ -10,7 +10,7 @@ export default async function AlunoPlannerPage() {
 
   const { data: dias } = await supabase
     .from("planner_dias")
-    .select("id, semana, titulo, conteudo_html, planner_itens(id, texto, concluido)")
+    .select("id, semana, titulo, conteudo_html, planner_itens(id, texto, concluido, link_url)")
     .eq("aluno_id", user!.id)
     .order("semana")
     .order("ordem");
@@ -64,6 +64,7 @@ export default async function AlunoPlannerPage() {
                           key={item.id}
                           itemId={item.id}
                           texto={item.texto}
+                          linkUrl={item.link_url}
                           defaultChecked={item.concluido}
                         />
                       ))}

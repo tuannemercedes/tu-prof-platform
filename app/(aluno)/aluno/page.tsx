@@ -23,7 +23,6 @@ export default async function AlunoHomePage() {
       supabase
         .from("cronograma_itens")
         .select("id, data, tema, descricao")
-        .eq("aluno_id", user!.id)
         .order("data"),
       supabase.from("configuracoes").select("chave, valor").eq("chave", "recado_mentora"),
     ]);

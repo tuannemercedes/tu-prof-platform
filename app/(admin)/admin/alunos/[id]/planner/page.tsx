@@ -16,7 +16,7 @@ export default async function PlannerAlunoPage({
     supabase.from("profiles").select("id, nome, email").eq("id", id).single(),
     supabase
       .from("planner_dias")
-      .select("id, semana, titulo, planner_itens(id, texto)")
+      .select("id, semana, titulo, planner_itens(id, texto, link_url)")
       .eq("aluno_id", id)
       .order("semana")
       .order("ordem"),
@@ -65,21 +65,35 @@ export default async function PlannerAlunoPage({
                 </div>
 
                 <ul className="space-y-1">
-                  {(dia.planner_itens as { id: string; texto: string }[]).map((item) => (
-                    <li key={item.id} className="flex items-center justify-between gap-2 text-sm">
-                      <span>· {item.texto}</span>
-                      <form action={deletePlannerItem}>
-                        <input type="hidden" name="id" value={item.id} />
-                        <input type="hidden" name="aluno_id" value={id} />
-                        <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
-                          Excluir
-                        </button>
-                      </form>
-                    </li>
-                  ))}
+                  {(dia.planner_itens as { id: string; texto: string; link_url: string | null }[]).map(
+                    (item) => (
+                      <li key={item.id} className="flex items-center justify-between gap-2 text-sm">
+                        <span>
+                          · {item.texto}
+                          {item.link_url && (
+                            <a
+                              href={item.link_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="ml-1.5 text-[var(--accent)] hover:underline"
+                            >
+                              🔗
+                            </a>
+                          )}
+                        </span>
+                        <form action={deletePlannerItem}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <input type="hidden" name="aluno_id" value={id} />
+                          <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
+                            Excluir
+                          </button>
+                        </form>
+                      </li>
+                    )
+                  )}
                 </ul>
 
-                <form action={createPlannerItem} className="flex gap-2">
+                <form action={createPlannerItem} className="flex flex-wrap gap-2">
                   <input type="hidden" name="dia_id" value={dia.id} />
                   <input type="hidden" name="aluno_id" value={id} />
                   <input
@@ -87,7 +101,13 @@ export default async function PlannerAlunoPage({
                     name="texto"
                     required
                     placeholder="Nova tarefa (ex: Leia 5 frases em voz alta)"
-                    className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-2 py-1.5 text-xs"
+                    className="bg-[var(--surface)] flex-1 min-w-[160px] rounded-md border border-[var(--border-strong)] px-2 py-1.5 text-xs"
+                  />
+                  <input
+                    type="url"
+                    name="link_url"
+                    placeholder="Link (opcional)"
+                    className="bg-[var(--surface)] w-40 rounded-md border border-[var(--border-strong)] px-2 py-1.5 text-xs"
                   />
                   <button
                     type="submit"

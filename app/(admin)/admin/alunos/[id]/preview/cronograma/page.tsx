@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import PreviewNav from "@/components/preview-nav";
+import { getCronogramaItensParaAluno } from "@/lib/cronograma";
 
 export default async function PreviewCronogramaPage({
   params,
@@ -9,11 +10,7 @@ export default async function PreviewCronogramaPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: itens } = await supabase
-    .from("cronograma_itens")
-    .select("id, data, tema, descricao")
-    .eq("aluno_id", id)
-    .order("data");
+  const itens = await getCronogramaItensParaAluno(supabase, id);
 
   return (
     <div className="space-y-6">

@@ -1,14 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
-import { getUser } from "@/lib/dal";
 
 export default async function AlunoCronogramaPage() {
-  const user = await getUser();
   const supabase = await createClient();
 
   const { data: itens } = await supabase
     .from("cronograma_itens")
     .select("id, data, tema, descricao")
-    .eq("aluno_id", user!.id)
     .order("data");
 
   return (

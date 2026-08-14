@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PreviewNav from "@/components/preview-nav";
-import { calcularJornada } from "@/lib/cronograma";
+import { calcularJornada, getCronogramaItensParaAluno } from "@/lib/cronograma";
 import ProgressRing from "@/components/progress-ring";
 
 type MateriaRelation = { id: string; titulo: string; categoria: string } | null;
@@ -14,7 +14,7 @@ export default async function PreviewHomePage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: materiais }, { data: progresso }, { data: cronograma }, { data: config }] =
+  const [{ data: materiais }, { data: progresso }, cronograma, { data: config }] =
     await Promise.all([
       supabase
         .from("materiais")
@@ -24,16 +24,12 @@ export default async function PreviewHomePage({
         .from("progresso")
         .select("material_id, concluido, acessado_em")
         .eq("aluno_id", id),
-      supabase
-        .from("cronograma_itens")
-        .select("id, data, tema, descricao")
-        .eq("aluno_id", id)
-        .order("data"),
+      getCronogramaItensParaAluno(supabase, id),
       supabase.from("configuracoes").select("chave, valor").eq("chave", "recado_mentora"),
     ]);
 
   const recadoMentora = config?.[0]?.valor ?? null;
-  const { total: totalAulas, semanaAtual, proximaAula } = calcularJornada(cronograma ?? []);
+  const { total: totalAulas, semanaAtual, proximaAula } = calcularJornada(cronograma);
 
   const progressoMap = new Map((progresso ?? []).map((p) => [p.material_id, p]));
 

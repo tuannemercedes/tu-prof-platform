@@ -6,11 +6,18 @@ import { toggleItemConcluido } from "@/app/(aluno)/aluno/planner/actions";
 type Props = {
   itemId: string;
   texto: string;
+  linkUrl?: string | null;
   defaultChecked: boolean;
   readOnly?: boolean;
 };
 
-export default function PlannerItemCheckbox({ itemId, texto, defaultChecked, readOnly = false }: Props) {
+export default function PlannerItemCheckbox({
+  itemId,
+  texto,
+  linkUrl,
+  defaultChecked,
+  readOnly = false,
+}: Props) {
   const [checked, setChecked] = useState(defaultChecked);
   const [isPending, startTransition] = useTransition();
 
@@ -32,6 +39,17 @@ export default function PlannerItemCheckbox({ itemId, texto, defaultChecked, rea
         className="bg-[var(--surface)] mt-0.5"
       />
       <span className={checked ? "line-through text-[var(--text-faint)]" : ""}>{texto}</span>
+      {linkUrl && (
+        <a
+          href={linkUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="text-[var(--accent)] hover:underline shrink-0"
+        >
+          🔗
+        </a>
+      )}
     </label>
   );
 }

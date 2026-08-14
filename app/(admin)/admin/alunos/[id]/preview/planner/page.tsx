@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import PlannerItemCheckbox from "@/components/planner-item-checkbox";
 import PreviewNav from "@/components/preview-nav";
 
-type Item = { id: string; texto: string; concluido: boolean };
+type Item = { id: string; texto: string; concluido: boolean; link_url: string | null };
 
 export default async function PreviewPlannerPage({
   params,
@@ -14,7 +14,7 @@ export default async function PreviewPlannerPage({
 
   const { data: dias } = await supabase
     .from("planner_dias")
-    .select("id, semana, titulo, conteudo_html, planner_itens(id, texto, concluido)")
+    .select("id, semana, titulo, conteudo_html, planner_itens(id, texto, concluido, link_url)")
     .eq("aluno_id", id)
     .order("semana")
     .order("ordem");
@@ -69,6 +69,7 @@ export default async function PreviewPlannerPage({
                           key={item.id}
                           itemId={item.id}
                           texto={item.texto}
+                          linkUrl={item.link_url}
                           defaultChecked={item.concluido}
                           readOnly
                         />
