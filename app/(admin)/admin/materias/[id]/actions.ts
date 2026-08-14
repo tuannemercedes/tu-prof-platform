@@ -61,11 +61,12 @@ export async function createMaterial(formData: FormData) {
 
   const capa = formData.get("capa") as File | null;
   if (capa && capa.size > 0) {
-    const capaPath = `${materia_id}/${Date.now()}-${capa.name}`;
+    const ext = capa.name.includes(".") ? capa.name.split(".").pop()!.toLowerCase().slice(0, 10) : "jpg";
+    const capaPath = `${materia_id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
     const { error: capaUploadError } = await supabase.storage
       .from("capas")
-      .upload(capaPath, capa);
-    if (capaUploadError) return { error: capaUploadError.message };
+      .upload(capaPath, capa, { contentType: capa.type || undefined });
+    if (capaUploadError) return { error: `Erro ao enviar a capa: ${capaUploadError.message}` };
     capa_path = capaPath;
   }
 
