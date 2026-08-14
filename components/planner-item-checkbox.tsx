@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toggleItemConcluido } from "@/app/(aluno)/aluno/planner/actions";
+import LinkChip from "./link-chip";
 
 type Props = {
   itemId: string;
@@ -30,26 +31,18 @@ export default function PlannerItemCheckbox({
   }
 
   return (
-    <label className="flex items-start gap-2 text-sm">
+    <label className="flex items-start gap-2.5 text-sm rounded-lg px-2 py-1.5 -mx-2 hover:bg-[var(--surface-2)] transition-colors">
       <input
         type="checkbox"
         checked={checked}
         onChange={readOnly ? undefined : handleChange}
         disabled={isPending || readOnly}
-        className="bg-[var(--surface)] mt-0.5"
+        className="mt-0.5 w-4 h-4 accent-[var(--accent)]"
       />
-      <span className={checked ? "line-through text-[var(--text-faint)]" : ""}>{texto}</span>
-      {linkUrl && (
-        <a
-          href={linkUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="text-[var(--accent)] hover:underline shrink-0"
-        >
-          🔗
-        </a>
-      )}
+      <span className="flex-1 flex flex-wrap items-center gap-2">
+        <span className={checked ? "line-through text-[var(--text-faint)]" : ""}>{texto}</span>
+        {linkUrl && <LinkChip href={linkUrl} onClick={(e) => e.stopPropagation()} />}
+      </span>
     </label>
   );
 }

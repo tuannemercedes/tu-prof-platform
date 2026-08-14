@@ -10,7 +10,7 @@ export default async function AlunoHomePage() {
   const user = await getUser();
   const supabase = await createClient();
 
-  const [{ data: materiais }, { data: progresso }, { data: cronograma }, { data: config }] =
+  const [{ data: materiais }, { data: progresso }, { data: cronograma }, { data: config }, { data: plannerItens }] =
     await Promise.all([
       supabase
         .from("materiais")
@@ -25,10 +25,15 @@ export default async function AlunoHomePage() {
         .select("id, data, tema, descricao")
         .order("data"),
       supabase.from("configuracoes").select("chave, valor").eq("chave", "recado_mentora"),
+      supabase.from("planner_itens").select("id, concluido, planner_dias!inner(id)"),
     ]);
 
   const recadoMentora = config?.[0]?.valor ?? null;
   const { total: totalAulas, semanaAtual, proximaAula } = calcularJornada(cronograma ?? []);
+
+  const totalTarefas = plannerItens?.length ?? 0;
+  const tarefasConcluidas = (plannerItens ?? []).filter((i) => i.concluido).length;
+  const pctPlanner = totalTarefas ? Math.round((tarefasConcluidas / totalTarefas) * 100) : 0;
 
   const progressoMap = new Map(
     (progresso ?? []).map((p) => [p.material_id, p])
@@ -174,6 +179,31 @@ export default async function AlunoHomePage() {
           </div>
         )}
       </section>
+
+      {totalTarefas > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+            Planner
+          </h2>
+          <Link
+            href="/aluno/planner"
+            className="card-lift block rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 hover:border-[var(--border-strong)] transition-colors"
+          >
+            <div className="flex items-baseline justify-between mb-1.5">
+              <p className="text-xl font-semibold tabular-nums">{pctPlanner}%</p>
+              <p className="text-xs text-[var(--text-secondary)]">
+                {tarefasConcluidas} de {totalTarefas} tarefas concluídas
+              </p>
+            </div>
+            <div className="h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden">
+              <div
+                className="h-full bg-[var(--accent-secondary)] rounded-full"
+                style={{ width: `${pctPlanner}%` }}
+              />
+            </div>
+          </Link>
+        </section>
+      )}
 
       {totalMateriais === 0 && (
         <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado ainda.</p>

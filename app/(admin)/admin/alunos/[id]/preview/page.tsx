@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PreviewNav from "@/components/preview-nav";
 import { calcularJornada, getCronogramaItensParaAluno } from "@/lib/cronograma";
+import { getPlannerDiasParaAluno } from "@/lib/planner";
 import ProgressRing from "@/components/progress-ring";
 
 type MateriaRelation = { id: string; titulo: string; categoria: string } | null;
@@ -14,7 +15,7 @@ export default async function PreviewHomePage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: materiais }, { data: progresso }, cronograma, { data: config }] =
+  const [{ data: materiais }, { data: progresso }, cronograma, { data: config }, planners] =
     await Promise.all([
       supabase
         .from("materiais")
@@ -26,10 +27,16 @@ export default async function PreviewHomePage({
         .eq("aluno_id", id),
       getCronogramaItensParaAluno(supabase, id),
       supabase.from("configuracoes").select("chave, valor").eq("chave", "recado_mentora"),
+      getPlannerDiasParaAluno(supabase, id),
     ]);
 
   const recadoMentora = config?.[0]?.valor ?? null;
   const { total: totalAulas, semanaAtual, proximaAula } = calcularJornada(cronograma);
+
+  const plannerItens = planners.flatMap((d) => d.planner_itens);
+  const totalTarefas = plannerItens.length;
+  const tarefasConcluidas = plannerItens.filter((i) => i.concluido).length;
+  const pctPlanner = totalTarefas ? Math.round((tarefasConcluidas / totalTarefas) * 100) : 0;
 
   const progressoMap = new Map((progresso ?? []).map((p) => [p.material_id, p]));
 
@@ -158,6 +165,28 @@ export default async function PreviewHomePage({
           </div>
         )}
       </section>
+
+      {totalTarefas > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+            Planner
+          </h2>
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+            <div className="flex items-baseline justify-between mb-1.5">
+              <p className="text-xl font-semibold tabular-nums">{pctPlanner}%</p>
+              <p className="text-xs text-[var(--text-secondary)]">
+                {tarefasConcluidas} de {totalTarefas} tarefas concluídas
+              </p>
+            </div>
+            <div className="h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden">
+              <div
+                className="h-full bg-[var(--accent-secondary)] rounded-full"
+                style={{ width: `${pctPlanner}%` }}
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {totalMateriais === 0 && <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado ainda.</p>}
     </div>

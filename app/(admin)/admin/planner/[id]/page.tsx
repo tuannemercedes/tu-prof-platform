@@ -10,6 +10,7 @@ import {
 } from "./actions";
 import { updatePlannerTitulo } from "@/app/(admin)/admin/planner/actions";
 import SubmitButton from "@/components/submit-button";
+import LinkChip from "@/components/link-chip";
 
 export default async function PlannerDetailPage({
   params,
@@ -102,18 +103,9 @@ export default async function PlannerDetailPage({
                   {(dia.planner_itens as { id: string; texto: string; link_url: string | null }[]).map(
                     (item) => (
                       <li key={item.id} className="flex items-center justify-between gap-2 text-sm">
-                        <span>
+                        <span className="flex flex-wrap items-center gap-2">
                           · {item.texto}
-                          {item.link_url && (
-                            <a
-                              href={item.link_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="ml-1.5 text-[var(--accent)] hover:underline"
-                            >
-                              🔗
-                            </a>
-                          )}
+                          {item.link_url && <LinkChip href={item.link_url} />}
                         </span>
                         <form action={deletePlannerItem}>
                           <input type="hidden" name="id" value={item.id} />
