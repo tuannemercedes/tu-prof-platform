@@ -55,10 +55,12 @@ export async function updatePlannerAcesso(formData: FormData) {
   const planner_id = String(formData.get("planner_id") || "");
   const turmaIds = formData.getAll("turmas").map(String);
   const alunoIds = formData.getAll("alunos").map(String);
+  const visivel_todos = formData.get("todos") === "on";
   if (!planner_id) return;
 
   const supabase = await createClient();
 
+  await supabase.from("planners").update({ visivel_todos }).eq("id", planner_id);
   await supabase.from("planner_turmas").delete().eq("planner_id", planner_id);
   await supabase.from("planner_alunos").delete().eq("planner_id", planner_id);
 

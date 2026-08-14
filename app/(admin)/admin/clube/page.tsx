@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import SubmitButton from "@/components/submit-button";
 import ClubeCalendarManager from "@/components/clube-calendar-manager";
+import LiberacaoFields from "@/components/liberacao-fields";
 import { updateClubeConfig, updateClubeAcesso } from "./actions";
 
 export default async function ClubePage() {
@@ -8,7 +9,7 @@ export default async function ClubePage() {
 
   const [{ data: config }, { data: temas }, { data: turmas }, { data: alunos }, { data: turmasLiberadas }, { data: alunosLiberados }] =
     await Promise.all([
-      supabase.from("clube_config").select("link_acesso, dia_horario").eq("id", 1).single(),
+      supabase.from("clube_config").select("link_acesso, dia_horario, visivel_todos").eq("id", 1).single(),
       supabase.from("clube_temas").select("id, data, tema, descricao").order("data"),
       supabase.from("turmas").select("id, nome").order("nome"),
       supabase.from("profiles").select("id, nome, email").eq("role", "aluno").order("nome"),
@@ -75,45 +76,13 @@ export default async function ClubePage() {
           Liberar botão para quem
         </h2>
         <form action={updateClubeAcesso} className="space-y-3">
-          {turmas?.length ? (
-            <div>
-              <p className="text-xs text-[var(--text-secondary)] mb-1">Turmas</p>
-              <div className="flex flex-wrap gap-3 text-sm">
-                {turmas.map((t) => (
-                  <label key={t.id} className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
-                      name="turmas"
-                      value={t.id}
-                      defaultChecked={turmaIdsLiberadas.has(t.id)}
-                    />
-                    {t.nome}
-                  </label>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {alunos?.length ? (
-            <div>
-              <p className="text-xs text-[var(--text-secondary)] mb-1">
-                Alunos específicos (opcional, além das turmas acima)
-              </p>
-              <div className="flex flex-wrap gap-3 text-sm">
-                {alunos.map((a) => (
-                  <label key={a.id} className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
-                      name="alunos"
-                      value={a.id}
-                      defaultChecked={alunoIdsLiberados.has(a.id)}
-                    />
-                    {a.nome || a.email}
-                  </label>
-                ))}
-              </div>
-            </div>
-          ) : null}
+          <LiberacaoFields
+            turmas={turmas ?? []}
+            alunos={alunos ?? []}
+            turmaIdsLiberadas={turmaIdsLiberadas}
+            alunoIdsLiberados={alunoIdsLiberados}
+            todosInicial={config?.visivel_todos ?? false}
+          />
 
           <SubmitButton className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow">
             Salvar liberação

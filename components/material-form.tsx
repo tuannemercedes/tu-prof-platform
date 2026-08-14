@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { createMaterial } from "@/app/(admin)/admin/materias/[id]/actions";
+import LiberacaoFields from "./liberacao-fields";
 
 const TIPOS = [
   { value: "html", label: "Página HTML interativa" },
@@ -24,6 +25,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
   const [htmlPreview, setHtmlPreview] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [liberacaoKey, setLiberacaoKey] = useState(0);
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -38,6 +40,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
         formRef.current?.reset();
         setHtmlPreview("");
         setTipo("html");
+        setLiberacaoKey((k) => k + 1);
         setSaved(true);
         setTimeout(() => setSaved(false), 2500);
       }
@@ -141,35 +144,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
         />
       )}
 
-      {turmas.length > 0 && (
-        <div>
-          <p className="text-xs text-[var(--text-secondary)] mb-1">Liberar para quais turmas?</p>
-          <div className="flex flex-wrap gap-3 text-sm">
-            {turmas.map((turma) => (
-              <label key={turma.id} className="flex items-center gap-1.5">
-                <input type="checkbox" name="turmas" value={turma.id} />
-                {turma.nome}
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {alunos.length > 0 && (
-        <div>
-          <p className="text-xs text-[var(--text-secondary)] mb-1">
-            Liberar para alunos específicos (opcional, além das turmas acima)
-          </p>
-          <div className="flex flex-wrap gap-3 text-sm">
-            {alunos.map((aluno) => (
-              <label key={aluno.id} className="flex items-center gap-1.5">
-                <input type="checkbox" name="alunos" value={aluno.id} />
-                {aluno.nome || aluno.email}
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
+      <LiberacaoFields key={liberacaoKey} turmas={turmas} alunos={alunos} />
 
       {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
 

@@ -19,7 +19,7 @@ export async function getCronogramaItensParaAluno(
     supabase
       .from("cronograma_itens")
       .select(
-        "id, data, tema, descricao, cronogramas!inner(cronograma_turmas(turma_id), cronograma_alunos(aluno_id))"
+        "id, data, tema, descricao, cronogramas!inner(visivel_todos, cronograma_turmas(turma_id), cronograma_alunos(aluno_id))"
       )
       .order("data"),
   ]);
@@ -28,6 +28,7 @@ export async function getCronogramaItensParaAluno(
 
   type Row = CronogramaItem & {
     cronogramas: {
+      visivel_todos: boolean;
       cronograma_turmas: { turma_id: string }[];
       cronograma_alunos: { aluno_id: string }[];
     } | null;
@@ -37,6 +38,7 @@ export async function getCronogramaItensParaAluno(
     .filter((row) => {
       const c = row.cronogramas;
       if (!c) return false;
+      if (c.visivel_todos) return true;
       const viaTurma = c.cronograma_turmas.some((ct) => turmaIdsDoAluno.has(ct.turma_id));
       const viaAluno = c.cronograma_alunos.some((ca) => ca.aluno_id === alunoId);
       return viaTurma || viaAluno;

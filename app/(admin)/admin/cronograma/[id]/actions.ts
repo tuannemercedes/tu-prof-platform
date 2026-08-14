@@ -30,10 +30,12 @@ export async function updateCronogramaAcesso(formData: FormData) {
   const cronograma_id = String(formData.get("cronograma_id") || "");
   const turmaIds = formData.getAll("turmas").map(String);
   const alunoIds = formData.getAll("alunos").map(String);
+  const visivel_todos = formData.get("todos") === "on";
   if (!cronograma_id) return;
 
   const supabase = await createClient();
 
+  await supabase.from("cronogramas").update({ visivel_todos }).eq("id", cronograma_id);
   await supabase.from("cronograma_turmas").delete().eq("cronograma_id", cronograma_id);
   await supabase.from("cronograma_alunos").delete().eq("cronograma_id", cronograma_id);
 

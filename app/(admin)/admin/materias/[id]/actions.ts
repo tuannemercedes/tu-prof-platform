@@ -30,6 +30,7 @@ export async function createMaterial(formData: FormData) {
   const titulo = String(formData.get("titulo") || "").trim();
   const turmaIds = formData.getAll("turmas").map(String);
   const alunoIds = formData.getAll("alunos").map(String);
+  const visivel_todos = formData.get("todos") === "on";
 
   if (!materia_id || !titulo || !tipo) {
     return { error: "Preencha os campos obrigatórios." };
@@ -72,7 +73,7 @@ export async function createMaterial(formData: FormData) {
 
   const { data: material, error } = await supabase
     .from("materiais")
-    .insert({ materia_id, fase_id, tipo, titulo, conteudo_html, arquivo_path, capa_path, url })
+    .insert({ materia_id, fase_id, tipo, titulo, conteudo_html, arquivo_path, capa_path, url, visivel_todos })
     .select("id")
     .single();
 
@@ -103,8 +104,9 @@ export async function updateMaterial(formData: FormData) {
 
   if (!id || !titulo) return { error: "Preencha os campos obrigatórios." };
 
+  const visivel_todos = formData.get("todos") === "on";
   const supabase = await createClient();
-  const updates: Record<string, unknown> = { titulo, fase_id };
+  const updates: Record<string, unknown> = { titulo, fase_id, visivel_todos };
 
   if (tipo === "html") {
     const conteudo_html = String(formData.get("conteudo_html") || "");

@@ -21,7 +21,7 @@ export async function getPlannerDiasParaAluno(
     supabase
       .from("planner_dias")
       .select(
-        "id, semana, titulo, conteudo_html, planner_itens(id, texto, concluido, link_url), planners!inner(planner_turmas(turma_id), planner_alunos(aluno_id))"
+        "id, semana, titulo, conteudo_html, planner_itens(id, texto, concluido, link_url), planners!inner(visivel_todos, planner_turmas(turma_id), planner_alunos(aluno_id))"
       )
       .order("semana")
       .order("ordem"),
@@ -31,6 +31,7 @@ export async function getPlannerDiasParaAluno(
 
   type Row = PlannerDia & {
     planners: {
+      visivel_todos: boolean;
       planner_turmas: { turma_id: string }[];
       planner_alunos: { aluno_id: string }[];
     } | null;
@@ -40,6 +41,7 @@ export async function getPlannerDiasParaAluno(
     .filter((row) => {
       const p = row.planners;
       if (!p) return false;
+      if (p.visivel_todos) return true;
       const viaTurma = p.planner_turmas.some((pt) => turmaIdsDoAluno.has(pt.turma_id));
       const viaAluno = p.planner_alunos.some((pa) => pa.aluno_id === alunoId);
       return viaTurma || viaAluno;

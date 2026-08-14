@@ -49,9 +49,11 @@ export async function deleteTema(formData: FormData) {
 export async function updateClubeAcesso(formData: FormData) {
   const turmaIds = formData.getAll("turmas").map(String);
   const alunoIds = formData.getAll("alunos").map(String);
+  const visivel_todos = formData.get("todos") === "on";
 
   const supabase = await createClient();
 
+  await supabase.from("clube_config").update({ visivel_todos }).eq("id", 1);
   await supabase.from("clube_turmas").delete().not("turma_id", "is", null);
   await supabase.from("clube_alunos").delete().not("aluno_id", "is", null);
 

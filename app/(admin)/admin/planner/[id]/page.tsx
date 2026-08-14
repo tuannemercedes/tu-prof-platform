@@ -11,6 +11,7 @@ import {
 import { updatePlannerTitulo } from "@/app/(admin)/admin/planner/actions";
 import SubmitButton from "@/components/submit-button";
 import LinkChip from "@/components/link-chip";
+import LiberacaoFields from "@/components/liberacao-fields";
 
 export default async function PlannerDetailPage({
   params,
@@ -28,7 +29,7 @@ export default async function PlannerDetailPage({
     { data: turmasLiberadas },
     { data: alunosLiberados },
   ] = await Promise.all([
-    supabase.from("planners").select("id, titulo").eq("id", id).single(),
+    supabase.from("planners").select("id, titulo, visivel_todos").eq("id", id).single(),
     supabase
       .from("planner_dias")
       .select("id, semana, titulo, planner_itens(id, texto, link_url)")
@@ -160,45 +161,13 @@ export default async function PlannerDetailPage({
         <form action={updatePlannerAcesso} className="space-y-3 border border-[var(--border)] rounded-lg p-4">
           <input type="hidden" name="planner_id" value={id} />
 
-          {turmas?.length ? (
-            <div>
-              <p className="text-xs text-[var(--text-secondary)] mb-1">Turmas</p>
-              <div className="flex flex-wrap gap-3 text-sm">
-                {turmas.map((turma) => (
-                  <label key={turma.id} className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
-                      name="turmas"
-                      value={turma.id}
-                      defaultChecked={turmaIdsLiberadas.has(turma.id)}
-                    />
-                    {turma.nome}
-                  </label>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <p className="text-xs text-[var(--text-faint)]">Nenhuma turma cadastrada ainda.</p>
-          )}
-
-          {alunos?.length ? (
-            <div>
-              <p className="text-xs text-[var(--text-secondary)] mb-1">Alunos específicos</p>
-              <div className="flex flex-wrap gap-3 text-sm">
-                {alunos.map((aluno) => (
-                  <label key={aluno.id} className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
-                      name="alunos"
-                      value={aluno.id}
-                      defaultChecked={alunoIdsLiberados.has(aluno.id)}
-                    />
-                    {aluno.nome || aluno.email}
-                  </label>
-                ))}
-              </div>
-            </div>
-          ) : null}
+          <LiberacaoFields
+            turmas={turmas ?? []}
+            alunos={alunos ?? []}
+            turmaIdsLiberadas={turmaIdsLiberadas}
+            alunoIdsLiberados={alunoIdsLiberados}
+            todosInicial={planner.visivel_todos}
+          />
 
           <SubmitButton
             className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2 btn-glow whitespace-nowrap"

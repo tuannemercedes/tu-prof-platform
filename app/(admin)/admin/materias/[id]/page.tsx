@@ -21,7 +21,7 @@ export default async function MateriaDetailPage({
       supabase
         .from("materiais")
         .select(
-          "id, titulo, tipo, ordem, fase_id, conteudo_html, url, material_turmas(turma_id, turmas(nome)), material_alunos(aluno_id, profiles(nome, email))"
+          "id, titulo, tipo, ordem, fase_id, conteudo_html, url, visivel_todos, material_turmas(turma_id, turmas(nome)), material_alunos(aluno_id, profiles(nome, email))"
         )
         .eq("materia_id", id)
         .order("ordem"),
@@ -47,10 +47,9 @@ export default async function MateriaDetailPage({
       .map((ma) => ma.profiles?.nome || ma.profiles?.email)
       .filter(Boolean);
 
-    const acessos = [
-      ...turmasDoMaterial,
-      ...alunosDoMaterial.map((a) => `${a} (individual)`),
-    ] as string[];
+    const acessos = material.visivel_todos
+      ? ["Todos os alunos"]
+      : ([...turmasDoMaterial, ...alunosDoMaterial.map((a) => `${a} (individual)`)] as string[]);
 
     const turmaIdsLiberadas = (
       material.material_turmas as unknown as { turma_id: string }[]

@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { updateMaterial } from "@/app/(admin)/admin/materias/[id]/actions";
+import LiberacaoFields from "./liberacao-fields";
 
 const TIPO_LABELS: Record<string, string> = {
   html: "Página HTML",
@@ -19,6 +20,7 @@ type Material = {
   conteudo_html: string | null;
   url: string | null;
   fase_id: string | null;
+  visivel_todos: boolean;
 };
 
 type Props = {
@@ -173,45 +175,13 @@ export default function MaterialRow({
             <input type="file" name="capa" accept="image/*" className="bg-[var(--surface)] text-sm" />
           </div>
 
-          {turmas.length > 0 && (
-            <div>
-              <p className="text-xs text-[var(--text-secondary)] mb-1">Liberado para quais turmas?</p>
-              <div className="flex flex-wrap gap-3 text-sm">
-                {turmas.map((turma) => (
-                  <label key={turma.id} className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
-                      name="turmas"
-                      value={turma.id}
-                      defaultChecked={turmaIdsLiberadas.includes(turma.id)}
-                    />
-                    {turma.nome}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {alunos.length > 0 && (
-            <div>
-              <p className="text-xs text-[var(--text-secondary)] mb-1">
-                Liberado para alunos específicos (opcional, além das turmas acima)
-              </p>
-              <div className="flex flex-wrap gap-3 text-sm">
-                {alunos.map((aluno) => (
-                  <label key={aluno.id} className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
-                      name="alunos"
-                      value={aluno.id}
-                      defaultChecked={alunoIdsLiberados.includes(aluno.id)}
-                    />
-                    {aluno.nome || aluno.email}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
+          <LiberacaoFields
+            turmas={turmas}
+            alunos={alunos}
+            turmaIdsLiberadas={turmaIdsLiberadas}
+            alunoIdsLiberados={alunoIdsLiberados}
+            todosInicial={material.visivel_todos}
+          />
 
           {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
 
