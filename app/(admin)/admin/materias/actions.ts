@@ -13,6 +13,18 @@ export async function createMateria(formData: FormData) {
   revalidatePath("/admin/materias");
 }
 
+export async function updateMateriaTitulo(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const titulo = String(formData.get("titulo") || "").trim();
+  if (!id || !titulo) return;
+
+  const supabase = await createClient();
+  await supabase.from("materias").update({ titulo }).eq("id", id);
+  revalidatePath("/admin/materias");
+  revalidatePath("/admin/fia");
+  revalidatePath(`/admin/materias/${id}`);
+}
+
 export async function updateMateriaCategoria(formData: FormData) {
   const id = String(formData.get("id") || "");
   const categoria = String(formData.get("categoria") || "");

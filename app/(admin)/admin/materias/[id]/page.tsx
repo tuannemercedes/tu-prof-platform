@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import MaterialForm from "@/components/material-form";
 import { createFase, deleteFase, deleteMaterial } from "./actions";
+import { updateMateriaTitulo } from "@/app/(admin)/admin/materias/actions";
 
 const TIPO_LABELS: Record<string, string> = {
   html: "Página HTML",
@@ -80,11 +81,26 @@ export default async function MateriaDetailPage({
 
   return (
     <div className="space-y-8 max-w-2xl">
-      <div>
+      <div className="space-y-2">
         <Link href="/admin/materias" className="text-xs text-[var(--text-secondary)] hover:underline">
           ← Matérias
         </Link>
-        <h1 className="text-lg font-semibold">{materia.titulo}</h1>
+        <form action={updateMateriaTitulo} className="flex gap-2 max-w-sm">
+          <input type="hidden" name="id" value={id} />
+          <input
+            type="text"
+            name="titulo"
+            defaultValue={materia.titulo}
+            required
+            className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-1.5 text-lg font-semibold"
+          />
+          <button
+            type="submit"
+            className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] shrink-0"
+          >
+            Salvar nome
+          </button>
+        </form>
       </div>
 
       <section className="space-y-3">

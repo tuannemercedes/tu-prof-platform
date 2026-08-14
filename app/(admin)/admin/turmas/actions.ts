@@ -12,6 +12,16 @@ export async function createTurma(formData: FormData) {
   revalidatePath("/admin/turmas");
 }
 
+export async function updateTurmaNome(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const nome = String(formData.get("nome") || "").trim();
+  if (!id || !nome) return;
+
+  const supabase = await createClient();
+  await supabase.from("turmas").update({ nome }).eq("id", id);
+  revalidatePath("/admin/turmas");
+}
+
 export async function updateTurmaCalendario(formData: FormData) {
   const id = String(formData.get("id") || "");
   const calendario_embed_url = String(formData.get("calendario_embed_url") || "").trim() || null;

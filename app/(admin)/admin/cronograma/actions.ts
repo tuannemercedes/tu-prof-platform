@@ -21,6 +21,17 @@ export async function createCronograma(formData: FormData) {
   redirect(`/admin/cronograma/${data.id}`);
 }
 
+export async function updateCronogramaTitulo(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const titulo = String(formData.get("titulo") || "").trim();
+  if (!id || !titulo) return;
+
+  const supabase = await createClient();
+  await supabase.from("cronogramas").update({ titulo }).eq("id", id);
+  revalidatePath("/admin/cronograma");
+  revalidatePath(`/admin/cronograma/${id}`);
+}
+
 export async function deleteCronograma(formData: FormData) {
   const id = String(formData.get("id") || "");
   if (!id) return;

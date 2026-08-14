@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { createTurma, deleteTurma, updateTurmaCalendario } from "./actions";
+import { createTurma, deleteTurma, updateTurmaCalendario, updateTurmaNome } from "./actions";
 
 export default async function TurmasPage() {
   const supabase = await createClient();
@@ -40,9 +40,24 @@ export default async function TurmasPage() {
           turmas.map((turma) => (
             <li key={turma.id} className="p-4 space-y-2">
               <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-medium text-sm">{turma.nome}</p>
-                  <p className="text-xs text-[var(--text-secondary)]">
+                <div className="flex-1 min-w-0">
+                  <form action={updateTurmaNome} className="flex gap-2 max-w-xs">
+                    <input type="hidden" name="id" value={turma.id} />
+                    <input
+                      type="text"
+                      name="nome"
+                      defaultValue={turma.nome}
+                      required
+                      className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-2 py-1 text-sm font-medium"
+                    />
+                    <button
+                      type="submit"
+                      className="text-xs rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)] shrink-0"
+                    >
+                      Salvar
+                    </button>
+                  </form>
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
                     {(turma.turma_membros as unknown as { count: number }[])[0]?.count ?? 0}{" "}
                     aluno(s)
                   </p>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createCronogramaItem, deleteCronogramaItem, updateCronogramaAcesso } from "./actions";
+import { updateCronogramaTitulo } from "@/app/(admin)/admin/cronograma/actions";
 
 export default async function CronogramaDetailPage({
   params,
@@ -28,11 +29,26 @@ export default async function CronogramaDetailPage({
 
   return (
     <div className="space-y-8 max-w-3xl">
-      <div>
+      <div className="space-y-2">
         <Link href="/admin/cronograma" className="text-xs text-[var(--text-secondary)] hover:underline">
           ← Cronograma
         </Link>
-        <h1 className="text-lg font-semibold">{cronograma.titulo}</h1>
+        <form action={updateCronogramaTitulo} className="flex gap-2 max-w-sm">
+          <input type="hidden" name="id" value={id} />
+          <input
+            type="text"
+            name="titulo"
+            defaultValue={cronograma.titulo}
+            required
+            className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-1.5 text-lg font-semibold"
+          />
+          <button
+            type="submit"
+            className="text-xs rounded-md border border-[var(--border-strong)] px-3 py-1.5 hover:bg-[var(--surface-2)] shrink-0"
+          >
+            Salvar nome
+          </button>
+        </form>
       </div>
 
       <section className="space-y-3">
