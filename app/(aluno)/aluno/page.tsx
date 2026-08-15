@@ -47,6 +47,13 @@ export default async function AlunoHomePage() {
     ? Math.round((totalConcluidos / totalMateriais) * 100)
     : 0;
 
+  const resumoGeral =
+    totalMateriais > 0 && totalTarefas > 0
+      ? Math.round((percentualGeral + pctPlanner) / 2)
+      : totalMateriais > 0
+        ? percentualGeral
+        : pctPlanner;
+
   const porTrilha = new Map<
     string,
     { titulo: string; total: number; concluidos: number }
@@ -138,34 +145,65 @@ export default async function AlunoHomePage() {
             </Link>
           )}
 
-          {totalMateriais > 0 ? (
+          {(totalMateriais > 0 || totalTarefas > 0) && (
             <section className="space-y-3">
               <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
-                Seu progresso
+                Resumo geral
               </h2>
-              <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 card-elevated">
+              <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 card-elevated space-y-6">
                 <div
                   className="glow-spot -right-10 -top-10 w-40 h-40"
                   style={{ background: "var(--glow-accent)" }}
                 />
-                <div className="relative flex flex-col sm:flex-row items-center sm:items-center gap-6">
+
+                <div className="relative flex justify-center">
                   <div className="relative shrink-0 flex items-center justify-center" style={{ width: 152, height: 152 }}>
-                    <ProgressRing value={percentualGeral} />
+                    <ProgressRing value={resumoGeral} />
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-3xl font-bold tabular-nums">{percentualGeral}%</span>
+                      <span className="text-3xl font-bold tabular-nums">{resumoGeral}%</span>
                       <span className="text-[10px] text-[var(--text-faint)] uppercase tracking-wide mt-0.5">
                         concluído
                       </span>
                     </div>
                   </div>
-                  <div className="flex-1 text-center sm:text-left">
-                    <p className="text-xs text-[var(--text-faint)] uppercase tracking-wide mb-1">
-                      Progresso geral
-                    </p>
-                    <p className="text-sm text-[var(--text-secondary)]">
-                      {totalConcluidos} de {totalMateriais} materiais concluídos
-                    </p>
-                  </div>
+                </div>
+
+                <div className="relative space-y-4 pt-5 border-t border-[var(--border-soft)]">
+                  {totalMateriais > 0 && (
+                    <div>
+                      <div className="flex items-baseline justify-between mb-1.5">
+                        <p className="text-sm font-medium">Materiais</p>
+                        <p className="text-sm font-semibold tabular-nums">{percentualGeral}%</p>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden">
+                        <div
+                          className="h-full bg-[var(--accent)] rounded-full"
+                          style={{ width: `${percentualGeral}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-[var(--text-faint)] mt-1">
+                        {totalConcluidos} de {totalMateriais} concluídos
+                      </p>
+                    </div>
+                  )}
+
+                  {totalTarefas > 0 && (
+                    <Link href="/aluno/planner" className="block hover:opacity-80 transition-opacity">
+                      <div className="flex items-baseline justify-between mb-1.5">
+                        <p className="text-sm font-medium">Planner</p>
+                        <p className="text-sm font-semibold tabular-nums">{pctPlanner}%</p>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden">
+                        <div
+                          className="h-full bg-[var(--accent-secondary)] rounded-full"
+                          style={{ width: `${pctPlanner}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-[var(--text-faint)] mt-1">
+                        {tarefasConcluidas} de {totalTarefas} concluídas
+                      </p>
+                    </Link>
+                  )}
                 </div>
               </div>
 
@@ -191,33 +229,6 @@ export default async function AlunoHomePage() {
                   ))}
                 </div>
               )}
-            </section>
-          ) : (
-            <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado ainda.</p>
-          )}
-
-          {totalTarefas > 0 && (
-            <section className="space-y-3">
-              <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
-                Planner
-              </h2>
-              <Link
-                href="/aluno/planner"
-                className="card-lift block rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 hover:border-[var(--border-strong)] transition-colors"
-              >
-                <div className="flex items-baseline justify-between mb-1.5">
-                  <p className="text-xl font-semibold tabular-nums">{pctPlanner}%</p>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    {tarefasConcluidas} de {totalTarefas} tarefas concluídas
-                  </p>
-                </div>
-                <div className="h-1.5 rounded-full bg-[var(--surface-3)] overflow-hidden">
-                  <div
-                    className="h-full bg-[var(--accent-secondary)] rounded-full"
-                    style={{ width: `${pctPlanner}%` }}
-                  />
-                </div>
-              </Link>
             </section>
           )}
         </>
