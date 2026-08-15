@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import SignOutButton from "./sign-out-button";
 import ThemeToggle from "./theme-toggle";
 import Logo from "./logo";
+import NotificationBell from "./notification-bell";
+import type { Novidade } from "@/lib/notificacoes";
 
 type MaterialStatus = { id: string; titulo: string; concluido: boolean };
 type Fase = { id: string; titulo: string; materiais: MaterialStatus[] };
@@ -22,6 +24,7 @@ type Props = {
   trilhas: Trilha[];
   fia: SimpleMateria[];
   temClube?: boolean;
+  novidades?: Novidade[];
   appUrl?: string | null;
   appLabel?: string | null;
   contatoUrl?: string | null;
@@ -39,6 +42,7 @@ export default function AlunoSidebar({
   trilhas,
   fia,
   temClube,
+  novidades = [],
   appUrl,
   appLabel,
   contatoUrl,
@@ -64,6 +68,7 @@ export default function AlunoSidebar({
       <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
         <Logo />
         <div className="flex items-center gap-2">
+          <NotificationBell novidades={novidades} />
           <ThemeToggle />
           <button
             type="button"
@@ -99,6 +104,7 @@ export default function AlunoSidebar({
             <p className="text-xs text-[var(--text-secondary)] truncate">Olá, {nome}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0 text-xs text-[var(--text-secondary)] pt-0.5 relative">
+            <NotificationBell novidades={novidades} />
             <ThemeToggle />
             <SignOutButton />
             <button

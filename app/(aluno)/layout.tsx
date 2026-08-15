@@ -2,6 +2,7 @@ import { requireAluno } from "@/lib/dal";
 import AlunoSidebar from "@/components/aluno-sidebar";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/dal";
+import { getNovidadesParaAluno } from "@/lib/notificacoes";
 
 type MateriaRow = {
   id: string;
@@ -21,7 +22,7 @@ export default async function AlunoLayout({
   const user = await getUser();
 
   const supabase = await createClient();
-  const [{ data: materiaisRows }, { data: fasesRows }, { data: progresso }, { data: config }, { data: clubeConfig }] =
+  const [{ data: materiaisRows }, { data: fasesRows }, { data: progresso }, { data: config }, { data: clubeConfig }, novidades] =
     await Promise.all([
       supabase
         .from("materiais")
@@ -31,6 +32,7 @@ export default async function AlunoLayout({
       supabase.from("progresso").select("material_id, concluido").eq("aluno_id", user!.id),
       supabase.from("configuracoes").select("chave, valor"),
       supabase.from("clube_config").select("link_acesso").eq("id", 1).maybeSingle(),
+      getNovidadesParaAluno(supabase, user!.id, profile.ultimo_acesso_novidades),
     ]);
 
   const temClube = !!clubeConfig;
@@ -105,6 +107,7 @@ export default async function AlunoLayout({
         trilhas={trilhas}
         fia={fia}
         temClube={temClube}
+        novidades={novidades}
         appUrl={appUrl}
         appLabel={appLabel}
         contatoUrl={contatoUrl}
