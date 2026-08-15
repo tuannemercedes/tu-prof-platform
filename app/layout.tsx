@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
@@ -20,6 +20,10 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: "Tu Prof",
   description: "Plataforma de mentoria — materiais, turmas e acompanhamento dos alunos.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#c46a43",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
