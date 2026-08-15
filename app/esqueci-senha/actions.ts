@@ -29,7 +29,7 @@ export async function verifyRecoveryCode(formData: FormData) {
   if (verifyError) return { error: "Código inválido ou expirado. Solicite um novo." };
 
   const { error: updateError } = await supabase.auth.updateUser({ password: novaSenha });
-  if (updateError) return { error: "Não foi possível atualizar a senha." };
+  if (updateError) return { error: `Não foi possível atualizar a senha: ${updateError.message}` };
 
   redirect("/");
 }
