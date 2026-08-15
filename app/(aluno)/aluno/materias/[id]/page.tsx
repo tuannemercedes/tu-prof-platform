@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/dal";
 import MaterialCard, { type MaterialCardData } from "@/components/material-card";
+import { TrilhaProgressProvider } from "@/components/trilha-progress-context";
 
 export default async function AlunoMateriaPage({
   params,
@@ -55,44 +56,51 @@ export default async function AlunoMateriaPage({
   );
 
   const semFase = materiaisComUrl.filter((m) => !m.fase_id);
+  const totalConcluidos = materiaisComUrl.filter((m) => m.concluido).length;
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-lg font-serif font-semibold">{materia.titulo}</h1>
+    <TrilhaProgressProvider
+      titulo={materia.titulo}
+      total={materiaisComUrl.length}
+      concluidosIniciais={totalConcluidos}
+    >
+      <div className="space-y-8">
+        <h1 className="text-lg font-serif font-semibold">{materia.titulo}</h1>
 
-      {(fases?.length ?? 0) === 0 && semFase.length === 0 && (
-        <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado aqui ainda.</p>
-      )}
+        {(fases?.length ?? 0) === 0 && semFase.length === 0 && (
+          <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado aqui ainda.</p>
+        )}
 
-      {fases?.map((fase) => {
-        const materiaisDaFase = materiaisComUrl.filter((m) => m.fase_id === fase.id);
-        if (!materiaisDaFase.length) return null;
-        return (
-          <section key={fase.id} className="space-y-3">
-            <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
-              {fase.titulo}
-            </h2>
+        {fases?.map((fase) => {
+          const materiaisDaFase = materiaisComUrl.filter((m) => m.fase_id === fase.id);
+          if (!materiaisDaFase.length) return null;
+          return (
+            <section key={fase.id} className="space-y-3">
+              <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+                {fase.titulo}
+              </h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {materiaisDaFase.map((m) => (
+                  <MaterialCard key={m.id} material={m} />
+                ))}
+              </div>
+            </section>
+          );
+        })}
+
+        {semFase.length > 0 && (
+          <section className="space-y-3">
+            {(fases?.length ?? 0) > 0 && (
+              <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Outros</h2>
+            )}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {materiaisDaFase.map((m) => (
+              {semFase.map((m) => (
                 <MaterialCard key={m.id} material={m} />
               ))}
             </div>
           </section>
-        );
-      })}
-
-      {semFase.length > 0 && (
-        <section className="space-y-3">
-          {(fases?.length ?? 0) > 0 && (
-            <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Outros</h2>
-          )}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {semFase.map((m) => (
-              <MaterialCard key={m.id} material={m} />
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
+        )}
+      </div>
+    </TrilhaProgressProvider>
   );
 }
