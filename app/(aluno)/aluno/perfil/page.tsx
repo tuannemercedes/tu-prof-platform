@@ -16,7 +16,7 @@ export default async function AlunoPerfilPage() {
   return (
     <div className="space-y-6 max-w-sm">
       <div>
-        <h1 className="text-lg font-semibold">Meu perfil</h1>
+        <h1 className="text-lg font-serif font-semibold">Meu perfil</h1>
         <p className="text-sm text-[var(--text-secondary)]">{profile?.email}</p>
       </div>
 

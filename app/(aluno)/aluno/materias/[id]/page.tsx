@@ -58,7 +58,7 @@ export default async function AlunoMateriaPage({
 
   return (
     <div className="space-y-8">
-      <h1 className="text-lg font-semibold">{materia.titulo}</h1>
+      <h1 className="text-lg font-serif font-semibold">{materia.titulo}</h1>
 
       {(fases?.length ?? 0) === 0 && semFase.length === 0 && (
         <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado aqui ainda.</p>

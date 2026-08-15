@@ -89,7 +89,7 @@ export default async function AlunoHomePage() {
             Semana {semanaAtual} de {totalAulas}
           </p>
         )}
-        <h1 className="text-lg font-semibold">Olá!</h1>
+        <h1 className="text-lg font-serif font-semibold">Olá!</h1>
         <p className="text-sm text-[var(--text-secondary)]">Aqui está um resumo do seu progresso.</p>
       </div>
 

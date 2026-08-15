@@ -28,7 +28,7 @@ export default async function AlunoClubePage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-lg font-semibold">Clube de Conversação</h1>
+        <h1 className="text-lg font-serif font-semibold">Clube de Conversação</h1>
         <p className="text-sm text-[var(--text-secondary)]">Pratique conversação com a turma.</p>
       </div>
 

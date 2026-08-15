@@ -8,7 +8,7 @@ export default async function AlunoCalendarioPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-lg font-semibold">Calendário</h1>
+      <h1 className="text-lg font-serif font-semibold">Calendário</h1>
 
       {calendarios.length ? (
         <div className="grid gap-4 md:grid-cols-2">

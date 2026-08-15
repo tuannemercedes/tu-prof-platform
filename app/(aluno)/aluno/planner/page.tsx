@@ -21,7 +21,7 @@ export default async function AlunoPlannerPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-lg font-semibold">Planner</h1>
+        <h1 className="text-lg font-serif font-semibold">Planner</h1>
         <p className="text-sm text-[var(--text-secondary)]">Suas tarefas de estudo, no seu ritmo.</p>
       </div>
 
