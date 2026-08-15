@@ -122,6 +122,9 @@ export default function AlunoSidebar({
           <Link href="/aluno" className={linkClass("/aluno")}>
             Início
           </Link>
+          <Link href="/aluno/busca" className={linkClass("/aluno/busca")}>
+            Buscar
+          </Link>
           <Link href="/aluno/cronograma" className={linkClass("/aluno/cronograma")}>
             Cronograma
           </Link>
