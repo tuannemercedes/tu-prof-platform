@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import CalendarGrid from "@/components/calendar-grid";
+import ClubeRsvpButtons from "@/components/clube-rsvp-buttons";
+import { getUser } from "@/lib/dal";
 
 export default async function AlunoClubePage() {
+  const user = await getUser();
   const supabase = await createClient();
 
   const [{ data: config }, { data: temas }] = await Promise.all([
@@ -24,6 +27,17 @@ export default async function AlunoClubePage() {
     (temas ?? [])
       .filter((t) => t.data >= hoje)
       .sort((a, b) => (a.data < b.data ? -1 : 1))[0] ?? null;
+
+  let rsvpAtual: boolean | null = null;
+  if (proximoTema) {
+    const { data: rsvp } = await supabase
+      .from("clube_rsvps")
+      .select("confirmado")
+      .eq("tema_id", proximoTema.id)
+      .eq("aluno_id", user!.id)
+      .maybeSingle();
+    rsvpAtual = rsvp?.confirmado ?? null;
+  }
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -59,6 +73,8 @@ export default async function AlunoClubePage() {
             Entrar na sala ↗
           </a>
         )}
+
+        {proximoTema && <ClubeRsvpButtons temaId={proximoTema.id} confirmadoInicial={rsvpAtual} />}
       </div>
 
       <CalendarGrid eventos={(temas ?? []).map((t) => ({ data: t.data, tema: t.tema }))} />

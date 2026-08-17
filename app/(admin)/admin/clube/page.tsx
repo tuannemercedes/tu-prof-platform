@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import SubmitButton from "@/components/submit-button";
 import ClubeCalendarManager from "@/components/clube-calendar-manager";
 import LiberacaoFields from "@/components/liberacao-fields";
+import { getResumoRsvpTema } from "@/lib/clube";
 import { updateClubeConfig, updateClubeAcesso } from "./actions";
 
 export default async function ClubePage() {
@@ -19,6 +20,11 @@ export default async function ClubePage() {
 
   const turmaIdsLiberadas = new Set((turmasLiberadas ?? []).map((t) => t.turma_id));
   const alunoIdsLiberados = new Set((alunosLiberados ?? []).map((a) => a.aluno_id));
+
+  const hoje = new Date().toISOString().slice(0, 10);
+  const proximoTema =
+    (temas ?? []).filter((t) => t.data >= hoje).sort((a, b) => (a.data < b.data ? -1 : 1))[0] ?? null;
+  const resumoRsvp = proximoTema ? await getResumoRsvpTema(supabase, proximoTema.id) : null;
 
   return (
     <div className="space-y-8 max-w-2xl">
@@ -62,6 +68,69 @@ export default async function ClubePage() {
           </SubmitButton>
         </form>
       </section>
+
+      {proximoTema && resumoRsvp && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+            Confirmações do próximo encontro
+          </h2>
+          <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 space-y-4 card-elevated">
+            <p className="text-sm">
+              <span className="font-medium">{proximoTema.tema}</span>{" "}
+              <span className="text-[var(--text-secondary)]">
+                ({new Date(`${proximoTema.data}T00:00:00`).toLocaleDateString("pt-BR")})
+              </span>
+            </p>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div>
+                <p className="text-xs font-semibold text-[var(--success-text)] uppercase tracking-wide mb-1.5">
+                  Vão ({resumoRsvp.confirmados.length})
+                </p>
+                {resumoRsvp.confirmados.length > 0 ? (
+                  <ul className="space-y-0.5">
+                    {resumoRsvp.confirmados.map((a) => (
+                      <li key={a.id} className="text-sm">{a.nome}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-[var(--text-faint)]">Ninguém ainda.</p>
+                )}
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-[var(--danger-text)] uppercase tracking-wide mb-1.5">
+                  Não vão ({resumoRsvp.recusados.length})
+                </p>
+                {resumoRsvp.recusados.length > 0 ? (
+                  <ul className="space-y-0.5">
+                    {resumoRsvp.recusados.map((a) => (
+                      <li key={a.id} className="text-sm">{a.nome}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-[var(--text-faint)]">Ninguém ainda.</p>
+                )}
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-[var(--text-faint)] uppercase tracking-wide mb-1.5">
+                  Ainda não responderam ({resumoRsvp.pendentes.length})
+                </p>
+                {resumoRsvp.pendentes.length > 0 ? (
+                  <ul className="space-y-0.5">
+                    {resumoRsvp.pendentes.map((a) => (
+                      <li key={a.id} className="text-sm text-[var(--text-secondary)]">{a.nome}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-[var(--text-faint)]">Todo mundo respondeu.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">

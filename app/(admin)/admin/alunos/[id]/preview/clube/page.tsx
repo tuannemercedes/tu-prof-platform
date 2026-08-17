@@ -33,6 +33,17 @@ export default async function PreviewClubePage({
   const proximoTema =
     (temas ?? []).filter((t) => t.data >= hoje).sort((a, b) => (a.data < b.data ? -1 : 1))[0] ?? null;
 
+  let rsvpAtual: boolean | null = null;
+  if (proximoTema) {
+    const { data: rsvp } = await supabase
+      .from("clube_rsvps")
+      .select("confirmado")
+      .eq("tema_id", proximoTema.id)
+      .eq("aluno_id", id)
+      .maybeSingle();
+    rsvpAtual = rsvp?.confirmado ?? null;
+  }
+
   return (
     <div className="space-y-6">
       <PreviewNav alunoId={id} />
@@ -67,6 +78,15 @@ export default async function PreviewClubePage({
           >
             Entrar na sala ↗
           </a>
+        )}
+
+        {proximoTema && (
+          <p className="text-sm">
+            <span className="text-[var(--text-secondary)]">Confirmação: </span>
+            {rsvpAtual === true && <span className="text-[var(--success-text)]">Vai participar ✓</span>}
+            {rsvpAtual === false && <span className="text-[var(--danger-text)]">Não vai participar</span>}
+            {rsvpAtual === null && <span className="text-[var(--text-secondary)]">Ainda não respondeu</span>}
+          </p>
         )}
       </div>
 
