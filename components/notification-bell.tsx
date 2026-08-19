@@ -53,7 +53,7 @@ export default function NotificationBell({ novidades }: { novidades: Novidade[] 
       {aberto && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setAberto(false)} />
-          <div className="absolute right-0 top-full mt-2 w-72 max-h-96 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-lg z-50">
+          <div className="fixed inset-x-4 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-72 max-h-96 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-lg z-50">
             {novidades.length ? (
               <ul className="divide-y divide-[var(--border-soft)]">
                 {novidades.map((n) => (
