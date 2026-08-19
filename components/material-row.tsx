@@ -34,6 +34,7 @@ type Props = {
   alunoIdsLiberados: string[];
   deleteAction: (formData: FormData) => void;
   moverAction: (id: string, materiaId: string, faseId: string | null, direcao: "up" | "down") => Promise<void>;
+  moverParaFaseAction: (id: string, materiaId: string, faseId: string | null) => Promise<void>;
   isFirst: boolean;
   isLast: boolean;
 };
@@ -49,6 +50,7 @@ export default function MaterialRow({
   alunoIdsLiberados,
   deleteAction,
   moverAction,
+  moverParaFaseAction,
   isFirst,
   isLast,
 }: Props) {
@@ -57,6 +59,7 @@ export default function MaterialRow({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isMoving, startMoveTransition] = useTransition();
+  const [isMovingFase, startMoveFaseTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
   function handleSubmit(formData: FormData) {
@@ -74,6 +77,12 @@ export default function MaterialRow({
   function mover(direcao: "up" | "down") {
     startMoveTransition(async () => {
       await moverAction(material.id, materiaId, material.fase_id, direcao);
+    });
+  }
+
+  function moverParaFase(faseId: string) {
+    startMoveFaseTransition(async () => {
+      await moverParaFaseAction(material.id, materiaId, faseId || null);
     });
   }
 
@@ -107,6 +116,22 @@ export default function MaterialRow({
               {TIPO_LABELS[material.tipo] ?? material.tipo}
               {acessos.length > 0 ? ` · ${acessos.join(", ")}` : " · ninguém tem acesso ainda"}
             </p>
+            {fases.length > 0 && (
+              <select
+                key={material.fase_id ?? "sem-fase"}
+                defaultValue={material.fase_id ?? ""}
+                onChange={(e) => moverParaFase(e.target.value)}
+                disabled={isMovingFase}
+                className="mt-1 text-xs bg-[var(--surface)] border border-[var(--border-strong)] rounded px-1.5 py-0.5 disabled:opacity-50"
+              >
+                <option value="">Sem módulo</option>
+                {fases.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.titulo}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0 text-xs">
@@ -144,21 +169,6 @@ export default function MaterialRow({
             required
             className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
-
-          {fases.length > 0 && (
-            <select
-              name="fase_id"
-              defaultValue={material.fase_id ?? ""}
-              className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
-            >
-              <option value="">Sem fase (fica direto na trilha)</option>
-              {fases.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.titulo}
-                </option>
-              ))}
-            </select>
-          )}
 
           {material.tipo === "html" && (
             <div className="grid sm:grid-cols-2 gap-3">

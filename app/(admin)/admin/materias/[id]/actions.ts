@@ -98,7 +98,6 @@ export async function createMaterial(formData: FormData) {
 export async function updateMaterial(formData: FormData) {
   const id = String(formData.get("id") || "");
   const materia_id = String(formData.get("materia_id") || "");
-  const fase_id = String(formData.get("fase_id") || "") || null;
   const tipo = String(formData.get("tipo") || "");
   const titulo = String(formData.get("titulo") || "").trim();
 
@@ -106,7 +105,7 @@ export async function updateMaterial(formData: FormData) {
 
   const visivel_todos = formData.get("todos") === "on";
   const supabase = await createClient();
-  const updates: Record<string, unknown> = { titulo, fase_id, visivel_todos };
+  const updates: Record<string, unknown> = { titulo, visivel_todos };
 
   if (tipo === "html") {
     const conteudo_html = String(formData.get("conteudo_html") || "");
@@ -170,6 +169,12 @@ export async function deleteMaterial(formData: FormData) {
   const supabase = await createClient();
   await supabase.from("materiais").delete().eq("id", id);
   revalidatePath(`/admin/materias/${materia_id}`);
+}
+
+export async function moverParaFase(id: string, materiaId: string, faseId: string | null) {
+  const supabase = await createClient();
+  await supabase.from("materiais").update({ fase_id: faseId }).eq("id", id);
+  revalidatePath(`/admin/materias/${materiaId}`);
 }
 
 export async function moverMaterial(

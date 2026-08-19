@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import MaterialForm from "@/components/material-form";
 import MaterialRow from "@/components/material-row";
 import SubmitButton from "@/components/submit-button";
-import { createFase, deleteFase, deleteMaterial, moverMaterial } from "./actions";
+import { createFase, deleteFase, deleteMaterial, moverMaterial, moverParaFase } from "./actions";
 import { updateMateriaTitulo } from "@/app/(admin)/admin/materias/actions";
 
 export default async function MateriaDetailPage({
@@ -73,6 +73,7 @@ export default async function MateriaDetailPage({
         alunoIdsLiberados={alunoIdsLiberados}
         deleteAction={deleteMaterial}
         moverAction={moverMaterial}
+        moverParaFaseAction={moverParaFase}
         isFirst={isFirst}
         isLast={isLast}
       />
