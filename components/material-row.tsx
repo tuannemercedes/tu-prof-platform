@@ -33,6 +33,9 @@ type Props = {
   turmaIdsLiberadas: string[];
   alunoIdsLiberados: string[];
   deleteAction: (formData: FormData) => void;
+  moverAction: (id: string, materiaId: string, faseId: string | null, direcao: "up" | "down") => Promise<void>;
+  isFirst: boolean;
+  isLast: boolean;
 };
 
 export default function MaterialRow({
@@ -45,11 +48,15 @@ export default function MaterialRow({
   turmaIdsLiberadas,
   alunoIdsLiberados,
   deleteAction,
+  moverAction,
+  isFirst,
+  isLast,
 }: Props) {
   const [editing, setEditing] = useState(false);
   const [htmlPreview, setHtmlPreview] = useState(material.conteudo_html ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isMoving, startMoveTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
   function handleSubmit(formData: FormData) {
@@ -64,15 +71,43 @@ export default function MaterialRow({
     });
   }
 
+  function mover(direcao: "up" | "down") {
+    startMoveTransition(async () => {
+      await moverAction(material.id, materiaId, material.fase_id, direcao);
+    });
+  }
+
   return (
     <li className="p-3 space-y-3">
       <div className="flex items-center justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm font-medium">{material.titulo}</p>
-          <p className="text-xs text-[var(--text-secondary)]">
-            {TIPO_LABELS[material.tipo] ?? material.tipo}
-            {acessos.length > 0 ? ` · ${acessos.join(", ")}` : " · ninguém tem acesso ainda"}
-          </p>
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex flex-col shrink-0">
+            <button
+              type="button"
+              onClick={() => mover("up")}
+              disabled={isFirst || isMoving}
+              aria-label="Mover para cima"
+              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-25 disabled:cursor-not-allowed leading-none px-1 py-0.5"
+            >
+              ▲
+            </button>
+            <button
+              type="button"
+              onClick={() => mover("down")}
+              disabled={isLast || isMoving}
+              aria-label="Mover para baixo"
+              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-25 disabled:cursor-not-allowed leading-none px-1 py-0.5"
+            >
+              ▼
+            </button>
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium">{material.titulo}</p>
+            <p className="text-xs text-[var(--text-secondary)]">
+              {TIPO_LABELS[material.tipo] ?? material.tipo}
+              {acessos.length > 0 ? ` · ${acessos.join(", ")}` : " · ninguém tem acesso ainda"}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-3 shrink-0 text-xs">
           <button

@@ -10,7 +10,7 @@ type MateriaRow = {
   materia_id: string;
   fase_id: string | null;
   ordem: number;
-  materias: { id: string; titulo: string; categoria: string } | null;
+  materias: { id: string; titulo: string; categoria: string; ordem: number } | null;
 };
 
 export default async function AlunoLayout({
@@ -26,8 +26,9 @@ export default async function AlunoLayout({
     await Promise.all([
       supabase
         .from("materiais")
-        .select("id, titulo, materia_id, fase_id, ordem, materias(id, titulo, categoria)")
-        .order("ordem"),
+        .select("id, titulo, materia_id, fase_id, ordem, materias(id, titulo, categoria, ordem)")
+        .order("ordem")
+        .order("created_at"),
       supabase.from("fases").select("id, materia_id, titulo, ordem").order("ordem"),
       supabase.from("progresso").select("material_id, concluido").eq("aluno_id", user!.id),
       supabase.from("configuracoes").select("chave, valor"),
@@ -44,6 +45,7 @@ export default async function AlunoLayout({
     id: string;
     titulo: string;
     categoria: string;
+    ordem: number;
     fasesMap: Map<string, { id: string; titulo: string; ordem: number; materiais: { id: string; titulo: string; concluido: boolean }[] }>;
     materiaisSemFase: { id: string; titulo: string; concluido: boolean }[];
   };
@@ -57,6 +59,7 @@ export default async function AlunoLayout({
         id: row.materias.id,
         titulo: row.materias.titulo,
         categoria: row.materias.categoria,
+        ordem: row.materias.ordem,
         fasesMap: new Map(),
         materiaisSemFase: [],
       });
@@ -84,7 +87,8 @@ export default async function AlunoLayout({
     }
   });
 
-  const todas = [...trilhasMap.values()];
+  const porOrdem = (a: TrilhaBuild, b: TrilhaBuild) => a.ordem - b.ordem || a.titulo.localeCompare(b.titulo);
+  const todas = [...trilhasMap.values()].sort(porOrdem);
   const trilhas = todas
     .filter((t) => t.categoria !== "fia")
     .map((t) => ({

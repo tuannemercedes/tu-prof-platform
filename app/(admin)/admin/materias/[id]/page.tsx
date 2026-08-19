@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import MaterialForm from "@/components/material-form";
 import MaterialRow from "@/components/material-row";
 import SubmitButton from "@/components/submit-button";
-import { createFase, deleteFase, deleteMaterial } from "./actions";
+import { createFase, deleteFase, deleteMaterial, moverMaterial } from "./actions";
 import { updateMateriaTitulo } from "@/app/(admin)/admin/materias/actions";
 
 export default async function MateriaDetailPage({
@@ -24,7 +24,8 @@ export default async function MateriaDetailPage({
           "id, titulo, tipo, ordem, fase_id, conteudo_html, url, visivel_todos, material_turmas(turma_id, turmas(nome)), material_alunos(aluno_id, profiles(nome, email))"
         )
         .eq("materia_id", id)
-        .order("ordem"),
+        .order("ordem")
+        .order("created_at"),
       supabase.from("turmas").select("id, nome").order("nome"),
       supabase.from("profiles").select("id, nome, email").eq("role", "aluno").order("nome"),
       supabase.from("fases").select("id, titulo, ordem").eq("materia_id", id).order("ordem"),
@@ -32,7 +33,7 @@ export default async function MateriaDetailPage({
 
   if (!materia) notFound();
 
-  function renderMaterial(material: NonNullable<typeof materiais>[number]) {
+  function renderMaterial(material: NonNullable<typeof materiais>[number], isFirst: boolean, isLast: boolean) {
     const turmasDoMaterial = (
       material.material_turmas as unknown as { turmas: { nome: string } | null }[]
     )
@@ -71,6 +72,9 @@ export default async function MateriaDetailPage({
         turmaIdsLiberadas={turmaIdsLiberadas}
         alunoIdsLiberados={alunoIdsLiberados}
         deleteAction={deleteMaterial}
+        moverAction={moverMaterial}
+        isFirst={isFirst}
+        isLast={isLast}
       />
     );
   }
@@ -142,7 +146,7 @@ export default async function MateriaDetailPage({
                   </div>
                   <ul className="divide-y divide-[var(--border-soft)]">
                     {materiaisDaFase.length ? (
-                      materiaisDaFase.map(renderMaterial)
+                      materiaisDaFase.map((m, i) => renderMaterial(m, i === 0, i === materiaisDaFase.length - 1))
                     ) : (
                       <li className="p-3 text-xs text-[var(--text-faint)]">Nenhum material nessa fase ainda.</li>
                     )}
@@ -171,7 +175,7 @@ export default async function MateriaDetailPage({
             Sem fase
           </h2>
           <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg">
-            {materiaisSemFase.map(renderMaterial)}
+            {materiaisSemFase.map((m, i) => renderMaterial(m, i === 0, i === materiaisSemFase.length - 1))}
           </ul>
         </section>
       )}

@@ -43,3 +43,29 @@ export async function deleteMateria(formData: FormData) {
   await supabase.from("materias").delete().eq("id", id);
   revalidatePath("/admin/materias");
 }
+
+export async function moverMateria(id: string, categoria: string, direcao: "up" | "down") {
+  const supabase = await createClient();
+  const { data: materias } = await supabase
+    .from("materias")
+    .select("id")
+    .eq("categoria", categoria)
+    .order("ordem")
+    .order("titulo");
+
+  if (!materias) return;
+
+  const index = materias.findIndex((m) => m.id === id);
+  const alvo = direcao === "up" ? index - 1 : index + 1;
+  if (index === -1 || alvo < 0 || alvo >= materias.length) return;
+
+  const reordenadas = [...materias];
+  [reordenadas[index], reordenadas[alvo]] = [reordenadas[alvo], reordenadas[index]];
+
+  await Promise.all(
+    reordenadas.map((m, i) => supabase.from("materias").update({ ordem: i }).eq("id", m.id))
+  );
+
+  revalidatePath("/admin/materias");
+  revalidatePath("/admin/fia");
+}

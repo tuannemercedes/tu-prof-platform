@@ -9,6 +9,7 @@ export default async function FiaPage() {
     .from("materias")
     .select("id, titulo, categoria, materiais(count)")
     .eq("categoria", "fia")
+    .order("ordem")
     .order("titulo");
 
   const fia = (data ?? []) as unknown as Materia[];

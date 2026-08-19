@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CategoriaSelect from "@/components/categoria-select";
 import SubmitButton from "@/components/submit-button";
+import MateriaMoveButtons from "@/components/materia-move-buttons";
 import {
   updateMateriaCategoria,
   updateMateriaTitulo,
@@ -25,15 +26,23 @@ export default function MateriaList({ materias }: { materias: Materia[] }) {
 
   return (
     <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg">
-      {materias.map((materia) => (
+      {materias.map((materia, index) => (
         <li key={materia.id} className="p-4 space-y-2">
           <div className="flex items-center justify-between gap-4">
-            <Link
-              href={`/admin/materias/${materia.id}`}
-              className="text-xs text-[var(--text-secondary)] hover:underline whitespace-nowrap"
-            >
-              Abrir → {materia.materiais[0]?.count ?? 0} material(is)
-            </Link>
+            <div className="flex items-center gap-2 min-w-0">
+              <MateriaMoveButtons
+                id={materia.id}
+                categoria={materia.categoria}
+                isFirst={index === 0}
+                isLast={index === materias.length - 1}
+              />
+              <Link
+                href={`/admin/materias/${materia.id}`}
+                className="text-xs text-[var(--text-secondary)] hover:underline whitespace-nowrap"
+              >
+                Abrir → {materia.materiais[0]?.count ?? 0} material(is)
+              </Link>
+            </div>
             <div className="flex items-center gap-2 shrink-0">
               <form action={updateMateriaCategoria} className="flex items-center gap-2">
                 <input type="hidden" name="id" value={materia.id} />

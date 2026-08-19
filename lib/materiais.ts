@@ -23,7 +23,8 @@ export async function getMateriaisParaAluno(
       .select(
         "id, titulo, materia_id, fase_id, ordem, visivel_todos, materias(id, titulo, categoria), material_turmas(turma_id), material_alunos(aluno_id)"
       )
-      .order("ordem"),
+      .order("ordem")
+      .order("created_at"),
   ]);
 
   const turmaIdsDoAluno = new Set((turmaMembros ?? []).map((t) => t.turma_id));

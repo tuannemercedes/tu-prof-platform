@@ -9,6 +9,7 @@ export default async function MateriasPage() {
     .from("materias")
     .select("id, titulo, categoria, materiais(count)")
     .eq("categoria", "trilha")
+    .order("ordem")
     .order("titulo");
 
   const trilhas = (data ?? []) as unknown as Materia[];

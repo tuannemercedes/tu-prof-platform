@@ -20,7 +20,8 @@ export default async function PreviewMateriaPage({
           "id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, visivel_todos, material_turmas(turma_id), material_alunos(aluno_id)"
         )
         .eq("materia_id", materiaId)
-        .order("ordem"),
+        .order("ordem")
+        .order("created_at"),
       supabase.from("progresso").select("material_id, concluido").eq("aluno_id", id),
       supabase.from("turma_membros").select("turma_id").eq("aluno_id", id),
     ]);

@@ -20,7 +20,8 @@ export default async function AlunoMateriaPage({
         .from("materiais")
         .select("id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, fase_id")
         .eq("materia_id", id)
-        .order("ordem"),
+        .order("ordem")
+        .order("created_at"),
       supabase.from("progresso").select("material_id, concluido").eq("aluno_id", user!.id),
       supabase.from("fases").select("id, titulo, ordem").eq("materia_id", id).order("ordem"),
     ]);

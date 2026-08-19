@@ -171,3 +171,31 @@ export async function deleteMaterial(formData: FormData) {
   await supabase.from("materiais").delete().eq("id", id);
   revalidatePath(`/admin/materias/${materia_id}`);
 }
+
+export async function moverMaterial(
+  id: string,
+  materiaId: string,
+  faseId: string | null,
+  direcao: "up" | "down"
+) {
+  const supabase = await createClient();
+  const query = supabase.from("materiais").select("id").eq("materia_id", materiaId);
+  const { data: materiais } = await (faseId ? query.eq("fase_id", faseId) : query.is("fase_id", null))
+    .order("ordem")
+    .order("created_at");
+
+  if (!materiais) return;
+
+  const index = materiais.findIndex((m) => m.id === id);
+  const alvo = direcao === "up" ? index - 1 : index + 1;
+  if (index === -1 || alvo < 0 || alvo >= materiais.length) return;
+
+  const reordenados = [...materiais];
+  [reordenados[index], reordenados[alvo]] = [reordenados[alvo], reordenados[index]];
+
+  await Promise.all(
+    reordenados.map((m, i) => supabase.from("materiais").update({ ordem: i }).eq("id", m.id))
+  );
+
+  revalidatePath(`/admin/materias/${materiaId}`);
+}
