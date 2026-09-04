@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { saveTermo } from "@/app/(admin)/admin/glossario/actions";
 
-export default function GlossarioForm() {
+export default function GlossarioForm({ categorias }: { categorias: string[] }) {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -46,6 +46,18 @@ export default function GlossarioForm() {
         placeholder="Exemplo de frase (opcional)"
         className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
       />
+      <input
+        type="text"
+        name="categoria"
+        list="glossario-categorias"
+        placeholder="Categoria (opcional, ex: UX, Engenharia)"
+        className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
+      />
+      <datalist id="glossario-categorias">
+        {categorias.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
       {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
       <button
         type="submit"

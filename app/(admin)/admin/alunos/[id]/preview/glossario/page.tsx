@@ -26,7 +26,7 @@ export default async function PreviewGlossarioPage({
 
   const { data: termos } = await supabase
     .from("glossario_termos")
-    .select("id, termo, definicao, exemplo")
+    .select("id, termo, definicao, exemplo, categoria")
     .order("termo");
 
   return (

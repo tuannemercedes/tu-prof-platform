@@ -3,9 +3,9 @@
 import { useState, useTransition } from "react";
 import { saveTermo, deleteTermo } from "@/app/(admin)/admin/glossario/actions";
 
-type Termo = { id: string; termo: string; definicao: string; exemplo: string | null };
+type Termo = { id: string; termo: string; definicao: string; exemplo: string | null; categoria: string | null };
 
-export default function GlossarioTermoRow({ termo }: { termo: Termo }) {
+export default function GlossarioTermoRow({ termo, categorias }: { termo: Termo; categorias: string[] }) {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -26,7 +26,14 @@ export default function GlossarioTermoRow({ termo }: { termo: Termo }) {
     <li className="p-3 space-y-2">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-sm font-medium">{termo.termo}</p>
+          <p className="text-sm font-medium">
+            {termo.termo}
+            {termo.categoria && (
+              <span className="ml-2 text-[10px] font-medium text-[var(--text-faint)] bg-[var(--surface-2)] px-1.5 py-0.5 rounded-full align-middle">
+                {termo.categoria}
+              </span>
+            )}
+          </p>
           <p className="text-xs text-[var(--text-secondary)] line-clamp-2">{termo.definicao}</p>
         </div>
         <div className="flex items-center gap-3 shrink-0 text-xs">
@@ -70,6 +77,19 @@ export default function GlossarioTermoRow({ termo }: { termo: Termo }) {
             placeholder="Exemplo de frase (opcional)"
             className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
+          <input
+            type="text"
+            name="categoria"
+            defaultValue={termo.categoria ?? ""}
+            list="glossario-categorias"
+            placeholder="Categoria (opcional, ex: UX, Engenharia)"
+            className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
+          />
+          <datalist id="glossario-categorias">
+            {categorias.map((c) => (
+              <option key={c} value={c} />
+            ))}
+          </datalist>
           {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
           <button
             type="submit"

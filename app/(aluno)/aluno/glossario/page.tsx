@@ -6,7 +6,7 @@ export default async function AlunoGlossarioPage() {
 
   const [{ data: config }, { data: termos }] = await Promise.all([
     supabase.from("glossario_config").select("id").eq("id", 1).maybeSingle(),
-    supabase.from("glossario_termos").select("id, termo, definicao, exemplo").order("termo"),
+    supabase.from("glossario_termos").select("id, termo, definicao, exemplo, categoria").order("termo"),
   ]);
 
   if (!config) {
