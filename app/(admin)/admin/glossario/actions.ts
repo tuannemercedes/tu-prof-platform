@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
+async function garantirCategoria(supabase: Awaited<ReturnType<typeof createClient>>, categoria: string | null) {
+  if (!categoria) return;
+  await supabase.from("glossario_categorias").upsert({ nome: categoria }, { onConflict: "nome" });
+}
+
 export async function updateGlossarioAcesso(formData: FormData) {
   const turmaIds = formData.getAll("turmas").map(String);
   const alunoIds = formData.getAll("alunos").map(String);
@@ -25,6 +30,22 @@ export async function updateGlossarioAcesso(formData: FormData) {
   revalidatePath("/aluno/glossario");
 }
 
+export async function criarCategoria(nome: string) {
+  const n = nome.trim();
+  if (!n) return { error: "Digite um nome pra categoria." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("glossario_categorias").insert({ nome: n });
+
+  if (error) {
+    if (error.code === "23505") return { error: "Essa categoria já existe." };
+    return { error: error.message };
+  }
+
+  revalidatePath("/admin/glossario");
+  return { success: true };
+}
+
 export async function saveTermo(formData: FormData) {
   const id = String(formData.get("id") || "");
   const termo = String(formData.get("termo") || "").trim();
@@ -35,6 +56,7 @@ export async function saveTermo(formData: FormData) {
   if (!termo || !definicao) return { error: "Preencha o termo e a definição." };
 
   const supabase = await createClient();
+  await garantirCategoria(supabase, categoria);
 
   const { error } = id
     ? await supabase.from("glossario_termos").update({ termo, definicao, exemplo, categoria }).eq("id", id)
@@ -68,6 +90,8 @@ export async function importarTermos(termos: TermoImportado[], categoria: string
   if (!linhas.length) return { error: "Nenhum termo válido pra importar." };
 
   const supabase = await createClient();
+  await garantirCategoria(supabase, categoria);
+
   const { error } = await supabase
     .from("glossario_termos")
     .insert(linhas.map((l) => ({ ...l, categoria })));

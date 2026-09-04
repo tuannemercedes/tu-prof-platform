@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { saveTermo } from "@/app/(admin)/admin/glossario/actions";
 
-export default function GlossarioForm({ categorias }: { categorias: string[] }) {
+export default function GlossarioForm({ categoria }: { categoria: string | null }) {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -25,14 +25,23 @@ export default function GlossarioForm({ categorias }: { categorias: string[] }) 
   }
 
   return (
-    <form ref={formRef} action={handleSubmit} className="space-y-3 border border-[var(--border)] rounded-lg p-4">
-      <input
-        type="text"
-        name="termo"
-        required
-        placeholder="Termo ou expressão (ex: Ojalá)"
-        className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
-      />
+    <form ref={formRef} action={handleSubmit} className="space-y-2">
+      <input type="hidden" name="categoria" value={categoria ?? ""} />
+      <div className="grid sm:grid-cols-2 gap-2">
+        <input
+          type="text"
+          name="termo"
+          required
+          placeholder="Termo ou expressão (ex: Ojalá)"
+          className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
+        />
+        <input
+          type="text"
+          name="exemplo"
+          placeholder="Exemplo de frase (opcional)"
+          className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
+        />
+      </div>
       <textarea
         name="definicao"
         required
@@ -40,24 +49,6 @@ export default function GlossarioForm({ categorias }: { categorias: string[] }) 
         placeholder="Definição / significado"
         className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
       />
-      <input
-        type="text"
-        name="exemplo"
-        placeholder="Exemplo de frase (opcional)"
-        className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
-      />
-      <input
-        type="text"
-        name="categoria"
-        list="glossario-categorias"
-        placeholder="Categoria (opcional, ex: UX, Engenharia)"
-        className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
-      />
-      <datalist id="glossario-categorias">
-        {categorias.map((c) => (
-          <option key={c} value={c} />
-        ))}
-      </datalist>
       {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
       <button
         type="submit"

@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import SubmitButton from "@/components/submit-button";
 import LiberacaoFields from "@/components/liberacao-fields";
-import GlossarioForm from "@/components/glossario-form";
-import GlossarioImportForm from "@/components/glossario-import-form";
+import GlossarioCategoriasPanel from "@/components/glossario-categorias-panel";
 import GlossarioTermoRow from "@/components/glossario-termo-row";
 import { updateGlossarioAcesso } from "./actions";
 
@@ -11,10 +10,11 @@ const SEM_CATEGORIA = "Sem categoria";
 export default async function GlossarioPage() {
   const supabase = await createClient();
 
-  const [{ data: config }, { data: termos }, { data: turmas }, { data: alunos }, { data: turmasLiberadas }, { data: alunosLiberados }] =
+  const [{ data: config }, { data: termos }, { data: categoriasRows }, { data: turmas }, { data: alunos }, { data: turmasLiberadas }, { data: alunosLiberados }] =
     await Promise.all([
       supabase.from("glossario_config").select("visivel_todos").eq("id", 1).single(),
       supabase.from("glossario_termos").select("id, termo, definicao, exemplo, categoria").order("categoria").order("termo"),
+      supabase.from("glossario_categorias").select("nome").order("nome"),
       supabase.from("turmas").select("id, nome").order("nome"),
       supabase.from("profiles").select("id, nome, email").eq("role", "aluno").order("nome"),
       supabase.from("glossario_turmas").select("turma_id"),
@@ -24,7 +24,8 @@ export default async function GlossarioPage() {
   const turmaIdsLiberadas = new Set((turmasLiberadas ?? []).map((t) => t.turma_id));
   const alunoIdsLiberados = new Set((alunosLiberados ?? []).map((a) => a.aluno_id));
 
-  const categorias = [...new Set((termos ?? []).map((t) => t.categoria).filter((c): c is string => Boolean(c)))].sort(
+  const categoriasDosTermos = (termos ?? []).map((t) => t.categoria).filter((c): c is string => Boolean(c));
+  const categorias = [...new Set([...(categoriasRows ?? []).map((c) => c.nome), ...categoriasDosTermos])].sort(
     (a, b) => a.localeCompare(b)
   );
 
@@ -50,21 +51,17 @@ export default async function GlossarioPage() {
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
-          Adicionar termo
+          Categorias e termos
         </h2>
-        <GlossarioForm categorias={categorias} />
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
-          Colar tabela (vários de uma vez)
-        </h2>
-        <GlossarioImportForm categorias={categorias} />
+        <p className="text-xs text-[var(--text-secondary)]">
+          Escolha ou crie uma categoria — os termos que você adicionar depois entram direto nela.
+        </p>
+        <GlossarioCategoriasPanel categorias={categorias} />
       </section>
 
       <section className="space-y-4">
         <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
-          Termos ({termos?.length ?? 0})
+          Todos os termos ({termos?.length ?? 0})
         </h2>
         {gruposOrdenados.length ? (
           gruposOrdenados.map(([categoria, itens]) => (
