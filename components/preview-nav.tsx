@@ -2,13 +2,15 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getClubeAcessoParaAluno } from "@/lib/clube";
 import { getMateriaisParaAluno } from "@/lib/materiais";
+import { getGlossarioAcessoParaAluno } from "@/lib/glossario";
 
 export default async function PreviewNav({ alunoId }: { alunoId: string }) {
   const supabase = await createClient();
-  const [{ data: aluno }, materiaisAcessiveis, temClube] = await Promise.all([
+  const [{ data: aluno }, materiaisAcessiveis, temClube, temGlossario] = await Promise.all([
     supabase.from("profiles").select("id, nome, email").eq("id", alunoId).single(),
     getMateriaisParaAluno(supabase, alunoId),
     getClubeAcessoParaAluno(supabase, alunoId),
+    getGlossarioAcessoParaAluno(supabase, alunoId),
   ]);
 
   if (!aluno) return null;
@@ -56,6 +58,11 @@ export default async function PreviewNav({ alunoId }: { alunoId: string }) {
         {temClube && (
           <Link href={`${base}/clube`} className={linkStyle}>
             Clube de Conversação
+          </Link>
+        )}
+        {temGlossario && (
+          <Link href={`${base}/glossario`} className={linkStyle}>
+            Glossário
           </Link>
         )}
         {trilhas.map((t) => (

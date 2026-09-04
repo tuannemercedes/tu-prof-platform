@@ -22,7 +22,7 @@ export default async function AlunoLayout({
   const user = await getUser();
 
   const supabase = await createClient();
-  const [{ data: materiaisRows }, { data: fasesRows }, { data: progresso }, { data: config }, { data: clubeConfig }, novidades] =
+  const [{ data: materiaisRows }, { data: fasesRows }, { data: progresso }, { data: config }, { data: clubeConfig }, { data: glossarioConfig }, novidades] =
     await Promise.all([
       supabase
         .from("materiais")
@@ -33,10 +33,12 @@ export default async function AlunoLayout({
       supabase.from("progresso").select("material_id, concluido").eq("aluno_id", user!.id),
       supabase.from("configuracoes").select("chave, valor"),
       supabase.from("clube_config").select("link_acesso").eq("id", 1).maybeSingle(),
+      supabase.from("glossario_config").select("id").eq("id", 1).maybeSingle(),
       getNovidadesParaAluno(supabase, user!.id, profile.ultimo_acesso_novidades),
     ]);
 
   const temClube = !!clubeConfig;
+  const temGlossario = !!glossarioConfig;
 
   const progressoMap = new Map((progresso ?? []).map((p) => [p.material_id, p.concluido]));
   const rows = (materiaisRows ?? []) as unknown as MateriaRow[];
@@ -111,6 +113,7 @@ export default async function AlunoLayout({
         trilhas={trilhas}
         fia={fia}
         temClube={temClube}
+        temGlossario={temGlossario}
         novidades={novidades}
         appUrl={appUrl}
         appLabel={appLabel}

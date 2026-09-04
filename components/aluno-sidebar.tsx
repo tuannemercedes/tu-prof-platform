@@ -24,6 +24,7 @@ type Props = {
   trilhas: Trilha[];
   fia: SimpleMateria[];
   temClube?: boolean;
+  temGlossario?: boolean;
   novidades?: Novidade[];
   appUrl?: string | null;
   appLabel?: string | null;
@@ -42,6 +43,7 @@ export default function AlunoSidebar({
   trilhas,
   fia,
   temClube,
+  temGlossario,
   novidades = [],
   appUrl,
   appLabel,
@@ -137,6 +139,11 @@ export default function AlunoSidebar({
           {temClube && (
             <Link href="/aluno/clube" className={linkClass("/aluno/clube")}>
               Clube de Conversação
+            </Link>
+          )}
+          {temGlossario && (
+            <Link href="/aluno/glossario" className={linkClass("/aluno/glossario")}>
+              Glossário
             </Link>
           )}
         </nav>

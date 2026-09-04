@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { href: "/admin/cronograma", label: "Cronograma" },
   { href: "/admin/planner", label: "Planner" },
   { href: "/admin/clube", label: "Clube de Conversação" },
+  { href: "/admin/glossario", label: "Glossário" },
   { href: "/admin/configuracoes", label: "Configurações" },
 ];
 
