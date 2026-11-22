@@ -1,17 +1,7 @@
-import { requireAluno } from "@/lib/dal";
-import AlunoSidebar from "@/components/aluno-sidebar";
+import { requireAluno, getUser } from "@/lib/dal";
+import AlunoNav from "@/components/aluno-nav";
 import { createClient } from "@/lib/supabase/server";
-import { getUser } from "@/lib/dal";
 import { getNovidadesParaAluno } from "@/lib/notificacoes";
-
-type MateriaRow = {
-  id: string;
-  titulo: string;
-  materia_id: string;
-  fase_id: string | null;
-  ordem: number;
-  materias: { id: string; titulo: string; categoria: string; ordem: number } | null;
-};
 
 export default async function AlunoLayout({
   children,
@@ -22,105 +12,27 @@ export default async function AlunoLayout({
   const user = await getUser();
 
   const supabase = await createClient();
-  const [{ data: materiaisRows }, { data: fasesRows }, { data: progresso }, { data: config }, { data: clubeConfig }, { data: glossarioConfig }, novidades] =
-    await Promise.all([
-      supabase
-        .from("materiais")
-        .select("id, titulo, materia_id, fase_id, ordem, materias(id, titulo, categoria, ordem)")
-        .order("ordem")
-        .order("created_at"),
-      supabase.from("fases").select("id, materia_id, titulo, ordem").order("ordem"),
-      supabase.from("progresso").select("material_id, concluido").eq("aluno_id", user!.id),
-      supabase.from("configuracoes").select("chave, valor"),
-      supabase.from("clube_config").select("link_acesso").eq("id", 1).maybeSingle(),
-      supabase.from("glossario_config").select("id").eq("id", 1).maybeSingle(),
-      getNovidadesParaAluno(supabase, user!.id, profile.ultimo_acesso_novidades),
-    ]);
+  const [{ data: config }, novidades] = await Promise.all([
+    supabase.from("configuracoes").select("chave, valor"),
+    getNovidadesParaAluno(supabase, user!.id, profile.ultimo_acesso_novidades),
+  ]);
 
-  const temClube = !!clubeConfig;
-  const temGlossario = !!glossarioConfig;
-
-  const progressoMap = new Map((progresso ?? []).map((p) => [p.material_id, p.concluido]));
-  const rows = (materiaisRows ?? []) as unknown as MateriaRow[];
-
-  type TrilhaBuild = {
-    id: string;
-    titulo: string;
-    categoria: string;
-    ordem: number;
-    fasesMap: Map<string, { id: string; titulo: string; ordem: number; materiais: { id: string; titulo: string; concluido: boolean }[] }>;
-    materiaisSemFase: { id: string; titulo: string; concluido: boolean }[];
-  };
-
-  const trilhasMap = new Map<string, TrilhaBuild>();
-
-  rows.forEach((row) => {
-    if (!row.materias) return;
-    if (!trilhasMap.has(row.materias.id)) {
-      trilhasMap.set(row.materias.id, {
-        id: row.materias.id,
-        titulo: row.materias.titulo,
-        categoria: row.materias.categoria,
-        ordem: row.materias.ordem,
-        fasesMap: new Map(),
-        materiaisSemFase: [],
-      });
-    }
-    const trilha = trilhasMap.get(row.materias.id)!;
-    const materialEntry = {
-      id: row.id,
-      titulo: row.titulo,
-      concluido: progressoMap.get(row.id) ?? false,
-    };
-
-    if (row.fase_id) {
-      if (!trilha.fasesMap.has(row.fase_id)) {
-        const faseInfo = fasesRows?.find((f) => f.id === row.fase_id);
-        trilha.fasesMap.set(row.fase_id, {
-          id: row.fase_id,
-          titulo: faseInfo?.titulo ?? "Fase",
-          ordem: faseInfo?.ordem ?? 0,
-          materiais: [],
-        });
-      }
-      trilha.fasesMap.get(row.fase_id)!.materiais.push(materialEntry);
-    } else {
-      trilha.materiaisSemFase.push(materialEntry);
-    }
-  });
-
-  const porOrdem = (a: TrilhaBuild, b: TrilhaBuild) => a.ordem - b.ordem || a.titulo.localeCompare(b.titulo);
-  const todas = [...trilhasMap.values()].sort(porOrdem);
-  const trilhas = todas
-    .filter((t) => t.categoria !== "fia")
-    .map((t) => ({
-      id: t.id,
-      titulo: t.titulo,
-      fases: [...t.fasesMap.values()].sort((a, b) => a.ordem - b.ordem),
-      materiaisSemFase: t.materiaisSemFase,
-    }));
-  const fia = todas.filter((t) => t.categoria === "fia").map((t) => ({ id: t.id, titulo: t.titulo }));
-
-  const appUrl = config?.find((c) => c.chave === "app_treino_url")?.valor;
-  const appLabel = config?.find((c) => c.chave === "app_treino_label")?.valor;
-  const contatoUrl = config?.find((c) => c.chave === "contato_url")?.valor;
-  const contatoLabel = config?.find((c) => c.chave === "contato_label")?.valor;
+  const valor = (chave: string) => config?.find((c) => c.chave === chave)?.valor;
+  const primeiroNome = (profile.nome || profile.email).split(" ")[0];
 
   return (
     <div className="min-h-screen flex flex-col sm:flex-row">
-      <AlunoSidebar
-        nome={profile.nome || profile.email}
-        trilhas={trilhas}
-        fia={fia}
-        temClube={temClube}
-        temGlossario={temGlossario}
+      <AlunoNav
+        nome={primeiroNome}
         novidades={novidades}
-        appUrl={appUrl}
-        appLabel={appLabel}
-        contatoUrl={contatoUrl}
-        contatoLabel={contatoLabel}
+        appUrl={valor("app_treino_url")}
+        appLabel={valor("app_treino_label")}
+        contatoUrl={valor("contato_url")}
+        contatoLabel={valor("contato_label")}
       />
-      <main className="flex-1 p-4 sm:p-6 min-w-0">{children}</main>
+      <main className="flex-1 min-w-0 px-4 sm:px-10 pt-6 sm:pt-10 pb-28 sm:pb-12">
+        <div className="max-w-4xl mx-auto">{children}</div>
+      </main>
     </div>
   );
 }

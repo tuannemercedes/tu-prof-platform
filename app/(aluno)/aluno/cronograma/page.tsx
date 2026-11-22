@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import CabecalhoPagina from "@/components/cabecalho-pagina";
+import PlanoAbas from "@/components/plano-abas";
 
 export default async function AlunoCronogramaPage() {
   const supabase = await createClient();
@@ -10,10 +12,8 @@ export default async function AlunoCronogramaPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-lg font-serif font-semibold">Cronograma</h1>
-        <p className="text-sm text-[var(--text-secondary)]">Sua trajetória ao longo da mentoria.</p>
-      </div>
+<CabecalhoPagina sobretitulo="Meu plano" titulo="Suas aulas" descricao="Os temas de cada encontro ao longo do programa." />
+      <PlanoAbas />
 
       {itens?.length ? (
         <ol className="space-y-4">

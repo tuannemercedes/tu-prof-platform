@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import PlannerItemCheckbox from "@/components/planner-item-checkbox";
+import CabecalhoPagina from "@/components/cabecalho-pagina";
+import PlanoAbas from "@/components/plano-abas";
 
 type Item = { id: string; texto: string; concluido: boolean; link_url: string | null };
 
@@ -20,10 +22,8 @@ export default async function AlunoPlannerPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-lg font-serif font-semibold">Planner</h1>
-        <p className="text-sm text-[var(--text-secondary)]">Suas tarefas de estudo, no seu ritmo.</p>
-      </div>
+<CabecalhoPagina sobretitulo="Meu plano" titulo="Suas tarefas" descricao="Marque cada uma quando terminar." />
+      <PlanoAbas />
 
       {[...semanas.entries()].map(([semana, diasDaSemana]) => (
         <section key={semana} className="space-y-3">
@@ -35,7 +35,7 @@ export default async function AlunoPlannerPage() {
               const itens = dia.planner_itens as Item[];
               const concluidos = itens.filter((i) => i.concluido).length;
               return (
-                <div key={dia.id} className="border border-[var(--border)] rounded-lg p-4 space-y-3">
+                <div key={dia.id} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 space-y-3">
                   <div className="flex items-baseline justify-between">
                     <p className="text-sm font-medium">{dia.titulo}</p>
                     {itens.length > 0 && (

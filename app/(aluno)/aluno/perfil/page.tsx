@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/dal";
 import PerfilForm from "@/components/perfil-form";
 import SenhaForm from "@/components/senha-form";
+import CabecalhoPagina from "@/components/cabecalho-pagina";
 
 export default async function AlunoPerfilPage() {
   const user = await getUser();
@@ -15,10 +16,7 @@ export default async function AlunoPerfilPage() {
 
   return (
     <div className="space-y-6 max-w-sm">
-      <div>
-        <h1 className="text-lg font-serif font-semibold">Meu perfil</h1>
-        <p className="text-sm text-[var(--text-secondary)]">{profile?.email}</p>
-      </div>
+<CabecalhoPagina sobretitulo="Minha conta" titulo="Meu perfil" descricao={profile?.email} />
 
       <PerfilForm nomeAtual={profile?.nome ?? ""} />
 

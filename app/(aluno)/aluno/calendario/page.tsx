@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import CabecalhoPagina from "@/components/cabecalho-pagina";
+import PlanoAbas from "@/components/plano-abas";
 
 export default async function AlunoCalendarioPage() {
   const supabase = await createClient();
@@ -8,7 +10,8 @@ export default async function AlunoCalendarioPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-lg font-serif font-semibold">Calendário</h1>
+<CabecalhoPagina sobretitulo="Meu plano" titulo="Calendário" descricao="As datas das suas aulas e encontros." />
+      <PlanoAbas />
 
       {calendarios.length ? (
         <div className="grid gap-4 md:grid-cols-2">

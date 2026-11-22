@@ -19,7 +19,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+    <main className="tema-classico relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
       <video
         autoPlay
         muted

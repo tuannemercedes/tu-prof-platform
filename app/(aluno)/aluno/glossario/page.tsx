@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import GlossarioList from "@/components/glossario-list";
+import CabecalhoPagina from "@/components/cabecalho-pagina";
 
 export default async function AlunoGlossarioPage() {
   const supabase = await createClient();
@@ -21,10 +22,7 @@ export default async function AlunoGlossarioPage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-lg font-serif font-semibold">Glossário</h1>
-        <p className="text-sm text-[var(--text-secondary)]">Termos e expressões em espanhol.</p>
-      </div>
+<CabecalhoPagina sobretitulo="Biblioteca" titulo="Glossário" descricao="As palavras e expressões do seu programa." />
 
       <GlossarioList termos={termos ?? []} />
     </div>

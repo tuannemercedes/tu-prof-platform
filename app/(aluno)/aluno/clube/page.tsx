@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import CalendarGrid from "@/components/calendar-grid";
 import ClubeRsvpButtons from "@/components/clube-rsvp-buttons";
 import { getUser } from "@/lib/dal";
+import CabecalhoPagina from "@/components/cabecalho-pagina";
+import PlanoAbas from "@/components/plano-abas";
 
 export default async function AlunoClubePage() {
   const user = await getUser();
@@ -41,10 +43,8 @@ export default async function AlunoClubePage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-lg font-serif font-semibold">Club Hispano</h1>
-        <p className="text-sm text-[var(--text-secondary)]">Pratique conversação com a turma.</p>
-      </div>
+<CabecalhoPagina sobretitulo="Meu plano" titulo="Club Hispano" descricao="Encontros ao vivo para praticar a conversa." />
+      <PlanoAbas />
 
       <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 space-y-2 card-elevated">
         {config.dia_horario && (
