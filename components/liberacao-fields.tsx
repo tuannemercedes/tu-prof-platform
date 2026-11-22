@@ -25,7 +25,8 @@ export default function LiberacaoFields({
     alunoIdsLiberados instanceof Set ? alunoIdsLiberados : new Set(alunoIdsLiberados ?? []);
 
   return (
-    <div className="space-y-3">
+    <fieldset className="space-y-3">
+      <legend className="text-sm font-semibold mb-1">Quem vê</legend>
       <label className="flex items-center gap-1.5 text-sm font-medium">
         <input
           type="checkbox"
@@ -33,13 +34,13 @@ export default function LiberacaoFields({
           checked={todos}
           onChange={(e) => setTodos(e.target.checked)}
         />
-        Todos os alunos
+        Todos os alunos da escola
       </label>
 
       <div className={todos ? "opacity-40 pointer-events-none" : undefined}>
         {turmas.length > 0 ? (
           <div className="mb-3">
-            <p className="text-xs text-[var(--text-secondary)] mb-1">Turmas</p>
+            <p className="text-xs text-[var(--text-secondary)] mb-1">Programas (todos os alunos matriculados)</p>
             <div className="flex flex-wrap gap-3 text-sm">
               {turmas.map((turma) => (
                 <label key={turma.id} className="flex items-center gap-1.5">
@@ -56,13 +57,13 @@ export default function LiberacaoFields({
             </div>
           </div>
         ) : (
-          <p className="text-xs text-[var(--text-faint)] mb-3">Nenhuma turma cadastrada ainda.</p>
+          <p className="text-xs text-[var(--text-faint)] mb-3">Nenhum programa cadastrado ainda.</p>
         )}
 
         {alunos.length > 0 && (
           <div>
             <p className="text-xs text-[var(--text-secondary)] mb-1">
-              Alunos específicos (opcional, além das turmas acima)
+              E também estes alunos (de qualquer programa)
             </p>
             <div className="flex flex-wrap gap-3 text-sm">
               {alunos.map((aluno) => (
@@ -81,6 +82,6 @@ export default function LiberacaoFields({
           </div>
         )}
       </div>
-    </div>
+    </fieldset>
   );
 }

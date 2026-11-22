@@ -9,13 +9,13 @@ import Logo from "./logo";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Início" },
-  { href: "/admin/turmas", label: "Turmas" },
-  { href: "/admin/alunos", label: "Alunos" },
+  { href: "/admin/turmas", label: "Programas" },
+  { href: "/admin/alunos", label: "Pessoas" },
   { href: "/admin/materias", label: "Matérias" },
   { href: "/admin/fia", label: "FIA" },
   { href: "/admin/cronograma", label: "Cronograma" },
   { href: "/admin/planner", label: "Planner" },
-  { href: "/admin/clube", label: "Clube de Conversação" },
+  { href: "/admin/clube", label: "Club Hispano" },
   { href: "/admin/glossario", label: "Glossário" },
   { href: "/admin/configuracoes", label: "Configurações" },
 ];

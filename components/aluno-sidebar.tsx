@@ -138,7 +138,7 @@ export default function AlunoSidebar({
           </Link>
           {temClube && (
             <Link href="/aluno/clube" className={linkClass("/aluno/clube")}>
-              Clube de Conversação
+              Club Hispano
             </Link>
           )}
           {temGlossario && (

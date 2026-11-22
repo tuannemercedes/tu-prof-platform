@@ -21,7 +21,7 @@ export default async function ConfiguracoesPage() {
         <p className="text-sm text-[var(--text-secondary)]">
           O botão do UZUS e o link de contato aparecem juntos no rodapé da
           barra lateral do aluno. Os links de calendário são configurados por
-          turma na página de <span className="font-mono">Turmas</span>.
+          programa na página de <span className="font-mono">Programas</span>.
         </p>
       </div>
 

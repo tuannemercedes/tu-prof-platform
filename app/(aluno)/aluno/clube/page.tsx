@@ -16,7 +16,7 @@ export default async function AlunoClubePage() {
     return (
       <div className="max-w-2xl">
         <p className="text-sm text-[var(--text-secondary)]">
-          Você ainda não tem acesso ao Clube de Conversação.
+          Você ainda não tem acesso ao Club Hispano.
         </p>
       </div>
     );
@@ -42,7 +42,7 @@ export default async function AlunoClubePage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-lg font-serif font-semibold">Clube de Conversação</h1>
+        <h1 className="text-lg font-serif font-semibold">Club Hispano</h1>
         <p className="text-sm text-[var(--text-secondary)]">Pratique conversação com a turma.</p>
       </div>
 

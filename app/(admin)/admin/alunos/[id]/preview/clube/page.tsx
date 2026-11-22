@@ -18,7 +18,7 @@ export default async function PreviewClubePage({
       <div className="space-y-6">
         <PreviewNav alunoId={id} />
         <p className="text-sm text-[var(--text-secondary)]">
-          Este aluno ainda não tem acesso ao Clube de Conversação.
+          Este aluno ainda não tem acesso ao Club Hispano.
         </p>
       </div>
     );
@@ -48,7 +48,7 @@ export default async function PreviewClubePage({
     <div className="space-y-6">
       <PreviewNav alunoId={id} />
       <div>
-        <h1 className="text-lg font-semibold">Clube de Conversação</h1>
+        <h1 className="text-lg font-semibold">Club Hispano</h1>
         <p className="text-sm text-[var(--text-secondary)]">Pratique conversação com a turma.</p>
       </div>
 

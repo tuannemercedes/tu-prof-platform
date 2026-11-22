@@ -26,7 +26,7 @@ export default async function CronogramaPage() {
           type="text"
           name="titulo"
           required
-          placeholder="Nome do cronograma (ex: Turma de setembro)"
+          placeholder="Nome do cronograma (ex: Mentoria · modelo semestral)"
           className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
         <SubmitButton

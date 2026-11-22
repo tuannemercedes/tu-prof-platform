@@ -2,23 +2,32 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { IDIOMAS } from "@/lib/programas";
+
+function lerIdioma(valor: FormDataEntryValue | null) {
+  const v = String(valor || "");
+  return IDIOMAS.some((i) => i.valor === v) ? v : "espanhol";
+}
 
 export async function createTurma(formData: FormData) {
   const nome = String(formData.get("nome") || "").trim();
+  const idioma = lerIdioma(formData.get("idioma"));
   if (!nome) return;
 
   const supabase = await createClient();
-  await supabase.from("turmas").insert({ nome });
+  await supabase.from("turmas").insert({ nome, idioma });
   revalidatePath("/admin/turmas");
 }
 
 export async function updateTurmaNome(formData: FormData) {
   const id = String(formData.get("id") || "");
   const nome = String(formData.get("nome") || "").trim();
+  const idioma = lerIdioma(formData.get("idioma"));
+  const descricao = String(formData.get("descricao") || "").trim() || null;
   if (!id || !nome) return;
 
   const supabase = await createClient();
-  await supabase.from("turmas").update({ nome }).eq("id", id);
+  await supabase.from("turmas").update({ nome, idioma, descricao }).eq("id", id);
   revalidatePath("/admin/turmas");
 }
 

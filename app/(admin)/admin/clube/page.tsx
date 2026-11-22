@@ -29,7 +29,7 @@ export default async function ClubePage() {
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
-        <h1 className="text-lg font-semibold">Clube de Conversação</h1>
+        <h1 className="text-lg font-semibold">Club Hispano</h1>
         <p className="text-sm text-[var(--text-secondary)]">
           Configure o link de acesso, o dia/horário fixo e os temas de cada encontro. Só quem
           você liberar lá embaixo vê o botão.

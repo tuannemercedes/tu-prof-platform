@@ -27,7 +27,7 @@ export default async function PlannerPage() {
           type="text"
           name="titulo"
           required
-          placeholder="Nome do planner (ex: Turma de setembro)"
+          placeholder="Nome do planner (ex: Mentoria · modelo semestral)"
           className="bg-[var(--surface)] flex-1 rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
         <SubmitButton

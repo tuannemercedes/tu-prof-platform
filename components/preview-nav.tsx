@@ -57,7 +57,7 @@ export default async function PreviewNav({ alunoId }: { alunoId: string }) {
         </Link>
         {temClube && (
           <Link href={`${base}/clube`} className={linkStyle}>
-            Clube de Conversação
+            Club Hispano
           </Link>
         )}
         {temGlossario && (
