@@ -37,9 +37,18 @@ function parseTexto(texto: string): Linha[] {
     .map(dividirLinha);
 }
 
-export default function GlossarioImportForm({ categoria }: { categoria: string | null }) {
+export default function GlossarioImportForm({
+  categoria,
+  alunoId,
+  alunos,
+}: {
+  categoria: string | null;
+  alunoId?: string;
+  alunos?: { id: string; nome: string }[];
+}) {
   const [texto, setTexto] = useState("");
   const [idioma, setIdioma] = useState("espanhol");
+  const [para, setPara] = useState(alunoId ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -52,7 +61,7 @@ export default function GlossarioImportForm({ categoria }: { categoria: string |
     setError(null);
     setSaved(null);
     startTransition(async () => {
-      const result = await importarTermos(validas, categoria, idioma);
+      const result = await importarTermos(validas, categoria, idioma, para || null);
       if (result?.error) {
         setError(result.error);
       } else {
@@ -70,6 +79,19 @@ export default function GlossarioImportForm({ categoria }: { categoria: string |
         por linha.
       </p>
       <CampoIdioma name="" rotulo="Idioma destes termos" value={idioma} onChange={setIdioma} />
+      {!alunoId && alunos && alunos.length > 0 && (
+        <label className="flex flex-wrap items-center gap-2.5 text-[13px] font-semibold">
+          Para quem
+          <select value={para} onChange={(e) => setPara(e.target.value)} className="h-9 rounded-[10px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 text-sm font-normal">
+            <option value="">Glossário geral</option>
+            {alunos.map((a) => (
+              <option key={a.id} value={a.id}>
+                Só para {a.nome}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <textarea
         value={texto}
         onChange={(e) => setTexto(e.target.value)}

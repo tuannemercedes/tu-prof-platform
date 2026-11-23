@@ -11,10 +11,11 @@ export default async function AlunoGlossarioPage() {
 
   const [{ data: config }, { data: termos }] = await Promise.all([
     supabase.from("glossario_config").select("id").eq("id", 1).maybeSingle(),
-    supabase.from("glossario_termos").select("id, termo, definicao, exemplo, categoria, idioma").order("termo"),
+    supabase.from("glossario_termos").select("id, termo, definicao, exemplo, categoria, idioma, aluno_id").order("termo"),
   ]);
 
-  if (!config) {
+  const meus = (termos ?? []).filter((t) => doIdioma(t.idioma, idioma));
+  if (!config && !meus.length) {
     return (
       <div className="max-w-2xl">
         <p className="text-sm text-[var(--text-secondary)]">
@@ -28,7 +29,7 @@ export default async function AlunoGlossarioPage() {
     <div className="space-y-6 max-w-2xl">
 <CabecalhoPagina sobretitulo="Acervo · Biblioteca" titulo="Glossário" descricao="As palavras e expressões do seu programa." />
 
-      <GlossarioList termos={(termos ?? []).filter((t) => doIdioma(t.idioma, idioma))} />
+      <GlossarioList termos={meus.map((t) => (t.aluno_id ? { ...t, categoria: "Só para você" } : t))} />
     </div>
   );
 }

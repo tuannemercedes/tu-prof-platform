@@ -54,6 +54,7 @@ export async function saveTermo(formData: FormData) {
   const categoria = String(formData.get("categoria") || "").trim() || null;
   const idiomaV = String(formData.get("idioma") || "");
   const idioma = ["espanhol", "ingles", "espanhol_ingles"].includes(idiomaV) ? idiomaV : "espanhol";
+  const aluno_id = String(formData.get("aluno_id") || "") || null;
 
   if (!termo || !definicao) return { error: "Preencha o termo e a definição." };
 
@@ -62,11 +63,12 @@ export async function saveTermo(formData: FormData) {
 
   const { error } = id
     ? await supabase.from("glossario_termos").update({ termo, definicao, exemplo, categoria, idioma }).eq("id", id)
-    : await supabase.from("glossario_termos").insert({ termo, definicao, exemplo, categoria, idioma });
+    : await supabase.from("glossario_termos").insert({ termo, definicao, exemplo, categoria, idioma, aluno_id });
 
   if (error) return { error: error.message };
 
   revalidatePath("/admin/glossario");
+  if (aluno_id) revalidatePath(`/admin/alunos/${aluno_id}`);
   revalidatePath("/aluno/glossario");
   return { success: true };
 }
@@ -84,7 +86,12 @@ export async function deleteTermo(formData: FormData) {
 
 type TermoImportado = { termo: string; definicao: string; exemplo: string | null };
 
-export async function importarTermos(termos: TermoImportado[], categoria: string | null, idioma = "espanhol") {
+export async function importarTermos(
+  termos: TermoImportado[],
+  categoria: string | null,
+  idioma = "espanhol",
+  alunoId: string | null = null
+) {
   const linhas = termos
     .map((t) => ({ termo: t.termo.trim(), definicao: t.definicao.trim(), exemplo: t.exemplo?.trim() || null }))
     .filter((t) => t.termo && t.definicao);
@@ -96,11 +103,12 @@ export async function importarTermos(termos: TermoImportado[], categoria: string
 
   const { error } = await supabase
     .from("glossario_termos")
-    .insert(linhas.map((l) => ({ ...l, categoria, idioma })));
+    .insert(linhas.map((l) => ({ ...l, categoria, idioma, aluno_id: alunoId })));
 
   if (error) return { error: error.message };
 
   revalidatePath("/admin/glossario");
   revalidatePath("/aluno/glossario");
+  if (alunoId) revalidatePath(`/admin/alunos/${alunoId}`);
   return { success: true, total: linhas.length };
 }

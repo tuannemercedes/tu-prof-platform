@@ -13,7 +13,7 @@ export default async function GlossarioPage() {
   const [{ data: config }, { data: termos }, { data: categoriasRows }, { data: turmas }, { data: alunos }, { data: turmasLiberadas }, { data: alunosLiberados }] =
     await Promise.all([
       supabase.from("glossario_config").select("visivel_todos").eq("id", 1).single(),
-      supabase.from("glossario_termos").select("id, termo, definicao, exemplo, categoria, idioma").order("categoria").order("termo"),
+      supabase.from("glossario_termos").select("id, termo, definicao, exemplo, categoria, idioma, aluno_id").order("categoria").order("termo"),
       supabase.from("glossario_categorias").select("nome").order("nome"),
       supabase.from("turmas").select("id, nome").order("nome"),
       supabase.from("profiles").select("id, nome, email").eq("role", "aluno").order("nome"),
@@ -30,8 +30,11 @@ export default async function GlossarioPage() {
   );
 
   const grupos = new Map<string, NonNullable<typeof termos>>();
+  const nomeAluno = new Map((alunos ?? []).map((a) => [a.id, a.nome || a.email]));
   (termos ?? []).forEach((t) => {
-    const chave = t.categoria || SEM_CATEGORIA;
+    const chave = t.aluno_id
+      ? `Só para ${nomeAluno.get(t.aluno_id) ?? "um aluno"}`
+      : t.categoria || SEM_CATEGORIA;
     if (!grupos.has(chave)) grupos.set(chave, []);
     grupos.get(chave)!.push(t);
   });
@@ -42,10 +45,10 @@ export default async function GlossarioPage() {
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
-        <h1 className="text-lg font-semibold">Glossário</h1>
-        <p className="text-sm text-[var(--text-secondary)]">
-          Lista de termos e expressões em espanhol com definição e exemplo. Só quem você liberar
-          lá embaixo vê essa área.
+        <h1 className="m-0 font-serif font-semibold text-[40px] leading-[1.05]">Glossário</h1>
+        <p className="text-[15px] text-[var(--text-secondary)]">
+          Glossários gerais (para quem você liberar lá embaixo) e glossários exclusivos de cada
+          mentorado (só aquele aluno vê). Cada termo tem o seu idioma.
         </p>
       </div>
 
@@ -56,7 +59,10 @@ export default async function GlossarioPage() {
         <p className="text-xs text-[var(--text-secondary)]">
           Escolha ou crie uma categoria — os termos que você adicionar depois entram direto nela.
         </p>
-        <GlossarioCategoriasPanel categorias={categorias} />
+        <GlossarioCategoriasPanel
+          categorias={categorias}
+          alunos={(alunos ?? []).map((a) => ({ id: a.id, nome: a.nome || a.email }))}
+        />
       </section>
 
       <section className="space-y-4">

@@ -9,6 +9,9 @@ import { idiomasDosProgramas, ROTULO_IDIOMA, type Idioma } from "@/lib/idioma";
 import SubmitButton from "@/components/submit-button";
 import RegistrarAulaForm from "@/components/registrar-aula-form";
 import CheckpointForm from "@/components/checkpoint-form";
+import GlossarioForm from "@/components/glossario-form";
+import GlossarioImportForm from "@/components/glossario-import-form";
+import GlossarioTermoRow from "@/components/glossario-termo-row";
 import {
   agendarAula,
   aplicarModelo,
@@ -48,7 +51,7 @@ export default async function FichaAlunoPage({
     .maybeSingle();
   if (!aluno || aluno.role !== "aluno") notFound();
 
-  const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: professor }] =
+  const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: termosAluno }, { data: professor }] =
     await Promise.all([
       supabase.from("turma_membros").select("turma_id, turmas(id, nome, idioma)").eq("aluno_id", id),
       supabase.from("aulas").select("id, data, tema, descricao, resumo, status, idioma").eq("aluno_id", id).order("data", { ascending: false }),
@@ -57,6 +60,11 @@ export default async function FichaAlunoPage({
       supabase.from("configuracoes").select("valor").eq("chave", "competencias").maybeSingle(),
       supabase.from("tarefas").select("id, texto, entrega, prazo, created_at, aluno_id, idioma").eq("aluno_id", id).order("created_at", { ascending: false }),
       supabase.from("tarefa_entregas").select("tarefa_id, concluida, resposta, arquivo_path, comentario").eq("aluno_id", id),
+      supabase
+        .from("glossario_termos")
+        .select("id, termo, definicao, exemplo, categoria, idioma")
+        .eq("aluno_id", id)
+        .order("termo"),
       aluno.professor_id
         ? supabase.from("profiles").select("nome, email").eq("id", aluno.professor_id).maybeSingle()
         : Promise.resolve({ data: null }),
@@ -106,6 +114,7 @@ export default async function FichaAlunoPage({
     { chave: "aulas", label: "Aulas e tarefas" },
     { chave: "plano", label: "Plano" },
     { chave: "evolucao", label: "Evolução" },
+    { chave: "glossario", label: "Glossário" },
     { chave: "dados", label: "Dados do aluno" },
   ];
 
@@ -413,6 +422,33 @@ export default async function FichaAlunoPage({
               })
             ) : (
               <p className="m-0 text-sm text-[var(--text-secondary)]">Nenhum checkpoint ainda. O primeiro funciona como diagnóstico.</p>
+            )}
+          </section>
+        </div>
+      )}
+
+      {aba === "glossario" && (
+        <div className="grid gap-5 items-start [grid-template-columns:repeat(auto-fit,minmax(320px,1fr))]">
+          <section className={card}>
+            <h2 className={h2}>Glossário de {primeiroNome}</h2>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">
+              Termos exclusivos: só {primeiroNome} vê, junto com os glossários gerais.
+            </p>
+            <GlossarioForm categoria={null} alunoId={id} />
+            <GlossarioImportForm categoria={null} alunoId={id} />
+          </section>
+          <section className={card}>
+            <h2 className={h2}>Termos ({(termosAluno ?? []).filter((t) => !t.idioma || t.idioma === idioma || t.idioma === "espanhol_ingles").length})</h2>
+            {(termosAluno ?? []).length ? (
+              <ul className="m-0 p-0 list-none divide-y divide-[var(--border)] border border-[var(--border)] rounded-xl">
+                {(termosAluno ?? [])
+                  .filter((t) => !t.idioma || t.idioma === idioma || t.idioma === "espanhol_ingles")
+                  .map((t) => (
+                    <GlossarioTermoRow key={t.id} termo={t} categorias={[]} />
+                  ))}
+              </ul>
+            ) : (
+              <p className="m-0 text-sm text-[var(--text-secondary)]">Nenhum termo exclusivo ainda.</p>
             )}
           </section>
         </div>
