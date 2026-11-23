@@ -3,7 +3,7 @@ import { getTarefasDoAluno } from "@/lib/tarefas";
 import { diaISO, quandoCompleto, rotuloIntervalo, segundaDaSemana, somarDias } from "@/lib/datas";
 import PlanoSemanas, { type Semana } from "@/components/plano-semanas";
 import { doIdioma } from "@/lib/idioma";
-import { getLiberados, type Visao } from "@/lib/visao";
+import { getLiberados, type Visao, filtroAulas } from "@/lib/visao";
 import { getClubeAcessoParaAluno } from "@/lib/clube";
 
 export default async function TelaPlano({ v }: { v: Visao }) {
@@ -18,7 +18,7 @@ export default async function TelaPlano({ v }: { v: Visao }) {
     supabase
       .from("aulas")
       .select("id, data, tema, descricao, resumo, status")
-      .eq("aluno_id", v.alunoId)
+      .or(filtroAulas(v))
       .or(`idioma.is.null,idioma.eq.${idioma}`)
       .order("data"),
     supabase.from("clube_temas").select("id, data, tema").order("data"),

@@ -23,6 +23,12 @@ const ICONES: Record<string, React.ReactNode> = {
       <path d="M8 18h6a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h6" />
     </>
   ),
+  empresas: (
+    <>
+      <rect x="4" y="3" width="11" height="18" rx="1" />
+      <path d="M15 9h4a1 1 0 0 1 1 1v11H15M8 7h3M8 11h3M8 15h3" />
+    </>
+  ),
   biblioteca: (
     <>
       <path d="M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z" />
@@ -48,6 +54,7 @@ const ITENS_ADMIN: Item[] = [
     label: "Programas",
     ativo: (p) => ["/admin/turmas", "/admin/aulas", "/admin/materias"].some((r) => p.startsWith(r)),
   },
+  { chave: "empresas", href: "/admin/empresas", label: "Empresas", ativo: (p) => p.startsWith("/admin/empresas") },
   {
     chave: "biblioteca",
     href: "/admin/biblioteca",

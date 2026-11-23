@@ -17,12 +17,22 @@ export type Visao = {
   previa: boolean;
   idioma: Idioma;
   opcoes: Idioma[];
+  turmas: string[]; // programas/grupos em que o aluno está
 };
+
+// Filtro de aulas do aluno: as individuais e as dos grupos dele (Corporate).
+export function filtroAulas(v: Visao) {
+  return v.turmas.length ? `aluno_id.eq.${v.alunoId},turma_id.in.(${v.turmas.join(",")})` : `aluno_id.eq.${v.alunoId}`;
+}
 
 export async function visaoDoAlunoLogado(): Promise<Visao> {
   const [user, profile, supabase] = await Promise.all([getUser(), getProfile(), createClient()]);
-  const { atual, opcoes } = await getIdiomaDoAluno(supabase, user!.id);
+  const [{ atual, opcoes }, { data: membros }] = await Promise.all([
+    getIdiomaDoAluno(supabase, user!.id),
+    supabase.from("turma_membros").select("turma_id").eq("aluno_id", user!.id),
+  ]);
   return {
+    turmas: (membros ?? []).map((m) => m.turma_id as string),
     alunoId: user!.id,
     nome: profile?.nome || profile?.email || "",
     objetivo: profile?.objetivo ?? null,
@@ -39,7 +49,7 @@ export async function visaoDoAlunoLogado(): Promise<Visao> {
 export async function visaoPrevia(supabase: Supa, alunoId: string, idiomaPedido?: string): Promise<Visao | null> {
   const [{ data: aluno }, { data: membros }] = await Promise.all([
     supabase.from("profiles").select("id, nome, email, objetivo, link_aula, role").eq("id", alunoId).maybeSingle(),
-    supabase.from("turma_membros").select("turmas(idioma)").eq("aluno_id", alunoId),
+    supabase.from("turma_membros").select("turma_id, turmas(idioma)").eq("aluno_id", alunoId),
   ]);
   if (!aluno || aluno.role !== "aluno") return null;
   const opcoes = idiomasDosProgramas(
@@ -47,6 +57,7 @@ export async function visaoPrevia(supabase: Supa, alunoId: string, idiomaPedido?
   );
   const idioma = opcoes.includes(idiomaPedido as Idioma) ? (idiomaPedido as Idioma) : opcoes[0];
   return {
+    turmas: (membros ?? []).map((m) => m.turma_id as string),
     alunoId,
     nome: aluno.nome || aluno.email,
     objetivo: aluno.objetivo,

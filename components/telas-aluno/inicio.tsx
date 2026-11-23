@@ -4,7 +4,7 @@ import { getTarefasDoAluno, formatarPrazo } from "@/lib/tarefas";
 import { diaISO, diaDoMes, diaSemanaCurto, hojePorExtenso, hora, segundaDaSemana, somarDias } from "@/lib/datas";
 import { rotuloIdioma } from "@/lib/programas";
 import { doIdioma } from "@/lib/idioma";
-import { getLiberados, liberado, nomeDoProfessor, rota, type Visao } from "@/lib/visao";
+import { getLiberados, liberado, nomeDoProfessor, rota, type Visao, filtroAulas } from "@/lib/visao";
 import TarefaItem from "@/components/tarefa-item";
 import ClubeCartao from "@/components/clube-cartao";
 import { getClubeAcessoParaAluno } from "@/lib/clube";
@@ -33,7 +33,7 @@ export default async function TelaInicio({ v }: { v: Visao }) {
     supabase
       .from("aulas")
       .select("id, data, tema")
-      .eq("aluno_id", v.alunoId)
+      .or(filtroAulas(v))
       .eq("status", "agendada")
       .gte("data", agora)
       .or(`idioma.is.null,idioma.eq.${idioma}`)

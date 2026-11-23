@@ -26,7 +26,7 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
     await Promise.all([
       supabase
         .from("turmas")
-        .select("id, nome, idioma, descricao, calendario_embed_url, turma_membros(count)")
+        .select("id, nome, idioma, descricao, calendario_embed_url, turma_membros(count), empresas(nome)")
         .order("ordem")
         .order("nome"),
       supabase.from("materias").select("id, titulo, categoria, materiais(count)").order("ordem"),
@@ -136,6 +136,9 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                     </span>
                   </span>
                   <span className="text-[13px] text-[var(--text-secondary)]">
+                    {(t.empresas as unknown as { nome: string } | null)?.nome
+                      ? `Corporate · ${(t.empresas as unknown as { nome: string }).nome} · `
+                      : ""}
                     {t.descricao ? `${t.descricao} · ` : ""}
                     {qtd(t)} {qtd(t) === 1 ? "aluno" : "alunos"}
                   </span>

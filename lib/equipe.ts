@@ -18,7 +18,15 @@ export type ResumoAluno = {
   situacao: "em_dia" | "atrasado" | "sem_aula";
 };
 
-export type AulaSemana = { id: string; data: string; alunoId: string; alunoNome: string; tema: string; programa: string };
+export type AulaSemana = {
+  id: string;
+  data: string;
+  alunoId: string;
+  alunoNome: string;
+  tema: string;
+  programa: string;
+  href: string;
+};
 
 // Visão geral dos alunos que a pessoa logada pode ver (a RLS já filtra:
 // admin vê todos, professor só os dele). `soDe` filtra por professor responsável
@@ -34,7 +42,7 @@ export async function getResumoEquipe(supabase: Supa, opcoes: { soDe?: string | 
       supabase.from("turma_membros").select("aluno_id, turma_id, turmas(id, nome, idioma)"),
       supabase.from("tarefas").select("id, aluno_id, turma_id, prazo"),
       supabase.from("tarefa_entregas").select("tarefa_id, aluno_id, concluida"),
-      supabase.from("aulas").select("id, aluno_id, data, tema, status").order("data"),
+      supabase.from("aulas").select("id, aluno_id, turma_id, data, tema, status, turmas(nome, empresa_id, professor_id, empresas(nome))").order("data"),
       supabase.from("checkpoints").select("aluno_id, data").order("data", { ascending: false }),
     ]);
 
@@ -82,16 +90,42 @@ export async function getResumoEquipe(supabase: Supa, opcoes: { soDe?: string | 
   });
 
   const ids = new Set(resumo.map((r) => r.id));
-  const aulasSemana: AulaSemana[] = (aulas ?? [])
-    .filter((x) => x.data && ids.has(x.aluno_id) && diaISO(x.data) >= segunda && diaISO(x.data) < proximaSegunda)
-    .map((x) => ({
-      id: x.id,
-      data: x.data!,
-      alunoId: x.aluno_id,
-      alunoNome: nomeDe.get(x.aluno_id) ?? "",
-      tema: x.tema,
-      programa: progDe.get(x.aluno_id)?.[0]?.nome ?? "Aula",
-    }));
+  type Grupo = { nome: string; empresa_id: string | null; professor_id: string | null; empresas: { nome: string } | null } | null;
+  const naSemana = (aulas ?? []).filter((x) => x.data && diaISO(x.data) >= segunda && diaISO(x.data) < proximaSegunda);
+  const aulasSemana: AulaSemana[] = [
+    ...naSemana
+      .filter((x) => x.aluno_id && ids.has(x.aluno_id))
+      .map((x) => ({
+        id: x.id,
+        data: x.data!,
+        alunoId: x.aluno_id!,
+        alunoNome: nomeDe.get(x.aluno_id!) ?? "",
+        tema: x.tema,
+        programa: progDe.get(x.aluno_id!)?.[0]?.nome ?? "Aula",
+        href: `/admin/alunos/${x.aluno_id}`,
+      })),
+    // Aulas de grupo (Corporate): entram para a admin e para quem conduz o grupo.
+    ...naSemana
+      .filter((x) => {
+        const g = x.turmas as unknown as Grupo;
+        if (!x.turma_id || x.aluno_id || !g) return false;
+        if (opcoes.soDe === "admin") return !g.professor_id;
+        if (opcoes.soDe) return g.professor_id === opcoes.soDe;
+        return true;
+      })
+      .map((x) => {
+        const g = x.turmas as unknown as NonNullable<Grupo>;
+        return {
+          id: x.id,
+          data: x.data!,
+          alunoId: "",
+          alunoNome: g.empresas?.nome ? `${g.empresas.nome} · grupo` : g.nome,
+          tema: x.tema,
+          programa: g.nome,
+          href: g.empresa_id ? `/admin/empresas/${g.empresa_id}` : `/admin/turmas?p=${x.turma_id}`,
+        };
+      }),
+  ].sort((a, b) => (a.data < b.data ? -1 : 1));
 
   return { alunos: resumo, aulasSemana, hoje, segunda, proximaSegunda };
 }

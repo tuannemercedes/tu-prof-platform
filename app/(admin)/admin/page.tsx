@@ -152,7 +152,7 @@ export default async function EquipeInicioPage({
           {aulasSemana.length || clubeSemana.length ? (
             <>
               {aulasSemana.map((c) => (
-                <Link key={c.id} href={`/admin/alunos/${c.alunoId}`} className="flex gap-3.5 items-center py-2.5 border-b border-[var(--border-soft)]">
+                <Link key={c.id} href={c.href} className="flex gap-3.5 items-center py-2.5 border-b border-[var(--border-soft)]">
                   <span className="w-16 text-[13px] text-[var(--text-secondary)]">
                     {diaSemanaCurto(c.data).charAt(0) + diaSemanaCurto(c.data).slice(1).toLowerCase()} {hora(c.data)}
                   </span>
