@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getUser } from "@/lib/dal";
+import { getProfile, getUser } from "@/lib/dal";
 import { getTrilhasDoAluno, pct, type MaterialStatus } from "@/lib/trilhas";
 import CabecalhoPagina from "@/components/cabecalho-pagina";
 
@@ -36,8 +36,20 @@ function ListaMateriais({ trilhaId, materiais }: { trilhaId: string; materiais: 
 
 export default async function TrilhaPage() {
   const user = await getUser();
+  const profile = await getProfile();
   const supabase = await createClient();
-  const trilhas = (await getTrilhasDoAluno(supabase, user!.id)).filter((t) => t.categoria !== "fia");
+  const [todas, { data: programas }, { data: ordemPrograma }] = await Promise.all([
+    getTrilhasDoAluno(supabase, user!.id),
+    supabase.from("turma_membros").select("turma_id, turmas(nome)").eq("aluno_id", user!.id),
+    supabase.from("programa_materias").select("materia_id, ordem"),
+  ]);
+  const ordem = new Map((ordemPrograma ?? []).map((o) => [o.materia_id, o.ordem]));
+  const trilhas = todas
+    .filter((t) => t.categoria !== "fia")
+    .sort((a, b) => (ordem.get(a.id) ?? 999) - (ordem.get(b.id) ?? 999));
+  const nomePrograma = (programas ?? [])
+    .map((p) => (p.turmas as unknown as { nome: string } | null)?.nome)
+    .filter(Boolean)[0];
 
   const total = trilhas.reduce((a, t) => a + t.total, 0);
   const feitos = trilhas.reduce((a, t) => a + t.concluidos, 0);
@@ -45,7 +57,7 @@ export default async function TrilhaPage() {
 
   return (
     <div>
-      <CabecalhoPagina sobretitulo="Minha trilha" titulo="O caminho do seu programa" />
+      <CabecalhoPagina sobretitulo="Minha trilha" titulo={nomePrograma ?? "O caminho do seu programa"} />
 
       {trilhas.length === 0 ? (
         <p className="text-sm text-[var(--text-secondary)]">
@@ -67,7 +79,9 @@ export default async function TrilhaPage() {
               <p className="text-[15px] font-semibold">
                 {feitos} de {total} aulas concluídas
               </p>
-              <p className="text-sm text-[var(--on-navy-muted)]">Continue no seu ritmo.</p>
+              <p className="text-sm text-[var(--on-navy-muted)]">
+                {profile?.objetivo ? `Meta: ${profile.objetivo}` : "Continue no seu ritmo."}
+              </p>
             </div>
           </div>
 

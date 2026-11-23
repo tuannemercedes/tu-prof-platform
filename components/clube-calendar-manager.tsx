@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import CalendarGrid from "./calendar-grid";
-import { saveTema, deleteTema } from "@/app/(admin)/admin/clube/actions";
+import { saveTema, deleteTema } from "@/app/(admin)/admin/(gestao)/clube/actions";
 
 type Tema = { id: string; data: string; tema: string; descricao: string | null };
 

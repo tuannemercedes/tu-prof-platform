@@ -62,7 +62,7 @@ export default function AddAlunoForm({ turmas, professores }: Props) {
       <form
         ref={formRef}
         action={handleSubmit}
-        className="space-y-4 border border-[var(--border)] rounded-lg p-4"
+        className="space-y-4 border border-[var(--border)] rounded-[18px] bg-[var(--surface)] p-5"
       >
         <fieldset className="flex gap-2">
           <legend className="text-xs font-medium text-[var(--text-secondary)] mb-1.5">Quem você está adicionando</legend>

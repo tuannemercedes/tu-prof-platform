@@ -1,90 +1,62 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getUser } from "@/lib/dal";
-import { getTrilhasDoAluno } from "@/lib/trilhas";
-import CabecalhoPagina from "@/components/cabecalho-pagina";
-import BuscaMateriais from "@/components/busca-materiais";
+import BibliotecaLista, { type ItemBiblioteca } from "@/components/biblioteca-lista";
 
-function Cartao({
-  href,
-  selo,
-  titulo,
-  descricao,
-  escuro = false,
-}: {
-  href: string;
-  selo: string;
+const TIPO: Record<string, string> = {
+  html: "Página",
+  pdf: "PDF",
+  video: "Vídeo",
+  playlist: "Playlist",
+  podcast: "Podcast",
+  link_externo: "Link",
+};
+
+type MaterialRow = {
+  id: string;
   titulo: string;
-  descricao: string;
-  escuro?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className="card-lift flex items-center gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4"
-    >
-      <span
-        className={`w-14 h-14 shrink-0 rounded-xl flex items-center justify-center text-[11px] font-semibold tracking-wide ${
-          escuro ? "bg-[var(--navy)] text-[var(--gold-light)]" : "bg-[var(--warning-bg)] text-[var(--warning-text)]"
-        }`}
-      >
-        {selo}
-      </span>
-      <span className="min-w-0">
-        <span className="block text-[15px] font-semibold">{titulo}</span>
-        <span className="block text-sm text-[var(--text-secondary)]">{descricao}</span>
-      </span>
-    </Link>
-  );
-}
+  tipo: string;
+  materia_id: string;
+  materias: { titulo: string; categoria: string } | null;
+};
 
 export default async function BibliotecaPage() {
-  const user = await getUser();
   const supabase = await createClient();
 
-  const [trilhas, { data: glossario }] = await Promise.all([
-    getTrilhasDoAluno(supabase, user!.id),
-    supabase.from("glossario_config").select("id").eq("id", 1).maybeSingle(),
+  const [{ data: materiais }, { data: termos }] = await Promise.all([
+    supabase.from("materiais").select("id, titulo, tipo, materia_id, materias(titulo, categoria)").order("ordem"),
+    supabase.from("glossario_termos").select("id, termo, definicao, exemplo").order("termo"),
   ]);
 
-  const fia = trilhas.filter((t) => t.categoria === "fia");
+  const itens: ItemBiblioteca[] = [];
+  ((materiais ?? []) as unknown as MaterialRow[]).forEach((m) => {
+    const fia = m.materias?.categoria === "fia";
+    if (!fia && !["pdf", "link_externo"].includes(m.tipo)) return;
+    itens.push({
+      id: m.id,
+      grupo: fia ? "fia" : "material",
+      tag: TIPO[m.tipo] ?? "Item",
+      titulo: m.titulo,
+      descricao: m.materias?.titulo ?? "",
+      href: `/aluno/materias/${m.materia_id}#material-${m.id}`,
+    });
+  });
+  (termos ?? []).forEach((t) => {
+    itens.push({
+      id: t.id,
+      grupo: "glossario",
+      tag: "Termo",
+      titulo: t.termo,
+      descricao: [t.definicao, t.exemplo ? `Ex.: ${t.exemplo}` : null].filter(Boolean).join(" "),
+      href: "/aluno/glossario",
+    });
+  });
 
   return (
     <div>
-      <CabecalhoPagina
-        sobretitulo="Biblioteca"
-        titulo="Seu idioma fora da aula"
-        descricao="Materiais, FIA e glossário num lugar só."
-      />
-
-      <BuscaMateriais />
-
-      <div className="mt-8 space-y-3">
-        {fia.map((t) => (
-          <Cartao
-            key={t.id}
-            href={`/aluno/materias/${t.id}`}
-            selo="FIA"
-            titulo={t.titulo}
-            descricao={`${t.total} ${t.total === 1 ? "item" : "itens"}`}
-            escuro
-          />
-        ))}
-        {glossario && (
-          <Cartao
-            href="/aluno/glossario"
-            selo="Aa"
-            titulo="Glossário"
-            descricao="As palavras e expressões do seu programa"
-          />
-        )}
-        {!fia.length && !glossario && (
-          <p className="text-sm text-[var(--text-secondary)]">
-            Ainda não há itens liberados na sua biblioteca. Use a busca acima para encontrar
-            materiais da sua trilha.
-          </p>
-        )}
+      <div className="space-y-1.5 mb-5">
+        <p className="m-0 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--gold-text)]">Biblioteca</p>
+        <h1 className="m-0 font-serif font-semibold text-[34px] leading-[1.05]">Espanhol fora da aula</h1>
       </div>
+      <BibliotecaLista itens={itens} />
     </div>
   );
 }

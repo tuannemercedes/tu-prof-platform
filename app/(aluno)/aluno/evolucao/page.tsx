@@ -1,92 +1,122 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/dal";
-import { getTrilhasDoAluno, pct } from "@/lib/trilhas";
-import CabecalhoPagina from "@/components/cabecalho-pagina";
-
-function Barra({ valor, cor = "var(--gold)" }: { valor: number; cor?: string }) {
-  return (
-    <div className="h-2 rounded-full bg-[var(--surface-3)]" role="presentation">
-      <div className="h-2 rounded-full" style={{ width: `${valor}%`, background: cor }} />
-    </div>
-  );
-}
+import { diaCurtoComMes } from "@/lib/datas";
+import { lerCompetencias, nivel } from "@/lib/evolucao";
 
 export default async function EvolucaoPage() {
   const user = await getUser();
   const supabase = await createClient();
 
-  const [todas, { data: itens }] = await Promise.all([
-    getTrilhasDoAluno(supabase, user!.id),
-    supabase.from("planner_itens").select("id, concluido, planner_dias!inner(id)"),
+  const [{ data: checkpoints }, { data: cfg }, { data: professor }] = await Promise.all([
+    supabase
+      .from("checkpoints")
+      .select("id, data, titulo, niveis, comentario")
+      .eq("aluno_id", user!.id)
+      .order("data", { ascending: false })
+      .order("created_at", { ascending: false }),
+    supabase.from("configuracoes").select("valor").eq("chave", "competencias").maybeSingle(),
+    supabase.rpc("meu_professor"),
   ]);
 
-  const trilhas = todas.filter((t) => t.categoria !== "fia");
-  const totalAulas = trilhas.reduce((a, t) => a + t.total, 0);
-  const aulasFeitas = trilhas.reduce((a, t) => a + t.concluidos, 0);
-  const totalTarefas = itens?.length ?? 0;
-  const tarefasFeitas = (itens ?? []).filter((i) => i.concluido).length;
+  const lista = checkpoints ?? [];
+  const ultimo = lista[0];
+  const niveis = (ultimo?.niveis ?? {}) as Record<string, number>;
+  const competencias = [...new Set([...lerCompetencias(cfg?.valor), ...Object.keys(niveis)])];
+  const avancos = (c: (typeof lista)[number], antes?: (typeof lista)[number]) => {
+    if (!antes) return 0;
+    const a = (antes.niveis ?? {}) as Record<string, number>;
+    const n = (c.niveis ?? {}) as Record<string, number>;
+    return Object.keys(n).filter((k) => (n[k] ?? 0) > (a[k] ?? 0)).length;
+  };
 
   return (
-    <div>
-      <CabecalhoPagina
-        sobretitulo="Minha evolução"
-        titulo="O que você já percorreu"
-        descricao="Seu progresso na trilha e nas tarefas. Os comentários e checkpoints da sua professora também vão aparecer aqui."
-      />
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 space-y-3">
-          <div className="flex items-baseline justify-between">
-            <p className="text-[15px] font-semibold">Trilha</p>
-            <p className="font-serif text-3xl font-semibold">{pct(aulasFeitas, totalAulas)}%</p>
-          </div>
-          <Barra valor={pct(aulasFeitas, totalAulas)} />
-          <p className="text-sm text-[var(--text-secondary)]">
-            {aulasFeitas} de {totalAulas} aulas concluídas
-          </p>
-        </div>
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 space-y-3">
-          <div className="flex items-baseline justify-between">
-            <p className="text-[15px] font-semibold">Tarefas</p>
-            <p className="font-serif text-3xl font-semibold">{pct(tarefasFeitas, totalTarefas)}%</p>
-          </div>
-          <Barra valor={pct(tarefasFeitas, totalTarefas)} cor="var(--accent)" />
-          <p className="text-sm text-[var(--text-secondary)]">
-            {tarefasFeitas} de {totalTarefas} tarefas feitas
-          </p>
-        </div>
+    <div className="flex flex-col gap-5">
+      <div className="space-y-1.5">
+        <p className="m-0 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--gold-text)]">Minha evolução</p>
+        <h1 className="m-0 font-serif font-semibold text-[34px] leading-[1.05]">O que mudou desde o início</h1>
       </div>
 
-      {trilhas.length > 0 && (
-        <section className="mt-8 space-y-3">
-          <h2 className="font-serif text-2xl font-semibold">Por módulo</h2>
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] divide-y divide-[var(--border-soft)]">
-            {trilhas.map((t) => (
-              <Link key={t.id} href={`/aluno/materias/${t.id}`} className="block p-4 space-y-2 hover:bg-[var(--surface-2)]">
-                <div className="flex items-baseline justify-between gap-3 text-sm">
-                  <span className="font-medium">{t.titulo}</span>
-                  <span className="text-[var(--text-secondary)]">
-                    {t.concluidos}/{t.total}
+      {ultimo ? (
+        <>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[18px] p-[18px] flex flex-col gap-4">
+            <div className="flex justify-between items-baseline">
+              <span className="text-[15px] font-semibold">Último checkpoint</span>
+              <span className="text-xs text-[var(--text-secondary)]">{diaCurtoComMes(ultimo.data)}</span>
+            </div>
+            {competencias.map((nome) => {
+              const n = nivel(niveis[nome]);
+              const v = n?.valor ?? 0;
+              return (
+                <div key={nome} className="flex flex-col gap-2">
+                  <div className="flex justify-between text-sm">
+                    <span>{nome}</span>
+                    <span className="font-semibold" style={{ color: n?.texto ?? "var(--text-secondary)" }}>
+                      {n?.rotulo ?? "Sem avaliação"}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1" aria-hidden="true">
+                    {[1, 2, 3].map((i) => (
+                      <span
+                        key={i}
+                        className="h-2 rounded"
+                        style={{ background: v >= i && n ? n.barra : "var(--surface-3)" }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {ultimo.comentario && (
+            <div className="bg-[var(--navy)] text-[var(--on-navy)] rounded-[18px] p-[18px] flex flex-col gap-2.5">
+              <span className="text-xs tracking-[0.1em] uppercase text-[var(--gold-light)] font-semibold">
+                Comentário {professor ? `de ${(professor as string).split(" ")[0]}` : "da professora"}
+              </span>
+              <p className="m-0 text-[15px] leading-relaxed whitespace-pre-line">{ultimo.comentario}</p>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2.5">
+            <h2 className="m-0 font-serif font-semibold text-2xl">Histórico</h2>
+            {lista.map((c, i) => {
+              const a = avancos(c, lista[i + 1]);
+              return (
+                <div
+                  key={c.id}
+                  className="bg-[var(--surface)] border border-[var(--border)] rounded-[14px] p-3.5 flex justify-between items-center gap-3"
+                >
+                  <span className="flex flex-col gap-0.5">
+                    <span className="text-sm font-semibold">{c.titulo || `Checkpoint ${lista.length - i}`}</span>
+                    <span className="text-xs text-[var(--text-secondary)]">{diaCurtoComMes(c.data)}</span>
+                  </span>
+                  <span className="text-[13px] font-semibold text-[var(--warning-text)]">
+                    {i === lista.length - 1 ? "Ponto de partida" : a ? `${a} ${a === 1 ? "avanço" : "avanços"}` : ""}
                   </span>
                 </div>
-                <Barra valor={pct(t.concluidos, t.total)} />
-              </Link>
-            ))}
+              );
+            })}
           </div>
-        </section>
+        </>
+      ) : (
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[18px] p-5">
+          <p className="m-0 text-[15px] font-semibold">Seu primeiro checkpoint está a caminho</p>
+          <p className="mt-1.5 mb-0 text-sm text-[var(--text-secondary)]">
+            Depois das primeiras aulas, a sua professora registra aqui como você está em cada competência.
+          </p>
+        </div>
       )}
 
-      <section className="mt-8 rounded-2xl border border-dashed border-[var(--gold)] p-5 flex items-center gap-4">
+      <div className="border border-dashed border-[var(--gold)] rounded-[14px] p-4 flex gap-3.5 items-center">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold-text)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <circle cx="12" cy="9" r="6" />
           <path d="M8.5 14L7 22l5-3 5 3-1.5-8" />
         </svg>
-        <div>
-          <p className="text-[15px] font-semibold">Certificado Tu Prof</p>
-          <p className="text-sm text-[var(--text-secondary)]">Fica disponível aqui ao final do seu programa.</p>
-        </div>
-      </section>
+        <span className="flex flex-col gap-0.5">
+          <span className="text-sm font-semibold">Certificado Tu Prof</span>
+          <span className="text-xs text-[var(--text-secondary)]">Disponível ao final do seu programa</span>
+        </span>
+      </div>
     </div>
   );
 }

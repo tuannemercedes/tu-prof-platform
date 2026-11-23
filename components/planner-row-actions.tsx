@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { deletePlanner, duplicatePlanner, updatePlannerTitulo } from "@/app/(admin)/admin/planner/actions";
+import { deletePlanner, duplicatePlanner, updatePlannerTitulo } from "@/app/(admin)/admin/(gestao)/planner/actions";
 import SubmitButton from "./submit-button";
 
 export default function PlannerRowActions({ id, titulo }: { id: string; titulo: string }) {

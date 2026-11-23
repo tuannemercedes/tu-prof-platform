@@ -1,0 +1,76 @@
+import type { createClient } from "@/lib/supabase/server";
+
+export type Entrega = "feito" | "texto" | "audio" | "link";
+
+export type TarefaAluno = {
+  id: string;
+  texto: string;
+  entrega: Entrega;
+  linkUrl: string | null;
+  prazo: string | null;
+  criadaEm: string;
+  concluida: boolean;
+  resposta: string | null;
+  arquivoPath: string | null;
+  comentario: string | null;
+  origem: string;
+};
+
+type Row = {
+  id: string;
+  texto: string;
+  entrega: Entrega;
+  link_url: string | null;
+  prazo: string | null;
+  created_at: string;
+  aluno_id: string | null;
+  turma_id: string | null;
+  material_id: string | null;
+  materiais: { titulo: string } | null;
+  aulas: { tema: string } | null;
+};
+
+// Tarefas que o aluno logado enxerga (a RLS filtra) + a entrega dele em cada uma.
+export async function getTarefasDoAluno(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  alunoId: string
+): Promise<TarefaAluno[]> {
+  const [{ data: rows }, { data: entregas }] = await Promise.all([
+    supabase
+      .from("tarefas")
+      .select(
+        "id, texto, entrega, link_url, prazo, created_at, aluno_id, turma_id, material_id, materiais(titulo), aulas(tema)"
+      )
+      .order("prazo", { ascending: true, nullsFirst: false })
+      .order("created_at"),
+    supabase
+      .from("tarefa_entregas")
+      .select("tarefa_id, concluida, resposta, arquivo_path, comentario")
+      .eq("aluno_id", alunoId),
+  ]);
+
+  const mapa = new Map((entregas ?? []).map((e) => [e.tarefa_id, e]));
+
+  return ((rows ?? []) as unknown as Row[]).map((r) => {
+    const e = mapa.get(r.id);
+    return {
+      id: r.id,
+      texto: r.texto,
+      entrega: r.entrega,
+      linkUrl: r.link_url,
+      prazo: r.prazo,
+      criadaEm: r.created_at,
+      concluida: e?.concluida ?? false,
+      resposta: e?.resposta ?? null,
+      arquivoPath: e?.arquivo_path ?? null,
+      comentario: e?.comentario ?? null,
+      origem: r.aulas?.tema ? `Aula: ${r.aulas.tema}` : r.materiais?.titulo ? r.materiais.titulo : "",
+    };
+  });
+}
+
+export function formatarPrazo(prazo: string | null) {
+  if (!prazo) return null;
+  const d = new Date(prazo + "T12:00:00");
+  return `Até ${new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "short" }).format(d)}`;
+}

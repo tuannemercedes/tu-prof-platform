@@ -1,17 +1,15 @@
-import { requireAdmin } from "@/lib/dal";
-import AdminSidebar from "@/components/admin-sidebar";
+import { requireStaff } from "@/lib/dal";
+import EquipeSidebar from "@/components/equipe-sidebar";
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const profile = await requireAdmin();
+export default async function EquipeLayout({ children }: { children: React.ReactNode }) {
+  const profile = await requireStaff();
 
   return (
-    <div className="min-h-screen flex flex-col sm:flex-row">
-      <AdminSidebar email={profile.email} />
-      <main className="flex-1 p-4 sm:p-6 min-w-0">{children}</main>
+    <div className="min-h-screen flex flex-wrap">
+      <EquipeSidebar nome={profile.nome || profile.email} papel={profile.role} />
+      <main className="flex-[999_1_560px] min-w-0 box-border px-5 sm:px-[clamp(20px,4vw,56px)] pt-9 pb-14">
+        {children}
+      </main>
     </div>
   );
 }

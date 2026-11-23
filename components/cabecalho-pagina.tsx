@@ -6,7 +6,7 @@ type Props = {
 
 export default function CabecalhoPagina({ sobretitulo, titulo, descricao }: Props) {
   return (
-    <div className="space-y-1.5 mb-8">
+    <div className="space-y-1.5 mb-6">
       {sobretitulo && (
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--gold-text)]">
           {sobretitulo}

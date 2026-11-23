@@ -5,6 +5,8 @@ import AddAlunoForm from "@/components/add-aluno-form";
 import ResetPasswordButton from "@/components/reset-password-button";
 import SubmitButton from "@/components/submit-button";
 import { rotuloIdioma } from "@/lib/programas";
+import { getProfile } from "@/lib/dal";
+import { getResumoEquipe } from "@/lib/equipe";
 
 type Pessoa = {
   id: string;
@@ -16,7 +18,38 @@ type Pessoa = {
 };
 
 export default async function PessoasPage() {
+  const eu = await getProfile();
   const supabase = await createClient();
+
+  if (eu?.role !== "admin") {
+    const { alunos: meus } = await getResumoEquipe(supabase, { soDe: eu!.id });
+    return (
+      <div className="flex flex-col gap-6 max-w-3xl">
+        <h1 className="m-0 font-serif font-semibold text-[40px] leading-[1.05]">Meus alunos</h1>
+        <div className="flex flex-col gap-3">
+          {meus.length ? (
+            meus.map((a) => (
+              <Link
+                key={a.id}
+                href={`/admin/alunos/${a.id}`}
+                className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 flex items-center justify-between gap-4"
+              >
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-[15px] font-semibold">{a.nome}</span>
+                  <span className="text-[13px] text-[var(--text-secondary)]">
+                    {a.programas.map((p) => p.nome).join(", ") || "Sem programa"}
+                  </span>
+                </span>
+                <span className="text-[13px] font-semibold text-[var(--gold-text)]">Abrir ficha →</span>
+              </Link>
+            ))
+          ) : (
+            <p className="text-sm text-[var(--text-secondary)]">Nenhum aluno com você ainda.</p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const [{ data: pessoas }, { data: turmas }] = await Promise.all([
     supabase
@@ -34,8 +67,8 @@ export default async function PessoasPage() {
 
   return (
     <div className="space-y-8 max-w-3xl">
-      <div>
-        <h1 className="text-lg font-semibold">Pessoas</h1>
+      <div id="adicionar">
+        <h1 className="m-0 font-serif font-semibold text-[40px] leading-[1.05]">Pessoas</h1>
         <p className="text-sm text-[var(--text-secondary)]">
           Alunos e professores da Tu Prof. Ao adicionar, uma senha é gerada: envie o e-mail e a
           senha por fora (WhatsApp, e-mail). O professor vê só os alunos que estão com ele.
@@ -45,8 +78,8 @@ export default async function PessoasPage() {
       <AddAlunoForm turmas={turmas ?? []} professores={professores} />
 
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold">Professores ({professores.length})</h2>
-        <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg">
+        <h2 className="m-0 font-serif font-semibold text-[26px]">Professores ({professores.length})</h2>
+        <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-[18px] bg-[var(--surface)]">
           {professores.length ? (
             professores.map((prof) => {
               const qtd = alunos.filter((a) => a.professor_id === prof.id).length;
@@ -71,8 +104,8 @@ export default async function PessoasPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold">Alunos ({alunos.length})</h2>
-        <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg">
+        <h2 className="m-0 font-serif font-semibold text-[26px]">Alunos ({alunos.length})</h2>
+        <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-[18px] bg-[var(--surface)]">
           {alunos.length ? (
             alunos.map((aluno) => {
               const turmaIdsDoAluno = new Set(aluno.turma_membros.map((t) => t.turma_id));
@@ -80,12 +113,20 @@ export default async function PessoasPage() {
                 <li key={aluno.id} className="p-4 space-y-3">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-sm font-medium">{aluno.nome || aluno.email}</p>
+                      <Link href={`/admin/alunos/${aluno.id}`} className="text-[15px] font-semibold">
+                        {aluno.nome || aluno.email}
+                      </Link>
                       <p className="text-xs text-[var(--text-secondary)]">
                         {aluno.email} · Professor:{" "}
                         {aluno.professor_id ? nomeProfessor.get(aluno.professor_id) ?? "—" : "você"}
                       </p>
                       <div className="flex flex-wrap gap-2 mt-2">
+                        <Link
+                          href={`/admin/alunos/${aluno.id}`}
+                          className="text-xs font-semibold rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] px-2.5 py-1"
+                        >
+                          Abrir ficha
+                        </Link>
                         <Link
                           href={`/admin/alunos/${aluno.id}/conteudos`}
                           className="text-xs font-medium rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)]"

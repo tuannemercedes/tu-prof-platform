@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { saveTermo } from "@/app/(admin)/admin/glossario/actions";
+import { saveTermo } from "@/app/(admin)/admin/(gestao)/glossario/actions";
 
 export default function GlossarioForm({ categoria }: { categoria: string | null }) {
   const [error, setError] = useState<string | null>(null);

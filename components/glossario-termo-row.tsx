@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { saveTermo, deleteTermo } from "@/app/(admin)/admin/glossario/actions";
+import { saveTermo, deleteTermo } from "@/app/(admin)/admin/(gestao)/glossario/actions";
 
 type Termo = { id: string; termo: string; definicao: string; exemplo: string | null; categoria: string | null };
 

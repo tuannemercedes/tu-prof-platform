@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { criarCategoria } from "@/app/(admin)/admin/glossario/actions";
+import { criarCategoria } from "@/app/(admin)/admin/(gestao)/glossario/actions";
 import GlossarioForm from "./glossario-form";
 import GlossarioImportForm from "./glossario-import-form";
 

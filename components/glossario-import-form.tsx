@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { importarTermos } from "@/app/(admin)/admin/glossario/actions";
+import { importarTermos } from "@/app/(admin)/admin/(gestao)/glossario/actions";
 
 type Linha = { termo: string; definicao: string; exemplo: string | null };
 

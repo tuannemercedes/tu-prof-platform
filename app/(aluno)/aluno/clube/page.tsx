@@ -3,7 +3,6 @@ import CalendarGrid from "@/components/calendar-grid";
 import ClubeRsvpButtons from "@/components/clube-rsvp-buttons";
 import { getUser } from "@/lib/dal";
 import CabecalhoPagina from "@/components/cabecalho-pagina";
-import PlanoAbas from "@/components/plano-abas";
 
 export default async function AlunoClubePage() {
   const user = await getUser();
@@ -43,8 +42,7 @@ export default async function AlunoClubePage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-<CabecalhoPagina sobretitulo="Meu plano" titulo="Club Hispano" descricao="Encontros ao vivo para praticar a conversa." />
-      <PlanoAbas />
+<CabecalhoPagina sobretitulo="Benefício Tu Prof" titulo="Club Hispano" descricao="Encontros ao vivo para praticar a conversa, com temas profissionais e do dia a dia." />
 
       <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 space-y-2 card-elevated">
         {config.dia_horario && (

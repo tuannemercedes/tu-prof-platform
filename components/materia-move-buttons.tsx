@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { moverMateria } from "@/app/(admin)/admin/materias/actions";
+import { moverMateria } from "@/app/(admin)/admin/(gestao)/materias/actions";
 
 type Props = {
   id: string;

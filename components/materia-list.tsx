@@ -6,7 +6,7 @@ import {
   updateMateriaCategoria,
   updateMateriaTitulo,
   deleteMateria,
-} from "@/app/(admin)/admin/materias/actions";
+} from "@/app/(admin)/admin/(gestao)/materias/actions";
 
 export type Materia = {
   id: string;

@@ -52,10 +52,10 @@ const ITENS = [
   },
   {
     chave: "plano",
-    href: "/aluno/planner",
+    href: "/aluno/plano",
     label: "Plano",
     ativo: (p: string) =>
-      ["/aluno/planner", "/aluno/cronograma", "/aluno/calendario", "/aluno/clube"].some((r) =>
+      ["/aluno/plano", "/aluno/planner", "/aluno/cronograma", "/aluno/calendario", "/aluno/clube"].some((r) =>
         p.startsWith(r)
       ),
   },

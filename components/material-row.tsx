@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { updateMaterial } from "@/app/(admin)/admin/materias/[id]/actions";
+import { updateMaterial } from "@/app/(admin)/admin/(gestao)/materias/[id]/actions";
 import LiberacaoFields from "./liberacao-fields";
 
 const TIPO_LABELS: Record<string, string> = {
