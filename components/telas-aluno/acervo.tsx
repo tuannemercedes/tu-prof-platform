@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { doIdioma } from "@/lib/idioma";
 import { getLiberados, liberado, rota, type Visao } from "@/lib/visao";
 import { getGlossarioAcessoParaAluno } from "@/lib/glossario";
+import { pastasDoGlossario } from "@/lib/glossario-pastas";
 import { capaDoItem, TIPO_ROTULO } from "@/lib/capas";
 import AcervoGaleria, { type ItemAcervo } from "@/components/acervo-galeria";
 
@@ -51,18 +52,24 @@ export default async function TelaAcervo({ v, aba }: { v: Visao; aba?: string })
       href: rota(v, `/materias/${m.materia_id}`, `#material-${m.id}`),
     });
   });
-  (termos ?? []).forEach((t) => {
-    if (!doIdioma(t.idioma, idioma)) return;
-    if (v.previa && (t.aluno_id ? t.aluno_id !== v.alunoId : !temGlossario)) return;
+  const termosVisiveis = (termos ?? []).filter(
+    (t) =>
+      doIdioma(t.idioma, idioma) &&
+      (!v.previa || (t.aluno_id ? t.aluno_id === v.alunoId : temGlossario))
+  );
+  // Cada tema do glossário vira uma "pasta" na galeria.
+  pastasDoGlossario(termosVisiveis).forEach((p) => {
     itens.push({
-      id: t.id,
+      id: p.nome,
       area: "biblioteca",
       tipo: "glossario",
       tag: "Glossário",
-      titulo: t.termo,
-      colecao: t.aluno_id ? `Só para você · ${t.definicao ?? ""}` : t.definicao ?? "",
+      titulo: p.nome,
+      colecao: idioma === "ingles" ? "Em inglês" : "Em espanhol",
+      quantidade: p.termos.length,
+      busca: p.termos.map((t) => `${t.termo} ${t.definicao ?? ""}`).join(" "),
       capa: null,
-      href: rota(v, "/glossario"),
+      href: rota(v, "/glossario", "", { tema: p.nome }),
     });
   });
 

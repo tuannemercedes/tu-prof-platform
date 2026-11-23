@@ -12,6 +12,8 @@ export type ItemAcervo = {
   colecao: string;
   capa: string | null;
   href: string;
+  quantidade?: number;
+  busca?: string;
 };
 
 const ABAS = {
@@ -40,17 +42,32 @@ function normalizar(s: string) {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
-function CapaPadrao({ item }: { item: ItemAcervo }) {
-  const glossario = item.tipo === "glossario";
+export function IconePasta({ className = "" }: { className?: string }) {
   return (
-    <div
-      className={`absolute inset-0 flex flex-col justify-end p-3.5 ${
-        glossario ? "bg-[var(--warning-bg)] text-[var(--warning-text)]" : "bg-[var(--navy)] text-[var(--gold-light)]"
-      }`}
-    >
-      <span className={`font-serif font-semibold leading-tight line-clamp-3 ${glossario ? "text-[22px]" : "text-[19px]"}`}>
-        {item.titulo}
-      </span>
+    <svg className={className} width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    </svg>
+  );
+}
+
+function CapaPadrao({ item }: { item: ItemAcervo }) {
+  if (item.tipo === "glossario") {
+    // Pasta de um tema do glossário
+    return (
+      <div className="absolute inset-0 flex flex-col justify-end gap-1 p-3.5 bg-[var(--warning-bg)] text-[var(--warning-text)]">
+        <IconePasta className="absolute top-3 right-3 opacity-70" />
+        <span className="font-serif font-semibold text-[22px] leading-tight line-clamp-3">{item.titulo}</span>
+        {item.quantidade != null && (
+          <span className="text-xs font-semibold opacity-80">
+            {item.quantidade} {item.quantidade === 1 ? "palavra" : "palavras"}
+          </span>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className="absolute inset-0 flex flex-col justify-end p-3.5 bg-[var(--navy)] text-[var(--gold-light)]">
+      <span className="font-serif font-semibold leading-tight line-clamp-3 text-[19px]">{item.titulo}</span>
     </div>
   );
 }
@@ -66,7 +83,7 @@ export default function AcervoGaleria({ itens, abaInicial }: { itens: ItemAcervo
       if (i.area !== aba) return false;
       if (filtro === "leitura" && !["pdf", "html", "link_externo"].includes(i.tipo)) return false;
       if (filtro !== "tudo" && filtro !== "leitura" && i.tipo !== filtro) return false;
-      return !q || normalizar(`${i.titulo} ${i.colecao}`).includes(q);
+      return !q || normalizar(`${i.titulo} ${i.colecao} ${i.busca ?? ""}`).includes(q);
     });
   }, [itens, aba, filtro, busca]);
 

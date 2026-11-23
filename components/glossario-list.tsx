@@ -44,19 +44,19 @@ export default function GlossarioList({ termos }: { termos: Termo[] }) {
         type="text"
         value={busca}
         onChange={(e) => setBusca(e.target.value)}
-        placeholder="Buscar termo..."
-        className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+        placeholder="Buscar palavra ou tradução..."
+        className="bg-[var(--surface)] w-full h-[50px] rounded-[14px] border border-[var(--border)] px-3.5 text-[15px] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
       />
 
       {categorias.length > 1 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-0.5">
           <button
             type="button"
             onClick={() => setCategoriaAtiva(null)}
-            className={`text-xs px-3 py-1 rounded-full border ${
+            className={`shrink-0 h-10 px-4 rounded-full text-sm font-medium border ${
               categoriaAtiva === null
                 ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-[var(--accent)]"
-                : "border-[var(--border-strong)] hover:bg-[var(--surface-3)]"
+                : "bg-[var(--surface)] border-[var(--border-strong)]"
             }`}
           >
             Todas
@@ -66,10 +66,10 @@ export default function GlossarioList({ termos }: { termos: Termo[] }) {
               key={c}
               type="button"
               onClick={() => setCategoriaAtiva(c)}
-              className={`text-xs px-3 py-1 rounded-full border ${
+              className={`shrink-0 h-10 px-4 rounded-full text-sm font-medium border ${
                 categoriaAtiva === c
                   ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-[var(--accent)]"
-                  : "border-[var(--border-strong)] hover:bg-[var(--surface-3)]"
+                  : "bg-[var(--surface)] border-[var(--border-strong)]"
               }`}
             >
               {c}
@@ -89,13 +89,13 @@ export default function GlossarioList({ termos }: { termos: Termo[] }) {
                   {categoria}
                 </h2>
               )}
-              <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-lg">
+              <ul className="divide-y divide-[var(--border-soft)] border border-[var(--border)] rounded-2xl bg-[var(--surface)] overflow-hidden">
                 {itens.map((t) => (
                   <li key={t.id} className="p-4">
-                    <p className="text-sm font-semibold">{t.termo}</p>
-                    <p className="text-sm text-[var(--text-secondary)] mt-0.5">{t.definicao}</p>
+                    <p className="font-serif text-[20px] font-semibold leading-tight">{t.termo}</p>
+                    <p className="text-[15px] text-[var(--text-secondary)] mt-1">{t.definicao}</p>
                     {t.exemplo && (
-                      <p className="text-xs text-[var(--text-faint)] italic mt-1">&ldquo;{t.exemplo}&rdquo;</p>
+                      <p className="text-[13px] text-[var(--text-faint)] italic mt-1.5">&ldquo;{t.exemplo}&rdquo;</p>
                     )}
                   </li>
                 ))}

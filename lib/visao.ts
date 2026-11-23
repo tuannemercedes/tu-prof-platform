@@ -59,9 +59,11 @@ export async function visaoPrevia(supabase: Supa, alunoId: string, idiomaPedido?
 }
 
 // Monta o endereço de uma tela do aluno. Na prévia, o idioma escolhido vai junto.
-export function rota(v: Visao, caminho = "", hash = "") {
-  const q = v.previa ? `?idioma=${v.idioma}` : "";
-  return `${v.base}${caminho}${q}${hash}`;
+export function rota(v: Visao, caminho = "", hash = "", params: Record<string, string> = {}) {
+  const sp = new URLSearchParams(params);
+  if (v.previa) sp.set("idioma", v.idioma);
+  const q = sp.toString();
+  return `${v.base}${caminho}${q ? `?${q}` : ""}${hash}`;
 }
 
 export type Liberados = { materiais: Set<string>; turmas: Set<string> } | null;
