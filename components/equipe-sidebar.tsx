@@ -51,7 +51,7 @@ const ITENS_ADMIN: Item[] = [
   {
     chave: "biblioteca",
     href: "/admin/biblioteca",
-    label: "Biblioteca",
+    label: "Acervo",
     ativo: (p) => ["/admin/biblioteca", "/admin/fia", "/admin/glossario"].some((r) => p.startsWith(r)),
   },
   {

@@ -18,6 +18,11 @@ function paraTimestamp(local: string | null) {
   return new Date(`${local}:00-03:00`).toISOString();
 }
 
+function lerIdioma(f: FormData) {
+  const v = String(f.get("idioma") ?? "");
+  return v === "espanhol" || v === "ingles" ? v : null;
+}
+
 function atualizar(alunoId: string) {
   revalidatePath(`/admin/alunos/${alunoId}`);
   revalidatePath("/admin");
@@ -51,7 +56,7 @@ export async function agendarAula(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("aulas")
-    .insert({ aluno_id: alunoId, professor_id: profile.id, data, tema, descricao: txt(formData, "descricao") });
+    .insert({ aluno_id: alunoId, professor_id: profile.id, data, tema, descricao: txt(formData, "descricao"), idioma: lerIdioma(formData) });
   if (error) throw new Error("Não foi possível agendar.");
   atualizar(alunoId);
 }
@@ -75,7 +80,7 @@ export async function registrarAula(formData: FormData) {
   } else {
     const { data, error } = await supabase
       .from("aulas")
-      .insert({ aluno_id: alunoId, professor_id: profile.id, data: new Date().toISOString(), tema, resumo, status: "realizada" })
+      .insert({ aluno_id: alunoId, professor_id: profile.id, data: new Date().toISOString(), tema, resumo, status: "realizada", idioma: lerIdioma(formData) })
       .select("id")
       .single();
     if (error) return { error: "Não foi possível salvar a aula." };
@@ -86,6 +91,7 @@ export async function registrarAula(formData: FormData) {
     const { error } = await supabase.from("tarefas").insert({
       aluno_id: alunoId,
       aula_id: idAula,
+      idioma: lerIdioma(formData),
       texto: tarefa,
       entrega: ["feito", "texto", "audio", "link"].includes(entrega) ? entrega : "feito",
       link_url: txt(formData, "link_url"),
@@ -116,6 +122,7 @@ export async function criarTarefa(formData: FormData) {
   const supabase = await createClient();
   await supabase.from("tarefas").insert({
     aluno_id: alunoId,
+    idioma: lerIdioma(formData),
     texto,
     entrega: ["feito", "texto", "audio", "link"].includes(entrega) ? entrega : "feito",
     link_url: txt(formData, "link_url"),
@@ -165,7 +172,7 @@ export async function salvarEtapa(formData: FormData) {
       .from("plano_etapas")
       .select("*", { count: "exact", head: true })
       .eq("aluno_id", alunoId);
-    await supabase.from("plano_etapas").insert({ ...dados, aluno_id: alunoId, ordem: count ?? 0 });
+    await supabase.from("plano_etapas").insert({ ...dados, aluno_id: alunoId, ordem: count ?? 0, idioma: lerIdioma(formData) });
   }
   atualizar(alunoId);
 }
@@ -195,13 +202,19 @@ export async function aplicarModelo(formData: FormData) {
     .eq("aluno_id", alunoId);
   await supabase
     .from("plano_etapas")
-    .insert(modelo.map((m, i) => ({ ...m, ordem: (count ?? 0) + i, aluno_id: alunoId })));
+    .insert(modelo.map((m, i) => ({ ...m, ordem: (count ?? 0) + i, aluno_id: alunoId, idioma: lerIdioma(formData) })));
   atualizar(alunoId);
 }
 
 // ===== Evolução =====
 
-export async function salvarCheckpoint(alunoId: string, niveis: Record<string, number>, comentario: string, titulo: string) {
+export async function salvarCheckpoint(
+  alunoId: string,
+  niveis: Record<string, number>,
+  comentario: string,
+  titulo: string,
+  idioma: "espanhol" | "ingles" | null
+) {
   const profile = await requireStaff();
   const supabase = await createClient();
   const { error } = await supabase.from("checkpoints").insert({
@@ -209,6 +222,7 @@ export async function salvarCheckpoint(alunoId: string, niveis: Record<string, n
     niveis,
     comentario: comentario.trim() || null,
     titulo: titulo.trim() || null,
+    idioma,
     created_by: profile.id,
   });
   if (error) return { error: "Não foi possível salvar o checkpoint." };

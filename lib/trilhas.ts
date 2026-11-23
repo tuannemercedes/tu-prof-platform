@@ -19,6 +19,7 @@ type MaterialRow = {
   materia_id: string;
   fase_id: string | null;
   ordem: number;
+  idioma: string;
   materias: { id: string; titulo: string; categoria: string; ordem: number } | null;
 };
 
@@ -26,12 +27,13 @@ type MaterialRow = {
 // A RLS já filtra os materiais liberados para ele.
 export async function getTrilhasDoAluno(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  alunoId: string
+  alunoId: string,
+  idioma?: string
 ): Promise<Trilha[]> {
   const [{ data: materiaisRows }, { data: fasesRows }, { data: progresso }] = await Promise.all([
     supabase
       .from("materiais")
-      .select("id, titulo, materia_id, fase_id, ordem, materias(id, titulo, categoria, ordem)")
+      .select("id, titulo, materia_id, fase_id, ordem, idioma, materias(id, titulo, categoria, ordem)")
       .order("ordem")
       .order("created_at"),
     supabase.from("fases").select("id, materia_id, titulo, ordem").order("ordem"),
@@ -46,6 +48,7 @@ export async function getTrilhasDoAluno(
 
   rows.forEach((row) => {
     if (!row.materias) return;
+    if (idioma && row.idioma !== idioma && row.idioma !== "espanhol_ingles") return;
     if (!mapa.has(row.materias.id)) {
       mapa.set(row.materias.id, {
         id: row.materias.id,

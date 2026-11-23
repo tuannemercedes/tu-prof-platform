@@ -14,6 +14,7 @@ export type TarefaAluno = {
   arquivoPath: string | null;
   comentario: string | null;
   origem: string;
+  idioma: string | null;
 };
 
 type Row = {
@@ -26,7 +27,8 @@ type Row = {
   aluno_id: string | null;
   turma_id: string | null;
   material_id: string | null;
-  materiais: { titulo: string } | null;
+  idioma: string | null;
+  materiais: { titulo: string; idioma: string } | null;
   aulas: { tema: string } | null;
 };
 
@@ -39,7 +41,7 @@ export async function getTarefasDoAluno(
     supabase
       .from("tarefas")
       .select(
-        "id, texto, entrega, link_url, prazo, created_at, aluno_id, turma_id, material_id, materiais(titulo), aulas(tema)"
+        "id, texto, entrega, link_url, prazo, created_at, aluno_id, turma_id, material_id, idioma, materiais(titulo, idioma), aulas(tema)"
       )
       .order("prazo", { ascending: true, nullsFirst: false })
       .order("created_at"),
@@ -64,6 +66,7 @@ export async function getTarefasDoAluno(
       resposta: e?.resposta ?? null,
       arquivoPath: e?.arquivo_path ?? null,
       comentario: e?.comentario ?? null,
+      idioma: r.idioma ?? r.materiais?.idioma ?? null,
       origem: r.aulas?.tema ? `Aula: ${r.aulas.tema}` : r.materiais?.titulo ? r.materiais.titulo : "",
     };
   });

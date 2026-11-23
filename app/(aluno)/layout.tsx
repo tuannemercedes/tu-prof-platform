@@ -2,6 +2,7 @@ import { requireAluno, getUser } from "@/lib/dal";
 import AlunoNav from "@/components/aluno-nav";
 import { createClient } from "@/lib/supabase/server";
 import { getNovidadesParaAluno } from "@/lib/notificacoes";
+import { getIdiomaDoAluno } from "@/lib/idioma";
 
 export default async function AlunoLayout({
   children,
@@ -12,9 +13,10 @@ export default async function AlunoLayout({
   const user = await getUser();
 
   const supabase = await createClient();
-  const [{ data: config }, novidades] = await Promise.all([
+  const [{ data: config }, novidades, idioma] = await Promise.all([
     supabase.from("configuracoes").select("chave, valor"),
     getNovidadesParaAluno(supabase, user!.id, profile.ultimo_acesso_novidades),
+    getIdiomaDoAluno(supabase, user!.id),
   ]);
 
   const valor = (chave: string) => config?.find((c) => c.chave === chave)?.valor;
@@ -24,6 +26,7 @@ export default async function AlunoLayout({
     <div className="min-h-screen flex flex-col sm:flex-row">
       <AlunoNav
         nome={primeiroNome}
+        idioma={idioma}
         novidades={novidades}
         appUrl={valor("app_treino_url")}
         appLabel={valor("app_treino_label")}

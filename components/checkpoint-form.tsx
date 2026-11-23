@@ -9,9 +9,10 @@ type Props = {
   competencias: string[];
   iniciais: Record<string, number>;
   numero: number;
+  idioma: "espanhol" | "ingles" | null;
 };
 
-export default function CheckpointForm({ alunoId, competencias, iniciais, numero }: Props) {
+export default function CheckpointForm({ alunoId, competencias, iniciais, numero, idioma }: Props) {
   const [niveis, setNiveis] = useState<Record<string, number>>(iniciais);
   const [comentario, setComentario] = useState("");
   const [titulo, setTitulo] = useState(numero === 1 ? "Diagnóstico inicial" : `Checkpoint ${numero - 1}`);
@@ -21,7 +22,7 @@ export default function CheckpointForm({ alunoId, competencias, iniciais, numero
   function salvar() {
     setMsg(null);
     startTransition(async () => {
-      const r = await salvarCheckpoint(alunoId, niveis, comentario, titulo);
+      const r = await salvarCheckpoint(alunoId, niveis, comentario, titulo, idioma);
       if (r?.error) setMsg({ ok: false, texto: r.error });
       else {
         setComentario("");

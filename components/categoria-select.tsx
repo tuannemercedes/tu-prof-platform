@@ -10,6 +10,7 @@ export default function CategoriaSelect({ defaultValue }: { defaultValue: string
     >
       <option value="trilha">Trilha</option>
       <option value="fia">FIA</option>
+      <option value="biblioteca">Biblioteca</option>
     </select>
   );
 }

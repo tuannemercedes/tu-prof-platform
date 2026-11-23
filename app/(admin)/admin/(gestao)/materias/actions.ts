@@ -11,6 +11,7 @@ export async function createMateria(formData: FormData) {
   const supabase = await createClient();
   await supabase.from("materias").insert({ titulo, categoria });
   revalidatePath("/admin/materias");
+  revalidatePath("/admin/fia");
 }
 
 export async function updateMateriaTitulo(formData: FormData) {

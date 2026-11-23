@@ -2,16 +2,19 @@ import { createClient } from "@/lib/supabase/server";
 import { getUser } from "@/lib/dal";
 import { diaCurtoComMes } from "@/lib/datas";
 import { lerCompetencias, nivel } from "@/lib/evolucao";
+import { getIdiomaDoAluno } from "@/lib/idioma";
 
 export default async function EvolucaoPage() {
   const user = await getUser();
   const supabase = await createClient();
+  const { atual: idioma } = await getIdiomaDoAluno(supabase, user!.id);
 
   const [{ data: checkpoints }, { data: cfg }, { data: professor }] = await Promise.all([
     supabase
       .from("checkpoints")
       .select("id, data, titulo, niveis, comentario")
       .eq("aluno_id", user!.id)
+      .or(`idioma.is.null,idioma.eq.${idioma}`)
       .order("data", { ascending: false })
       .order("created_at", { ascending: false }),
     supabase.from("configuracoes").select("valor").eq("chave", "competencias").maybeSingle(),

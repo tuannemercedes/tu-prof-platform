@@ -7,10 +7,12 @@ import SignOutButton from "./sign-out-button";
 import ThemeToggle from "./theme-toggle";
 import Logo from "./logo";
 import NotificationBell from "./notification-bell";
+import ChaveIdioma from "./chave-idioma";
 import type { Novidade } from "@/lib/notificacoes";
 
 type Props = {
   nome: string;
+  idioma: { atual: "espanhol" | "ingles"; opcoes: ("espanhol" | "ingles")[] };
   novidades?: Novidade[];
   appUrl?: string | null;
   appLabel?: string | null;
@@ -61,10 +63,10 @@ const ITENS = [
   },
   {
     chave: "biblioteca",
-    href: "/aluno/biblioteca",
-    label: "Biblioteca",
+    href: "/aluno/acervo",
+    label: "Acervo",
     ativo: (p: string) =>
-      ["/aluno/biblioteca", "/aluno/busca", "/aluno/glossario"].some((r) => p.startsWith(r)),
+      ["/aluno/acervo", "/aluno/biblioteca", "/aluno/busca", "/aluno/glossario"].some((r) => p.startsWith(r)),
   },
   {
     chave: "evolucao",
@@ -92,7 +94,7 @@ function Icone({ nome, ativo }: { nome: string; ativo: boolean }) {
   );
 }
 
-function LinksExtras({ appUrl, appLabel, contatoUrl, contatoLabel }: Omit<Props, "nome" | "novidades">) {
+function LinksExtras({ appUrl, appLabel, contatoUrl, contatoLabel }: Omit<Props, "nome" | "novidades" | "idioma">) {
   return (
     <>
       {appUrl && (
@@ -119,7 +121,7 @@ function LinksExtras({ appUrl, appLabel, contatoUrl, contatoLabel }: Omit<Props,
   );
 }
 
-export default function AlunoNav({ nome, novidades = [], ...extras }: Props) {
+export default function AlunoNav({ nome, novidades = [], idioma, ...extras }: Props) {
   const pathname = usePathname();
   const [maisAberto, setMaisAberto] = useState(false);
 
@@ -130,6 +132,11 @@ export default function AlunoNav({ nome, novidades = [], ...extras }: Props) {
         <div className="space-y-1 px-2">
           <Logo className="text-2xl" />
           <p className="text-xs text-[var(--on-navy-muted)] truncate">Olá, {nome}</p>
+          {idioma.opcoes.length > 1 && (
+            <div className="pt-3">
+              <ChaveIdioma atual={idioma.atual} opcoes={idioma.opcoes} />
+            </div>
+          )}
         </div>
 
         <nav aria-label="Menu principal" className="flex flex-col gap-1">
@@ -189,6 +196,11 @@ export default function AlunoNav({ nome, novidades = [], ...extras }: Props) {
           </button>
         </div>
       </header>
+      {idioma.opcoes.length > 1 && (
+        <div className="sm:hidden sticky top-14 z-20 flex justify-center pb-2.5 bg-[var(--navy)]">
+          <ChaveIdioma atual={idioma.atual} opcoes={idioma.opcoes} />
+        </div>
+      )}
 
       {maisAberto && (
         <div className="sm:hidden fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Mais opções">

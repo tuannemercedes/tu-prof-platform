@@ -18,8 +18,8 @@ const campo = "h-[42px] rounded-[10px] border border-[var(--border-strong)] bg-[
 const botao = "h-11 px-[18px] rounded-xl bg-[var(--accent)] text-[var(--accent-contrast)] font-semibold text-sm whitespace-nowrap";
 const botaoLinha = "h-10 px-3.5 rounded-xl border border-[var(--border-strong)] text-sm font-medium hover:bg-[var(--surface-2)] whitespace-nowrap";
 
-export default async function ProgramasPage({ searchParams }: { searchParams: Promise<{ p?: string }> }) {
-  const { p } = await searchParams;
+export default async function ProgramasPage({ searchParams }: { searchParams: Promise<{ p?: string; idioma?: string }> }) {
+  const { p, idioma = "todos" } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: turmas }, { data: materias }, { data: modulos }, { data: etapas }, { data: clube }, { data: clubeTurmas }, { data: glossario }, { data: glossarioTurmas }] =
@@ -38,7 +38,9 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
       supabase.from("glossario_turmas").select("turma_id"),
     ]);
 
-  const lista = turmas ?? [];
+  const lista = (turmas ?? []).filter(
+    (t) => idioma === "todos" || t.idioma === idioma || t.idioma === "espanhol_ingles"
+  );
   const atual = lista.find((t) => t.id === p) ?? lista[0];
   const qtd = (t: (typeof lista)[number]) => (t.turma_membros as unknown as { count: number }[])[0]?.count ?? 0;
   const nMateriais = (m: { materiais: unknown }) => (m.materiais as { count: number }[])[0]?.count ?? 0;
@@ -91,6 +93,26 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
       <div className="grid gap-5 items-start lg:grid-cols-[300px_minmax(0,1fr)]">
         <div className="flex flex-col gap-2.5">
           <span className="text-xs tracking-[0.1em] uppercase text-[var(--text-secondary)] font-semibold">Seus programas</span>
+          <div className="flex gap-1.5 flex-wrap">
+            {[
+              { v: "todos", l: "Todos" },
+              { v: "espanhol", l: "Espanhol" },
+              { v: "ingles", l: "Inglês" },
+            ].map((f) => (
+              <Link
+                key={f.v}
+                href={`/admin/turmas?idioma=${f.v}`}
+                aria-current={idioma === f.v ? "page" : undefined}
+                className={`h-8 px-3 rounded-full text-xs font-semibold flex items-center border ${
+                  idioma === f.v
+                    ? "bg-[var(--accent)] text-[var(--accent-contrast)] border-[var(--accent)]"
+                    : "bg-[var(--surface)] border-[var(--border-strong)]"
+                }`}
+              >
+                {f.l}
+              </Link>
+            ))}
+          </div>
           {lista.length ? (
             lista.map((t) => {
               const on = atual?.id === t.id;
@@ -98,7 +120,7 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
               return (
                 <Link
                   key={t.id}
-                  href={`/admin/turmas?p=${t.id}`}
+                  href={`/admin/turmas?p=${t.id}&idioma=${idioma}`}
                   aria-current={on ? "page" : undefined}
                   className={`flex flex-col gap-1.5 p-4 rounded-[14px] bg-[var(--surface)] ${
                     on ? "border-2 border-[var(--gold)]" : "border border-[var(--border)] m-px"

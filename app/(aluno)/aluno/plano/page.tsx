@@ -3,19 +3,27 @@ import { getUser } from "@/lib/dal";
 import { getTarefasDoAluno } from "@/lib/tarefas";
 import { diaISO, quandoCompleto, rotuloIntervalo, segundaDaSemana, somarDias } from "@/lib/datas";
 import PlanoSemanas, { type Semana } from "@/components/plano-semanas";
+import { doIdioma, getIdiomaDoAluno } from "@/lib/idioma";
 
 export default async function PlanoPage() {
   const user = await getUser();
   const supabase = await createClient();
   const hoje = diaISO(new Date());
+  const { atual: idioma } = await getIdiomaDoAluno(supabase, user!.id);
 
-  const [tarefas, { data: aulas }, { data: temas }, { data: clubeCfg }] = await Promise.all([
+  const [todasTarefas, { data: aulas }, { data: temas }, { data: clubeCfg }] = await Promise.all([
     getTarefasDoAluno(supabase, user!.id),
-    supabase.from("aulas").select("id, data, tema, descricao, resumo, status").eq("aluno_id", user!.id).order("data"),
+    supabase
+      .from("aulas")
+      .select("id, data, tema, descricao, resumo, status")
+      .eq("aluno_id", user!.id)
+      .or(`idioma.is.null,idioma.eq.${idioma}`)
+      .order("data"),
     supabase.from("clube_temas").select("id, data, tema").order("data"),
     supabase.from("clube_config").select("dia_horario").eq("id", 1).maybeSingle(),
   ]);
 
+  const tarefas = todasTarefas.filter((t) => doIdioma(t.idioma, idioma));
   const mapa = new Map<string, Semana>();
   const semanaDe = (iso: string) => {
     const inicio = segundaDaSemana(iso);

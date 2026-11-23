@@ -4,11 +4,12 @@ import { useState, useTransition } from "react";
 import { criarItemBiblioteca } from "@/app/(admin)/admin/(gestao)/biblioteca/actions";
 import { detectarTipo } from "@/lib/links";
 import { IDIOMAS } from "@/lib/programas";
+import { destinoSugerido } from "@/lib/capas";
 
 type Props = {
   turmas: { id: string; nome: string }[];
   alunos: { id: string; nome: string }[];
-  colecoes: { id: string; titulo: string }[];
+  colecoes: { id: string; titulo: string; categoria: string }[];
 };
 
 const pill = (on: boolean) =>
@@ -24,10 +25,13 @@ export default function BibliotecaAdicionar({ turmas, alunos, colecoes }: Props)
   const [quem, setQuem] = useState<"todos" | "programa" | "aluno">("todos");
   const [turmaId, setTurmaId] = useState(turmas[0]?.id ?? "");
   const [alunoId, setAlunoId] = useState(alunos[0]?.id ?? "");
-  const [colecaoId, setColecaoId] = useState(colecoes[0]?.id ?? "");
+  const [colecaoId, setColecaoId] = useState("");
+  const [destinoManual, setDestinoManual] = useState<"fia" | "biblioteca" | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; t: string } | null>(null);
   const [isPending, startTransition] = useTransition();
   const det = detectarTipo(link);
+  const destino = destinoManual ?? destinoSugerido(det.tipo);
+  const colecoesDoDestino = colecoes.filter((c) => c.categoria === destino);
 
   function adicionar() {
     setMsg(null);
@@ -36,7 +40,8 @@ export default function BibliotecaAdicionar({ turmas, alunos, colecoes }: Props)
         link,
         titulo,
         idioma,
-        colecaoId: colecaoId || null,
+        destino,
+        colecaoId: colecoesDoDestino.some((c) => c.id === colecaoId) ? colecaoId : null,
         quem,
         turmaId: quem === "programa" ? turmaId : null,
         alunoId: quem === "aluno" ? alunoId : null,
@@ -46,6 +51,7 @@ export default function BibliotecaAdicionar({ turmas, alunos, colecoes }: Props)
         setMsg({ ok: true, t: "Adicionado. Já aparece para quem você escolheu." });
         setLink("");
         setTitulo("");
+        setDestinoManual(null);
       }
     });
   }
@@ -77,6 +83,20 @@ export default function BibliotecaAdicionar({ turmas, alunos, colecoes }: Props)
             </div>
           </div>
           <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
+            <div className="flex flex-col gap-2">
+              <span className="text-[13px] font-semibold">Vai para</span>
+              <div className="flex gap-1.5 flex-wrap">
+                {([
+                  { v: "fia", l: "FIA · praticar" },
+                  { v: "biblioteca", l: "Biblioteca · estudar" },
+                ] as const).map((d) => (
+                  <button key={d.v} type="button" onClick={() => setDestinoManual(d.v)} aria-pressed={destino === d.v} className={pill(destino === d.v)}>
+                    {d.l}
+                  </button>
+                ))}
+              </div>
+              {!destinoManual && <span className="text-xs text-[var(--text-secondary)]">Sugestão automática pelo tipo do link</span>}
+            </div>
             <div className="flex flex-col gap-2">
               <span className="text-[13px] font-semibold">Idioma</span>
               <div className="flex gap-1.5 flex-wrap">
@@ -119,11 +139,12 @@ export default function BibliotecaAdicionar({ turmas, alunos, colecoes }: Props)
                 </select>
               )}
             </div>
-            {colecoes.length > 1 && (
+            {colecoesDoDestino.length > 1 && (
               <label className="flex flex-col gap-2 text-[13px] font-semibold">
                 Coleção
                 <select value={colecaoId} onChange={(e) => setColecaoId(e.target.value)} className={campo}>
-                  {colecoes.map((c) => (
+                  <option value="">Automática</option>
+                  {colecoesDoDestino.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.titulo}
                     </option>

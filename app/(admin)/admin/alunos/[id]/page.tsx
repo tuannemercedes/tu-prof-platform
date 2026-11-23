@@ -5,6 +5,7 @@ import { getProfile } from "@/lib/dal";
 import { diaISO, quandoCompleto, diaCurtoComMes } from "@/lib/datas";
 import { rotuloIdioma } from "@/lib/programas";
 import { lerCompetencias, nivel } from "@/lib/evolucao";
+import { idiomasDosProgramas, ROTULO_IDIOMA, type Idioma } from "@/lib/idioma";
 import SubmitButton from "@/components/submit-button";
 import RegistrarAulaForm from "@/components/registrar-aula-form";
 import CheckpointForm from "@/components/checkpoint-form";
@@ -33,10 +34,10 @@ export default async function FichaAlunoPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ aba?: string }>;
+  searchParams: Promise<{ aba?: string; idioma?: string }>;
 }) {
   const { id } = await params;
-  const { aba = "aulas" } = await searchParams;
+  const { aba = "aulas", idioma: idiomaParam } = await searchParams;
   const eu = await getProfile();
   const supabase = await createClient();
 
@@ -47,14 +48,14 @@ export default async function FichaAlunoPage({
     .maybeSingle();
   if (!aluno || aluno.role !== "aluno") notFound();
 
-  const [{ data: membros }, { data: aulas }, { data: etapas }, { data: checkpoints }, { data: cfg }, { data: tarefas }, { data: entregas }, { data: professor }] =
+  const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: professor }] =
     await Promise.all([
       supabase.from("turma_membros").select("turma_id, turmas(id, nome, idioma)").eq("aluno_id", id),
-      supabase.from("aulas").select("id, data, tema, descricao, resumo, status").eq("aluno_id", id).order("data", { ascending: false }),
-      supabase.from("plano_etapas").select("id, periodo, tema, entrega").eq("aluno_id", id).order("ordem"),
-      supabase.from("checkpoints").select("id, data, titulo, niveis, comentario").eq("aluno_id", id).order("data", { ascending: false }),
+      supabase.from("aulas").select("id, data, tema, descricao, resumo, status, idioma").eq("aluno_id", id).order("data", { ascending: false }),
+      supabase.from("plano_etapas").select("id, periodo, tema, entrega, idioma").eq("aluno_id", id).order("ordem"),
+      supabase.from("checkpoints").select("id, data, titulo, niveis, comentario, idioma").eq("aluno_id", id).order("data", { ascending: false }),
       supabase.from("configuracoes").select("valor").eq("chave", "competencias").maybeSingle(),
-      supabase.from("tarefas").select("id, texto, entrega, prazo, created_at, aluno_id").eq("aluno_id", id).order("created_at", { ascending: false }),
+      supabase.from("tarefas").select("id, texto, entrega, prazo, created_at, aluno_id, idioma").eq("aluno_id", id).order("created_at", { ascending: false }),
       supabase.from("tarefa_entregas").select("tarefa_id, concluida, resposta, arquivo_path, comentario").eq("aluno_id", id),
       aluno.professor_id
         ? supabase.from("profiles").select("nome, email").eq("id", aluno.professor_id).maybeSingle()
@@ -65,15 +66,25 @@ export default async function FichaAlunoPage({
     .map((m) => m.turmas as unknown as { id: string; nome: string; idioma: string } | null)
     .filter((t): t is { id: string; nome: string; idioma: string } => !!t);
 
+  const idiomas = idiomasDosProgramas(programas.map((p) => p.idioma));
+  const idioma: Idioma = idiomas.includes(idiomaParam as Idioma) ? (idiomaParam as Idioma) : idiomas[0];
+  const bilingue = idiomas.length > 1;
+  const doIdiomaAtual = (i: string | null | undefined) => !i || i === idioma;
+  const aulas = (todasAulas ?? []).filter((a) => doIdiomaAtual(a.idioma));
+  const etapas = (todasEtapas ?? []).filter((e) => doIdiomaAtual(e.idioma));
+  const checkpoints = (todosCheckpoints ?? []).filter((c) => doIdiomaAtual(c.idioma));
+  const tarefas = (todasTarefas ?? []).filter((t) => doIdiomaAtual(t.idioma));
+  const q = (extra: string) => `?${extra}${bilingue ? `&idioma=${idioma}` : ""}`;
+
   const hoje = diaISO(new Date());
   const agora = new Date().toISOString();
   const aulaHoje =
-    (aulas ?? []).find((a) => a.status === "agendada" && a.data && diaISO(a.data) === hoje) ?? null;
-  const proximas = (aulas ?? []).filter((a) => a.status === "agendada" && a.data && a.data >= agora).reverse();
-  const realizadas = (aulas ?? []).filter((a) => a.status !== "agendada");
+    aulas.find((a) => a.status === "agendada" && a.data && diaISO(a.data) === hoje) ?? null;
+  const proximas = aulas.filter((a) => a.status === "agendada" && a.data && a.data >= agora).reverse();
+  const realizadas = aulas.filter((a) => a.status !== "agendada");
 
   const competencias = lerCompetencias(cfg?.valor);
-  const ultimo = checkpoints?.[0];
+  const ultimo = checkpoints[0];
   const entregaDe = new Map((entregas ?? []).map((e) => [e.tarefa_id, e]));
   const audios = new Map<string, string>();
   await Promise.all(
@@ -125,7 +136,7 @@ export default async function FichaAlunoPage({
               <b className="font-semibold">Objetivo:</b> {aluno.objetivo}
             </span>
           ) : (
-            <Link href={`/admin/alunos/${id}?aba=dados`} className="text-sm font-semibold text-[var(--gold-text)]">
+            <Link href={`/admin/alunos/${id}${q("aba=dados")}`} className="text-sm font-semibold text-[var(--gold-text)]">
               Definir o objetivo do aluno →
             </Link>
           )}
@@ -144,13 +155,33 @@ export default async function FichaAlunoPage({
         )}
       </div>
 
+      {bilingue && (
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm text-[var(--text-secondary)]">Estuda dois idiomas. Você está vendo:</span>
+          <div role="group" aria-label="Idioma" className="flex bg-[var(--surface-3)] rounded-full p-1 gap-1">
+            {idiomas.map((i) => (
+              <Link
+                key={i}
+                href={`/admin/alunos/${id}?aba=${aba}&idioma=${i}`}
+                aria-current={i === idioma ? "page" : undefined}
+                className={`h-9 px-4 rounded-full text-[13px] font-semibold flex items-center ${
+                  i === idioma ? "bg-[var(--navy)] text-[var(--gold-light)]" : "text-[var(--text-secondary)]"
+                }`}
+              >
+                {ROTULO_IDIOMA[i]}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       <nav aria-label="Seções do aluno" className="flex gap-1.5 border-b border-[var(--border-strong)] flex-wrap">
         {abas.map((a) => {
           const on = aba === a.chave;
           return (
             <Link
               key={a.chave}
-              href={`/admin/alunos/${id}?aba=${a.chave}`}
+              href={`/admin/alunos/${id}${q(`aba=${a.chave}`)}`}
               aria-current={on ? "page" : undefined}
               className={`h-[46px] px-[18px] flex items-center text-[15px] -mb-px border-b-2 ${
                 on ? "font-semibold border-[var(--gold)]" : "text-[var(--text-secondary)] font-medium border-transparent"
@@ -165,11 +196,12 @@ export default async function FichaAlunoPage({
       {aba === "aulas" && (
         <div className="grid gap-5 items-start [grid-template-columns:repeat(auto-fit,minmax(320px,1fr))]">
           <div className="flex flex-col gap-5">
-            <RegistrarAulaForm alunoId={id} primeiroNome={primeiroNome} aulaHoje={aulaHoje ? { id: aulaHoje.id, tema: aulaHoje.tema } : null} />
+            <RegistrarAulaForm alunoId={id} primeiroNome={primeiroNome} aulaHoje={aulaHoje ? { id: aulaHoje.id, tema: aulaHoje.tema } : null} idioma={idioma} />
 
             <form action={agendarAula} className={card}>
               <h2 className={h2}>Agendar próxima aula</h2>
               <input type="hidden" name="aluno_id" value={id} />
+              <input type="hidden" name="idioma" value={idioma} />
               <div className="flex flex-wrap gap-2">
                 <label className="flex flex-col gap-1.5 text-[13px] font-semibold">
                   Data e hora
@@ -211,8 +243,8 @@ export default async function FichaAlunoPage({
           <div className="flex flex-col gap-5">
             <section className={card}>
               <h2 className={h2}>Tarefas e entregas</h2>
-              {(tarefas ?? []).length ? (
-                (tarefas ?? []).map((t) => {
+              {tarefas.length ? (
+                tarefas.map((t) => {
                   const e = entregaDe.get(t.id);
                   const audio = audios.get(t.id);
                   return (
@@ -261,6 +293,7 @@ export default async function FichaAlunoPage({
               )}
               <form action={criarTarefa} className="flex flex-col gap-2 pt-2">
                 <input type="hidden" name="aluno_id" value={id} />
+                <input type="hidden" name="idioma" value={idioma} />
                 <input name="texto" required placeholder="Nova tarefa avulsa" aria-label="Nova tarefa" className={campo} />
                 <div className="flex flex-wrap gap-2">
                   <select name="entrega" defaultValue="feito" aria-label="Como entrega" className={campo}>
@@ -309,6 +342,7 @@ export default async function FichaAlunoPage({
             {programas.length > 0 && (
               <form action={aplicarModelo} className="flex gap-2 items-center">
                 <input type="hidden" name="aluno_id" value={id} />
+                <input type="hidden" name="idioma" value={idioma} />
                 <select name="turma_id" aria-label="Modelo" className={campo}>
                   {programas.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -322,7 +356,7 @@ export default async function FichaAlunoPage({
               </form>
             )}
           </div>
-          {(etapas ?? []).map((e) => (
+          {etapas.map((e) => (
             <form key={e.id} action={salvarEtapa} className="grid gap-2.5 items-center py-2.5 border-b border-[var(--border-soft)] [grid-template-columns:minmax(110px,140px)_minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
               <input type="hidden" name="aluno_id" value={id} />
               <input type="hidden" name="id" value={e.id} />
@@ -337,6 +371,7 @@ export default async function FichaAlunoPage({
           ))}
           <form action={salvarEtapa} className="grid gap-2.5 items-center pt-2 [grid-template-columns:minmax(110px,140px)_minmax(0,1fr)_minmax(0,1fr)_auto]">
             <input type="hidden" name="aluno_id" value={id} />
+            <input type="hidden" name="idioma" value={idioma} />
             <input name="periodo" required placeholder="Ex.: Janeiro" aria-label="Período" className={campo} />
             <input name="tema" required placeholder="Tema" aria-label="Tema" className={campo} />
             <input name="entrega" placeholder="Entrega real" aria-label="Entrega real" className={campo} />
@@ -353,12 +388,13 @@ export default async function FichaAlunoPage({
             alunoId={id}
             competencias={competencias}
             iniciais={(ultimo?.niveis ?? {}) as Record<string, number>}
-            numero={(checkpoints?.length ?? 0) + 1}
+            numero={checkpoints.length + 1}
+            idioma={idioma}
           />
           <section className={card}>
             <h2 className={h2}>Histórico</h2>
-            {(checkpoints ?? []).length ? (
-              (checkpoints ?? []).map((c) => {
+            {checkpoints.length ? (
+              checkpoints.map((c) => {
                 const n = (c.niveis ?? {}) as Record<string, number>;
                 return (
                   <div key={c.id} className="py-3 border-b border-[var(--border-soft)] flex flex-col gap-1.5">

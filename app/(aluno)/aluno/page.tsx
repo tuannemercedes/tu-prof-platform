@@ -4,6 +4,7 @@ import { getProfile, getUser } from "@/lib/dal";
 import { getTarefasDoAluno, formatarPrazo } from "@/lib/tarefas";
 import { diaISO, diaDoMes, diaSemanaCurto, hojePorExtenso, hora, segundaDaSemana, somarDias } from "@/lib/datas";
 import { rotuloIdioma } from "@/lib/programas";
+import { doIdioma, getIdiomaDoAluno } from "@/lib/idioma";
 import TarefaItem from "@/components/tarefa-item";
 import ClubeCartao from "@/components/clube-cartao";
 
@@ -16,10 +17,12 @@ export default async function AlunoHomePage() {
   const agora = new Date().toISOString();
   const hoje = diaISO(new Date());
 
+  const { atual: idioma } = await getIdiomaDoAluno(supabase, user!.id);
+
   const [
-    tarefas,
+    todasTarefas,
     { data: proximas },
-    { data: materiais },
+    { data: todosMateriais },
     { data: progresso },
     { data: config },
     { data: programas },
@@ -33,15 +36,19 @@ export default async function AlunoHomePage() {
       .eq("aluno_id", user!.id)
       .eq("status", "agendada")
       .gte("data", agora)
+      .or(`idioma.is.null,idioma.eq.${idioma}`)
       .order("data")
       .limit(1),
-    supabase.from("materiais").select("id, titulo, materia_id, materias(id, titulo, categoria)").order("ordem"),
+    supabase.from("materiais").select("id, titulo, materia_id, idioma, materias(id, titulo, categoria)").order("ordem"),
     supabase.from("progresso").select("material_id, concluido, acessado_em").eq("aluno_id", user!.id),
     supabase.from("configuracoes").select("chave, valor").eq("chave", "recado_mentora"),
     supabase.from("turma_membros").select("turmas(nome, idioma)").eq("aluno_id", user!.id),
     supabase.rpc("meu_professor"),
     supabase.from("clube_temas").select("id, data, tema").gte("data", hoje).order("data").limit(1),
   ]);
+
+  const tarefas = todasTarefas.filter((t) => doIdioma(t.idioma, idioma));
+  const materiais = (todosMateriais ?? []).filter((m) => doIdioma(m.idioma, idioma));
 
   // Tarefas da semana: pendentes + as feitas com prazo nesta semana
   const segunda = segundaDaSemana(hoje);
@@ -58,10 +65,10 @@ export default async function AlunoHomePage() {
     .filter((p) => p.acessado_em)
     .sort((a, b) => (a.acessado_em! < b.acessado_em! ? 1 : -1));
   if (acessos.length) {
-    const material = materiais?.find((m) => m.id === acessos[0].material_id);
+    const material = materiais.find((m) => m.id === acessos[0].material_id);
     const materia = material?.materias as unknown as MateriaRelation;
     if (material && materia) {
-      const daTrilha = (materiais ?? []).filter((m) => m.materia_id === materia.id);
+      const daTrilha = materiais.filter((m) => m.materia_id === materia.id);
       const ok = daTrilha.filter((m) => (progresso ?? []).some((p) => p.material_id === m.id && p.concluido)).length;
       ultimo = {
         titulo: material.titulo,
@@ -92,9 +99,10 @@ export default async function AlunoHomePage() {
   const nome = (profile?.nome || "").split(" ")[0];
   const recado = config?.[0]?.valor ?? null;
   const nomeProfessor = (professor as string | null)?.split(" ")[0] ?? null;
-  const prog = (programas ?? [])
+  const progs = (programas ?? [])
     .map((p) => p.turmas as unknown as { nome: string; idioma: string } | null)
-    .filter(Boolean)[0];
+    .filter((p): p is { nome: string; idioma: string } => !!p);
+  const prog = progs.find((p) => doIdioma(p.idioma, idioma)) ?? progs[0];
   const proxima = proximas?.[0];
 
   return (

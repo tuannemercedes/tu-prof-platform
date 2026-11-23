@@ -17,9 +17,10 @@ type Props = {
   alunoId: string;
   primeiroNome: string;
   aulaHoje: { id: string; tema: string } | null;
+  idioma: string | null;
 };
 
-export default function RegistrarAulaForm({ alunoId, primeiroNome, aulaHoje }: Props) {
+export default function RegistrarAulaForm({ alunoId, primeiroNome, aulaHoje, idioma }: Props) {
   const [entrega, setEntrega] = useState("feito");
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -48,6 +49,7 @@ export default function RegistrarAulaForm({ alunoId, primeiroNome, aulaHoje }: P
         Dois campos e pronto. {primeiroNome} vê o resumo e a tarefa no Plano.
       </p>
       <input type="hidden" name="aluno_id" value={alunoId} />
+      {idioma && <input type="hidden" name="idioma" value={idioma} />}
       {aulaHoje && <input type="hidden" name="aula_id" value={aulaHoje.id} />}
       <label className="flex flex-col gap-1.5 text-[13px] font-semibold">
         Tema

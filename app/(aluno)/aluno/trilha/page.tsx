@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getProfile, getUser } from "@/lib/dal";
 import { getTrilhasDoAluno, pct, type MaterialStatus } from "@/lib/trilhas";
 import CabecalhoPagina from "@/components/cabecalho-pagina";
+import { doIdioma, getIdiomaDoAluno } from "@/lib/idioma";
 
 function Bolinha({ feito }: { feito: boolean }) {
   return (
@@ -38,18 +39,20 @@ export default async function TrilhaPage() {
   const user = await getUser();
   const profile = await getProfile();
   const supabase = await createClient();
+  const { atual: idioma } = await getIdiomaDoAluno(supabase, user!.id);
   const [todas, { data: programas }, { data: ordemPrograma }] = await Promise.all([
-    getTrilhasDoAluno(supabase, user!.id),
-    supabase.from("turma_membros").select("turma_id, turmas(nome)").eq("aluno_id", user!.id),
+    getTrilhasDoAluno(supabase, user!.id, idioma),
+    supabase.from("turma_membros").select("turma_id, turmas(nome, idioma)").eq("aluno_id", user!.id),
     supabase.from("programa_materias").select("materia_id, ordem"),
   ]);
   const ordem = new Map((ordemPrograma ?? []).map((o) => [o.materia_id, o.ordem]));
   const trilhas = todas
-    .filter((t) => t.categoria !== "fia")
+    .filter((t) => t.categoria === "trilha")
     .sort((a, b) => (ordem.get(a.id) ?? 999) - (ordem.get(b.id) ?? 999));
   const nomePrograma = (programas ?? [])
-    .map((p) => (p.turmas as unknown as { nome: string } | null)?.nome)
-    .filter(Boolean)[0];
+    .map((p) => p.turmas as unknown as { nome: string; idioma: string } | null)
+    .filter((p) => p && doIdioma(p.idioma, idioma))
+    .map((p) => p!.nome)[0];
 
   const total = trilhas.reduce((a, t) => a + t.total, 0);
   const feitos = trilhas.reduce((a, t) => a + t.concluidos, 0);
