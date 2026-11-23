@@ -22,7 +22,7 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
   const { p } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: turmas }, { data: materias }, { data: modulos }, { data: etapas }, { data: clube }, { data: clubeTurmas }, { data: glossario }] =
+  const [{ data: turmas }, { data: materias }, { data: modulos }, { data: etapas }, { data: clube }, { data: clubeTurmas }, { data: glossario }, { data: glossarioTurmas }] =
     await Promise.all([
       supabase
         .from("turmas")
@@ -35,6 +35,7 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
       supabase.from("clube_config").select("visivel_todos").eq("id", 1).maybeSingle(),
       supabase.from("clube_turmas").select("turma_id"),
       supabase.from("glossario_config").select("visivel_todos").eq("id", 1).maybeSingle(),
+      supabase.from("glossario_turmas").select("turma_id"),
     ]);
 
   const lista = turmas ?? [];
@@ -59,7 +60,7 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
     if (etapasAtual.length) recebe.push("Modelo de plano");
     if (clube && (clube.visivel_todos || (clubeTurmas ?? []).some((c) => c.turma_id === atual.id))) recebe.push("Club Hispano");
     recebe.push("Biblioteca e FIA");
-    if (glossario) recebe.push("Glossário");
+    if (glossario && (glossario.visivel_todos || (glossarioTurmas ?? []).some((g) => g.turma_id === atual.id))) recebe.push("Glossário");
     recebe.push("Certificado");
   }
 
@@ -87,8 +88,9 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
         </form>
       </div>
 
-      <div className="flex flex-wrap gap-5 items-start">
-        <div className="flex-[1_1_280px] flex flex-col gap-2.5">
+      <div className="grid gap-5 items-start lg:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="flex flex-col gap-2.5">
+          <span className="text-xs tracking-[0.1em] uppercase text-[var(--text-secondary)] font-semibold">Seus programas</span>
           {lista.length ? (
             lista.map((t) => {
               const on = atual?.id === t.id;
@@ -124,10 +126,12 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
         </div>
 
         {atual && (
-          <section className="flex-[999_1_480px] min-w-0 bg-[var(--surface)] border border-[var(--border)] rounded-[18px] p-6 flex flex-col gap-[22px]">
+          <section key={atual.id} className="min-w-0 bg-[var(--surface)] border-2 border-[var(--gold)] rounded-[18px] p-6 flex flex-col gap-[22px]">
             <form action={updateTurmaNome} className="flex flex-col gap-2">
               <input type="hidden" name="id" value={atual.id} />
-              <span className="text-xs tracking-[0.1em] uppercase text-[var(--gold-text)] font-semibold">{rotuloIdioma(atual.idioma)}</span>
+              <span className="text-xs tracking-[0.1em] uppercase text-[var(--gold-text)] font-semibold">
+                Editando: {atual.nome} · {rotuloIdioma(atual.idioma)}
+              </span>
               <div className="flex flex-wrap gap-2">
                 <input name="nome" defaultValue={atual.nome} required aria-label="Nome do programa" className={`${campo} flex-1 min-w-[200px] font-serif text-[22px] font-semibold`} />
                 <select name="idioma" defaultValue={atual.idioma ?? "espanhol"} aria-label="Idioma" className={campo}>

@@ -108,7 +108,7 @@ export default async function FichaAlunoPage({
     .join(" · ");
 
   return (
-    <div className="flex flex-col gap-6">
+    <div key={id} className="flex flex-col gap-6">
       <Link href="/admin/alunos" className="text-sm text-[var(--text-secondary)]">
         ← Todos os alunos
       </Link>
