@@ -134,7 +134,7 @@ export default async function PessoasPage() {
                           Conteúdos
                         </Link>
                         <Link
-                          href={`/admin/alunos/${aluno.id}/preview`}
+                          href={`/previa/${aluno.id}`}
                           className="text-xs font-medium rounded-md border border-[var(--border-strong)] px-2.5 py-1 hover:bg-[var(--surface-2)]"
                         >
                           Ver como aluno

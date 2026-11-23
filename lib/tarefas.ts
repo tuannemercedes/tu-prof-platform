@@ -1,4 +1,5 @@
 import type { createClient } from "@/lib/supabase/server";
+import type { Liberados } from "@/lib/visao";
 
 export type Entrega = "feito" | "texto" | "audio" | "link";
 
@@ -35,7 +36,8 @@ type Row = {
 // Tarefas que o aluno logado enxerga (a RLS filtra) + a entrega dele em cada uma.
 export async function getTarefasDoAluno(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  alunoId: string
+  alunoId: string,
+  lib: Liberados = null
 ): Promise<TarefaAluno[]> {
   const [{ data: rows }, { data: entregas }] = await Promise.all([
     supabase
@@ -53,7 +55,15 @@ export async function getTarefasDoAluno(
 
   const mapa = new Map((entregas ?? []).map((e) => [e.tarefa_id, e]));
 
-  return ((rows ?? []) as unknown as Row[]).map((r) => {
+  const visiveis = ((rows ?? []) as unknown as Row[]).filter(
+    (r) =>
+      !lib ||
+      r.aluno_id === alunoId ||
+      (!!r.turma_id && lib.turmas.has(r.turma_id)) ||
+      (!!r.material_id && lib.materiais.has(r.material_id))
+  );
+
+  return visiveis.map((r) => {
     const e = mapa.get(r.id);
     return {
       id: r.id,

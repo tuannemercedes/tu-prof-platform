@@ -10,6 +10,7 @@ type Props = {
   alunoId: string;
   meta?: string | null;
   compacta?: boolean;
+  previa?: boolean;
 };
 
 const AJUDA: Record<string, string> = {
@@ -18,7 +19,7 @@ const AJUDA: Record<string, string> = {
   link: "A atividade é feita fora da plataforma",
 };
 
-export default function TarefaItem({ tarefa, alunoId, meta, compacta = false }: Props) {
+export default function TarefaItem({ tarefa, alunoId, meta, compacta = false, previa = false }: Props) {
   const [feita, setFeita] = useState(tarefa.concluida);
   const [aberta, setAberta] = useState(false);
   const [resposta, setResposta] = useState(tarefa.resposta ?? "");
@@ -32,6 +33,11 @@ export default function TarefaItem({ tarefa, alunoId, meta, compacta = false }: 
   function marcar(valor: boolean, extra: { resposta?: string; arquivoPath?: string } = {}) {
     setErro(null);
     setFeita(valor);
+    if (previa) {
+      // Prévia da equipe: mostra o efeito, mas não grava nada para o aluno.
+      if (valor) setAberta(false);
+      return;
+    }
     startTransition(async () => {
       const r = await salvarEntrega(tarefa.id, { concluida: valor, ...extra });
       if (r?.error) {
@@ -50,6 +56,11 @@ export default function TarefaItem({ tarefa, alunoId, meta, compacta = false }: 
 
   async function enviarAudio(arquivo: File) {
     setErro(null);
+    if (previa) {
+      setTemAudio(true);
+      marcar(true);
+      return;
+    }
     const supabase = createClient();
     const ext = arquivo.name.split(".").pop() || "m4a";
     const caminho = `${alunoId}/${tarefa.id}/${Date.now()}.${ext}`;

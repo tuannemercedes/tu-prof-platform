@@ -23,7 +23,7 @@ export async function updateConfiguracoes(formData: FormData) {
 
   revalidatePath("/admin/configuracoes");
   revalidatePath("/aluno");
-  revalidatePath("/admin/alunos/[id]/preview", "page");
+  revalidatePath("/previa/[id]", "layout");
 }
 
 export async function salvarCompetencias(formData: FormData) {

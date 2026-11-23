@@ -39,10 +39,12 @@ export default function PlanoSemanas({
   semanas,
   indiceInicial,
   alunoId,
+  previa = false,
 }: {
   semanas: Semana[];
   indiceInicial: number;
   alunoId: string;
+  previa?: boolean;
   proximaSegunda: string;
 }) {
   const [i, setI] = useState(Math.max(0, indiceInicial));
@@ -112,7 +114,7 @@ export default function PlanoSemanas({
             <Rotulo>Tarefas</Rotulo>
             {s.tarefas.length ? (
               s.tarefas.map((t) => (
-                <TarefaItem key={t.id} tarefa={t} alunoId={alunoId} meta={formatarPrazo(t.prazo) ?? t.origem} />
+                <TarefaItem key={t.id} tarefa={t} alunoId={alunoId} previa={previa} meta={formatarPrazo(t.prazo) ?? t.origem} />
               ))
             ) : (
               <p className="m-0 text-sm text-[var(--text-secondary)]">Nenhuma tarefa nesta semana.</p>
@@ -127,7 +129,10 @@ export default function PlanoSemanas({
               {s.club.map((c) => (
                 <div key={c.id} className="flex flex-col gap-2">
                   <Rotulo>Club Hispano · {c.quando}</Rotulo>
-                  <Link href="/aluno/clube" className="bg-[var(--warning-bg)] rounded-xl p-3.5 flex flex-col gap-1">
+                  <Link
+                    href={previa ? "#" : "/aluno/clube"}
+                    className="bg-[var(--warning-bg)] rounded-xl p-3.5 flex flex-col gap-1"
+                  >
                     <span className="text-[15px] font-semibold">{c.tema}</span>
                     <span className="text-[13px] text-[var(--text-secondary)]">Opcional · conversa ao vivo</span>
                   </Link>

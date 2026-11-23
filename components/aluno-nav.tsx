@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import SignOutButton from "./sign-out-button";
 import ThemeToggle from "./theme-toggle";
 import Logo from "./logo";
@@ -18,6 +18,8 @@ type Props = {
   appLabel?: string | null;
   contatoUrl?: string | null;
   contatoLabel?: string | null;
+  base?: string;
+  previa?: boolean;
 };
 
 const ICONES: Record<string, React.ReactNode> = {
@@ -44,35 +46,32 @@ const ICONES: Record<string, React.ReactNode> = {
   evolucao: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
 };
 
+// Caminhos relativos à base ("/aluno" para o aluno, "/previa/<id>" na prévia da equipe).
 const ITENS = [
-  { chave: "inicio", href: "/aluno", label: "Início", ativo: (p: string) => p === "/aluno" },
+  { chave: "inicio", caminho: "", label: "Início", ativo: (p: string) => p === "" },
   {
     chave: "trilha",
-    href: "/aluno/trilha",
+    caminho: "/trilha",
     label: "Trilha",
-    ativo: (p: string) => p.startsWith("/aluno/trilha") || p.startsWith("/aluno/materias"),
+    ativo: (p: string) => p.startsWith("/trilha") || p.startsWith("/materias"),
   },
   {
     chave: "plano",
-    href: "/aluno/plano",
+    caminho: "/plano",
     label: "Plano",
-    ativo: (p: string) =>
-      ["/aluno/plano", "/aluno/planner", "/aluno/cronograma", "/aluno/calendario", "/aluno/clube"].some((r) =>
-        p.startsWith(r)
-      ),
+    ativo: (p: string) => ["/plano", "/planner", "/cronograma", "/calendario", "/clube"].some((r) => p.startsWith(r)),
   },
   {
     chave: "biblioteca",
-    href: "/aluno/acervo",
+    caminho: "/acervo",
     label: "Acervo",
-    ativo: (p: string) =>
-      ["/aluno/acervo", "/aluno/biblioteca", "/aluno/busca", "/aluno/glossario"].some((r) => p.startsWith(r)),
+    ativo: (p: string) => ["/acervo", "/biblioteca", "/busca", "/glossario"].some((r) => p.startsWith(r)),
   },
   {
     chave: "evolucao",
-    href: "/aluno/evolucao",
+    caminho: "/evolucao",
     label: "Evolução",
-    ativo: (p: string) => p.startsWith("/aluno/evolucao") || p.startsWith("/aluno/perfil"),
+    ativo: (p: string) => p.startsWith("/evolucao") || p.startsWith("/perfil"),
   },
 ];
 
@@ -94,7 +93,7 @@ function Icone({ nome, ativo }: { nome: string; ativo: boolean }) {
   );
 }
 
-function LinksExtras({ appUrl, appLabel, contatoUrl, contatoLabel }: Omit<Props, "nome" | "novidades" | "idioma">) {
+function LinksExtras({ appUrl, appLabel, contatoUrl, contatoLabel }: Omit<Props, "nome" | "novidades" | "idioma" | "base" | "previa">) {
   return (
     <>
       {appUrl && (
@@ -121,8 +120,17 @@ function LinksExtras({ appUrl, appLabel, contatoUrl, contatoLabel }: Omit<Props,
   );
 }
 
-export default function AlunoNav({ nome, novidades = [], idioma, ...extras }: Props) {
+export default function AlunoNav({ nome, novidades = [], idioma: idiomaBase, base = "/aluno", previa = false, ...extras }: Props) {
   const pathname = usePathname();
+  const pedido = useSearchParams().get("idioma");
+  // Na prévia o idioma escolhido vem do endereço.
+  const idioma =
+    previa && pedido && (idiomaBase.opcoes as string[]).includes(pedido)
+      ? { ...idiomaBase, atual: pedido as "espanhol" | "ingles" }
+      : idiomaBase;
+  const relativo = pathname.startsWith(base) ? pathname.slice(base.length) : pathname;
+  const q = previa ? `?idioma=${idioma.atual}` : "";
+  const href = (caminho: string) => `${base}${caminho}${q}`;
   const [maisAberto, setMaisAberto] = useState(false);
 
   return (
@@ -134,18 +142,18 @@ export default function AlunoNav({ nome, novidades = [], idioma, ...extras }: Pr
           <p className="text-xs text-[var(--on-navy-muted)] truncate">Olá, {nome}</p>
           {idioma.opcoes.length > 1 && (
             <div className="pt-3">
-              <ChaveIdioma atual={idioma.atual} opcoes={idioma.opcoes} />
+              <ChaveIdioma atual={idioma.atual} opcoes={idioma.opcoes} previa={previa} />
             </div>
           )}
         </div>
 
         <nav aria-label="Menu principal" className="flex flex-col gap-1">
           {ITENS.map((item) => {
-            const ativo = item.ativo(pathname);
+            const ativo = item.ativo(relativo);
             return (
               <Link
                 key={item.chave}
-                href={item.href}
+                href={href(item.caminho)}
                 aria-current={ativo ? "page" : undefined}
                 className={`flex items-center gap-3 h-11 px-3 rounded-xl text-[15px] transition-colors ${
                   ativo
@@ -163,16 +171,16 @@ export default function AlunoNav({ nome, novidades = [], idioma, ...extras }: Pr
         <div className="mt-auto space-y-3">
           <LinksExtras {...extras} />
           <div className="flex items-center justify-between gap-2 px-2 pt-3 border-t border-[var(--navy-2)] text-[var(--on-navy-muted)]">
-            <Link href="/aluno/perfil" className="text-sm hover:text-white">
+            <Link href={previa ? "#" : "/aluno/perfil"} className="text-sm hover:text-white">
               Meu perfil
             </Link>
             <div className="flex items-center gap-3">
-              <NotificationBell novidades={novidades} />
+              {!previa && <NotificationBell novidades={novidades} />}
               <ThemeToggle />
             </div>
           </div>
           <div className="px-2 [&_button]:!text-[var(--on-navy-muted)]">
-            <SignOutButton />
+            {!previa && <SignOutButton />}
           </div>
         </div>
       </aside>
@@ -181,7 +189,7 @@ export default function AlunoNav({ nome, novidades = [], idioma, ...extras }: Pr
       <header className="sm:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-[var(--navy)] text-[var(--on-navy)]">
         <Logo className="text-xl" />
         <div className="flex items-center gap-2">
-          <NotificationBell novidades={novidades} />
+          {!previa && <NotificationBell novidades={novidades} />}
           <button
             type="button"
             onClick={() => setMaisAberto(true)}
@@ -198,7 +206,7 @@ export default function AlunoNav({ nome, novidades = [], idioma, ...extras }: Pr
       </header>
       {idioma.opcoes.length > 1 && (
         <div className="sm:hidden sticky top-14 z-20 flex justify-center pb-2.5 bg-[var(--navy)]">
-          <ChaveIdioma atual={idioma.atual} opcoes={idioma.opcoes} />
+          <ChaveIdioma atual={idioma.atual} opcoes={idioma.opcoes} previa={previa} />
         </div>
       )}
 
@@ -221,11 +229,11 @@ export default function AlunoNav({ nome, novidades = [], idioma, ...extras }: Pr
               <ThemeToggle />
             </div>
             <LinksExtras {...extras} />
-            <Link href="/aluno/perfil" className="block text-sm py-2">
+            <Link href={previa ? "#" : "/aluno/perfil"} className="block text-sm py-2">
               Meu perfil
             </Link>
             <div className="[&_button]:!text-[var(--on-navy-muted)]">
-              <SignOutButton />
+              {!previa && <SignOutButton />}
             </div>
           </div>
         </div>
@@ -237,11 +245,11 @@ export default function AlunoNav({ nome, novidades = [], idioma, ...extras }: Pr
         className="sm:hidden fixed bottom-0 inset-x-0 z-30 grid grid-cols-5 bg-[var(--surface)] border-t border-[var(--border)] pb-[env(safe-area-inset-bottom)]"
       >
         {ITENS.map((item) => {
-          const ativo = item.ativo(pathname);
+          const ativo = item.ativo(relativo);
           return (
             <Link
               key={item.chave}
-              href={item.href}
+              href={href(item.caminho)}
               aria-current={ativo ? "page" : undefined}
               className={`flex flex-col items-center justify-center gap-1 h-16 text-[11px] ${
                 ativo ? "text-[var(--text-primary)] font-semibold" : "text-[var(--text-secondary)]"

@@ -1,4 +1,5 @@
 import type { createClient } from "@/lib/supabase/server";
+import type { Liberados } from "@/lib/visao";
 
 export type MaterialStatus = { id: string; titulo: string; concluido: boolean };
 export type Fase = { id: string; titulo: string; ordem: number; materiais: MaterialStatus[] };
@@ -28,7 +29,8 @@ type MaterialRow = {
 export async function getTrilhasDoAluno(
   supabase: Awaited<ReturnType<typeof createClient>>,
   alunoId: string,
-  idioma?: string
+  idioma?: string,
+  lib: Liberados = null
 ): Promise<Trilha[]> {
   const [{ data: materiaisRows }, { data: fasesRows }, { data: progresso }] = await Promise.all([
     supabase
@@ -48,6 +50,7 @@ export async function getTrilhasDoAluno(
 
   rows.forEach((row) => {
     if (!row.materias) return;
+    if (lib && !lib.materiais.has(row.id)) return;
     if (idioma && row.idioma !== idioma && row.idioma !== "espanhol_ingles") return;
     if (!mapa.has(row.materias.id)) {
       mapa.set(row.materias.id, {

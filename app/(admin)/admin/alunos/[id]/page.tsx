@@ -150,9 +150,9 @@ export default async function FichaAlunoPage({
             </Link>
           )}
         </div>
-        {ehAdmin && (
+        {(
           <Link
-            href={`/admin/alunos/${id}/preview`}
+            href={`/previa/${id}`}
             className="h-11 px-[18px] rounded-xl border border-[var(--accent)] font-semibold text-sm flex items-center gap-2"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
