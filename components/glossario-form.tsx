@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import CampoIdioma from "./campo-idioma";
 import { saveTermo } from "@/app/(admin)/admin/(gestao)/glossario/actions";
 
 export default function GlossarioForm({ categoria }: { categoria: string | null }) {
@@ -27,6 +28,7 @@ export default function GlossarioForm({ categoria }: { categoria: string | null 
   return (
     <form ref={formRef} action={handleSubmit} className="space-y-2">
       <input type="hidden" name="categoria" value={categoria ?? ""} />
+      <CampoIdioma rotulo="Idioma do termo" />
       <div className="grid sm:grid-cols-2 gap-2">
         <input
           type="text"

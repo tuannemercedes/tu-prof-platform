@@ -13,7 +13,7 @@ export default async function GlossarioPage() {
   const [{ data: config }, { data: termos }, { data: categoriasRows }, { data: turmas }, { data: alunos }, { data: turmasLiberadas }, { data: alunosLiberados }] =
     await Promise.all([
       supabase.from("glossario_config").select("visivel_todos").eq("id", 1).single(),
-      supabase.from("glossario_termos").select("id, termo, definicao, exemplo, categoria").order("categoria").order("termo"),
+      supabase.from("glossario_termos").select("id, termo, definicao, exemplo, categoria, idioma").order("categoria").order("termo"),
       supabase.from("glossario_categorias").select("nome").order("nome"),
       supabase.from("turmas").select("id, nome").order("nome"),
       supabase.from("profiles").select("id, nome, email").eq("role", "aluno").order("nome"),

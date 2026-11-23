@@ -52,6 +52,8 @@ export async function saveTermo(formData: FormData) {
   const definicao = String(formData.get("definicao") || "").trim();
   const exemplo = String(formData.get("exemplo") || "").trim() || null;
   const categoria = String(formData.get("categoria") || "").trim() || null;
+  const idiomaV = String(formData.get("idioma") || "");
+  const idioma = ["espanhol", "ingles", "espanhol_ingles"].includes(idiomaV) ? idiomaV : "espanhol";
 
   if (!termo || !definicao) return { error: "Preencha o termo e a definição." };
 
@@ -59,8 +61,8 @@ export async function saveTermo(formData: FormData) {
   await garantirCategoria(supabase, categoria);
 
   const { error } = id
-    ? await supabase.from("glossario_termos").update({ termo, definicao, exemplo, categoria }).eq("id", id)
-    : await supabase.from("glossario_termos").insert({ termo, definicao, exemplo, categoria });
+    ? await supabase.from("glossario_termos").update({ termo, definicao, exemplo, categoria, idioma }).eq("id", id)
+    : await supabase.from("glossario_termos").insert({ termo, definicao, exemplo, categoria, idioma });
 
   if (error) return { error: error.message };
 
@@ -82,7 +84,7 @@ export async function deleteTermo(formData: FormData) {
 
 type TermoImportado = { termo: string; definicao: string; exemplo: string | null };
 
-export async function importarTermos(termos: TermoImportado[], categoria: string | null) {
+export async function importarTermos(termos: TermoImportado[], categoria: string | null, idioma = "espanhol") {
   const linhas = termos
     .map((t) => ({ termo: t.termo.trim(), definicao: t.definicao.trim(), exemplo: t.exemplo?.trim() || null }))
     .filter((t) => t.termo && t.definicao);
@@ -94,7 +96,7 @@ export async function importarTermos(termos: TermoImportado[], categoria: string
 
   const { error } = await supabase
     .from("glossario_termos")
-    .insert(linhas.map((l) => ({ ...l, categoria })));
+    .insert(linhas.map((l) => ({ ...l, categoria, idioma })));
 
   if (error) return { error: error.message };
 

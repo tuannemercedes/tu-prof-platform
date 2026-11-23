@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import CampoIdioma from "./campo-idioma";
 import { updateMaterial } from "@/app/(admin)/admin/(gestao)/materias/[id]/actions";
 import LiberacaoFields from "./liberacao-fields";
 
@@ -21,6 +22,7 @@ type Material = {
   url: string | null;
   fase_id: string | null;
   visivel_todos: boolean;
+  idioma?: string | null;
 };
 
 type Props = {
@@ -161,6 +163,7 @@ export default function MaterialRow({
           <input type="hidden" name="id" value={material.id} />
           <input type="hidden" name="materia_id" value={materiaId} />
           <input type="hidden" name="tipo" value={material.tipo} />
+          <CampoIdioma defaultValue={material.idioma} />
 
           <input
             type="text"

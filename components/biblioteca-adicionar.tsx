@@ -3,13 +3,14 @@
 import { useState, useTransition } from "react";
 import { criarItemBiblioteca } from "@/app/(admin)/admin/(gestao)/biblioteca/actions";
 import { detectarTipo } from "@/lib/links";
-import { IDIOMAS } from "@/lib/programas";
+import CampoIdioma from "./campo-idioma";
 import { destinoSugerido } from "@/lib/capas";
 
 type Props = {
   turmas: { id: string; nome: string }[];
   alunos: { id: string; nome: string }[];
   colecoes: { id: string; titulo: string; categoria: string }[];
+  idiomaInicial?: string;
 };
 
 const pill = (on: boolean) =>
@@ -18,10 +19,10 @@ const pill = (on: boolean) =>
   }`;
 const campo = "h-10 rounded-[10px] border border-[var(--border-strong)] bg-[var(--surface)] px-3 text-sm text-[var(--text-primary)]";
 
-export default function BibliotecaAdicionar({ turmas, alunos, colecoes }: Props) {
+export default function BibliotecaAdicionar({ turmas, alunos, colecoes, idiomaInicial }: Props) {
   const [link, setLink] = useState("");
   const [titulo, setTitulo] = useState("");
-  const [idioma, setIdioma] = useState("espanhol");
+  const [idioma, setIdioma] = useState(idiomaInicial === "ingles" ? "ingles" : "espanhol");
   const [quem, setQuem] = useState<"todos" | "programa" | "aluno">("todos");
   const [turmaId, setTurmaId] = useState(turmas[0]?.id ?? "");
   const [alunoId, setAlunoId] = useState(alunos[0]?.id ?? "");
@@ -48,7 +49,8 @@ export default function BibliotecaAdicionar({ turmas, alunos, colecoes }: Props)
       });
       if (r?.error) setMsg({ ok: false, t: r.error });
       else {
-        setMsg({ ok: true, t: "Adicionado. Já aparece para quem você escolheu." });
+        const nomeIdioma = idioma === "ingles" ? "inglês" : idioma === "espanhol_ingles" ? "espanhol e inglês" : "espanhol";
+        setMsg({ ok: true, t: `Adicionado na ${destino === "fia" ? "FIA" : "Biblioteca"} de ${nomeIdioma}.` });
         setLink("");
         setTitulo("");
         setDestinoManual(null);
@@ -58,6 +60,7 @@ export default function BibliotecaAdicionar({ turmas, alunos, colecoes }: Props)
 
   return (
     <section className="bg-[var(--navy)] text-[var(--on-navy)] rounded-[20px] p-6 flex flex-col gap-4">
+      <CampoIdioma name="" escuro rotulo="Este item é de qual idioma?" value={idioma} onChange={setIdioma} />
       <label className="flex flex-col gap-2.5 text-[15px] font-semibold">
         Cole um link
         <input
@@ -96,16 +99,6 @@ export default function BibliotecaAdicionar({ turmas, alunos, colecoes }: Props)
                 ))}
               </div>
               {!destinoManual && <span className="text-xs text-[var(--text-secondary)]">Sugestão automática pelo tipo do link</span>}
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-[13px] font-semibold">Idioma</span>
-              <div className="flex gap-1.5 flex-wrap">
-                {IDIOMAS.slice(0, 2).map((i) => (
-                  <button key={i.valor} type="button" onClick={() => setIdioma(i.valor)} aria-pressed={idioma === i.valor} className={pill(idioma === i.valor)}>
-                    {i.rotulo}
-                  </button>
-                ))}
-              </div>
             </div>
             <div className="flex flex-col gap-2">
               <span className="text-[13px] font-semibold">Quem vê</span>

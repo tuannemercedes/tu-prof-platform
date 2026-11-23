@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import CampoIdioma from "./campo-idioma";
 import { createMaterial } from "@/app/(admin)/admin/(gestao)/materias/[id]/actions";
 import LiberacaoFields from "./liberacao-fields";
 
@@ -54,6 +55,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
       className="space-y-3 border border-[var(--border)] rounded-lg p-4"
     >
       <input type="hidden" name="materia_id" value={materiaId} />
+      <CampoIdioma rotulo="Este conteúdo é de qual idioma?" />
 
       <div className="grid sm:grid-cols-2 gap-3">
         <input

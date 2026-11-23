@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
+function lerIdioma(v: FormDataEntryValue | null) {
+  const s = String(v || "");
+  return ["espanhol", "ingles", "espanhol_ingles"].includes(s) ? s : "espanhol";
+}
+
 export async function createFase(formData: FormData) {
   const materia_id = String(formData.get("materia_id") || "");
   const titulo = String(formData.get("titulo") || "").trim();
@@ -73,7 +78,7 @@ export async function createMaterial(formData: FormData) {
 
   const { data: material, error } = await supabase
     .from("materiais")
-    .insert({ materia_id, fase_id, tipo, titulo, conteudo_html, arquivo_path, capa_path, url, visivel_todos })
+    .insert({ materia_id, fase_id, tipo, titulo, conteudo_html, arquivo_path, capa_path, url, visivel_todos, idioma: lerIdioma(formData.get("idioma")) })
     .select("id")
     .single();
 
@@ -105,7 +110,7 @@ export async function updateMaterial(formData: FormData) {
 
   const visivel_todos = formData.get("todos") === "on";
   const supabase = await createClient();
-  const updates: Record<string, unknown> = { titulo, visivel_todos };
+  const updates: Record<string, unknown> = { titulo, visivel_todos, idioma: lerIdioma(formData.get("idioma")) };
 
   if (tipo === "html") {
     const conteudo_html = String(formData.get("conteudo_html") || "");

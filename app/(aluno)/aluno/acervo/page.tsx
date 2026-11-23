@@ -27,7 +27,7 @@ export default async function AcervoPage({ searchParams }: { searchParams: Promi
       .from("materiais")
       .select("id, titulo, tipo, url, capa_url, capa_path, idioma, materia_id, materias(titulo, categoria)")
       .order("ordem"),
-    supabase.from("glossario_termos").select("id, termo, definicao, exemplo").order("termo"),
+    supabase.from("glossario_termos").select("id, termo, definicao, exemplo, idioma").order("termo"),
   ]);
 
   const itens: ItemAcervo[] = [];
@@ -51,6 +51,7 @@ export default async function AcervoPage({ searchParams }: { searchParams: Promi
     });
   });
   (termos ?? []).forEach((t) => {
+    if (!doIdioma(t.idioma, idioma)) return;
     itens.push({
       id: t.id,
       area: "biblioteca",

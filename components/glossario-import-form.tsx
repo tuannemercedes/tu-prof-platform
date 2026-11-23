@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import CampoIdioma from "./campo-idioma";
 import { importarTermos } from "@/app/(admin)/admin/(gestao)/glossario/actions";
 
 type Linha = { termo: string; definicao: string; exemplo: string | null };
@@ -38,6 +39,7 @@ function parseTexto(texto: string): Linha[] {
 
 export default function GlossarioImportForm({ categoria }: { categoria: string | null }) {
   const [texto, setTexto] = useState("");
+  const [idioma, setIdioma] = useState("espanhol");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -50,7 +52,7 @@ export default function GlossarioImportForm({ categoria }: { categoria: string |
     setError(null);
     setSaved(null);
     startTransition(async () => {
-      const result = await importarTermos(validas, categoria);
+      const result = await importarTermos(validas, categoria, idioma);
       if (result?.error) {
         setError(result.error);
       } else {
@@ -67,6 +69,7 @@ export default function GlossarioImportForm({ categoria }: { categoria: string |
         Cole uma lista — tabela do Excel/Sheets, ou linhas soltas tipo &quot;Termo - Definição&quot; — uma
         por linha.
       </p>
+      <CampoIdioma name="" rotulo="Idioma destes termos" value={idioma} onChange={setIdioma} />
       <textarea
         value={texto}
         onChange={(e) => setTexto(e.target.value)}

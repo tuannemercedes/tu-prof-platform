@@ -73,6 +73,7 @@ export default async function AcervoEquipePage({
         turmas={turmas ?? []}
         alunos={(alunos ?? []).map((a) => ({ id: a.id, nome: a.nome || a.email }))}
         colecoes={colecoes ?? []}
+        idiomaInicial={idioma}
       />
 
       <section className="bg-[var(--surface)] border border-[var(--border)] rounded-[18px] p-[22px] flex flex-col gap-4">
@@ -125,6 +126,9 @@ export default async function AcervoEquipePage({
                     )}
                     <span className="absolute top-2 left-2 text-[11px] font-semibold px-2 py-1 rounded-lg bg-[var(--navy)]/85 text-[var(--gold-light)]">
                       {TIPO_ROTULO[r.tipo] ?? r.tipo}
+                    </span>
+                    <span className="absolute top-2 right-2 text-[11px] font-semibold px-2 py-1 rounded-lg bg-white/90 text-[#0e1b33]">
+                      {r.idioma === "ingles" ? "Inglês" : r.idioma === "espanhol_ingles" ? "ES + EN" : "Espanhol"}
                     </span>
                   </div>
                   <span className="text-sm font-semibold leading-snug line-clamp-2">{r.titulo}</span>
