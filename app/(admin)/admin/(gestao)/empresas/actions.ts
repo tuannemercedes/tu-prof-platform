@@ -108,7 +108,11 @@ export async function salvarGrupo(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("turmas")
-    .update({ nome: txt(formData, "nome") ?? undefined, professor_id: txt(formData, "professor_id") })
+    .update({
+      nome: txt(formData, "nome") ?? undefined,
+      idioma: txt(formData, "idioma") ?? undefined,
+      professor_id: txt(formData, "professor_id"),
+    })
     .eq("id", String(formData.get("id")));
   if (error) throw new Error("Não foi possível salvar o grupo.");
   atualizar(String(formData.get("empresa_id")));
@@ -192,14 +196,22 @@ export async function agendarAulaGrupo(formData: FormData) {
   const profile = await requireAdmin();
   const turmaId = String(formData.get("turma_id"));
   const tema = txt(formData, "tema");
-  const data = paraTimestamp(txt(formData, "data"));
-  if (!tema || !data) return;
+  const inicio = paraTimestamp(txt(formData, "data"));
+  // Repetir toda semana no mesmo dia e horário (ex.: 4 semanas = o mês inteiro)
+  const semanas = Math.min(Math.max(Number(formData.get("semanas") || 1), 1), 26);
+  if (!tema || !inicio) return;
   const supabase = await createClient();
   const { data: turma } = await supabase.from("turmas").select("idioma, professor_id").eq("id", turmaId).single();
   const idioma = turma?.idioma === "espanhol" || turma?.idioma === "ingles" ? turma.idioma : null;
-  const { error } = await supabase
-    .from("aulas")
-    .insert({ turma_id: turmaId, professor_id: turma?.professor_id ?? profile.id, data, tema, idioma });
+  const base = new Date(inicio).getTime();
+  const linhas = Array.from({ length: semanas }, (_, i) => ({
+    turma_id: turmaId,
+    professor_id: turma?.professor_id ?? profile.id,
+    data: new Date(base + i * 7 * 24 * 60 * 60 * 1000).toISOString(),
+    tema: semanas > 1 ? `${tema}${i ? ` (${i + 1})` : ""}` : tema,
+    idioma,
+  }));
+  const { error } = await supabase.from("aulas").insert(linhas);
   if (error) throw new Error("Não foi possível agendar.");
   atualizar(String(formData.get("empresa_id")));
 }
@@ -232,4 +244,32 @@ export async function excluirAulaGrupo(formData: FormData) {
   const supabase = await createClient();
   await supabase.from("aulas").delete().eq("id", String(formData.get("aula_id")));
   atualizar(String(formData.get("empresa_id")));
+}
+
+// Excluir o grupo apaga as aulas e a presença dele. As contas das pessoas
+// continuam existindo (aparecem em Pessoas), só saem do grupo.
+export async function excluirGrupo(formData: FormData) {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("turmas")
+    .delete()
+    .eq("id", String(formData.get("id")))
+    .not("empresa_id", "is", null);
+  if (error) throw new Error("Não foi possível excluir o grupo.");
+  atualizar(String(formData.get("empresa_id")));
+  revalidatePath("/admin/turmas");
+}
+
+// Excluir a empresa apaga contratos, grupos, aulas e presença.
+export async function excluirEmpresa(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  const supabase = await createClient();
+  await supabase.from("turmas").delete().eq("empresa_id", id);
+  const { error } = await supabase.from("empresas").delete().eq("id", id);
+  if (error) throw new Error("Não foi possível excluir a empresa.");
+  atualizar();
+  revalidatePath("/admin/turmas");
+  redirect("/admin/empresas");
 }

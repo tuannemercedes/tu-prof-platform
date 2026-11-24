@@ -6,11 +6,14 @@ import { diaISO, quandoCompleto } from "@/lib/datas";
 import { IDIOMAS, rotuloIdioma } from "@/lib/programas";
 import SubmitButton from "@/components/submit-button";
 import ParticipantesForm from "@/components/participantes-form";
+import ConfirmarExclusao from "@/components/confirmar-exclusao";
 import {
   agendarAulaGrupo,
   criarGrupo,
   excluirAulaGrupo,
   excluirContrato,
+  excluirEmpresa,
+  excluirGrupo,
   registrarAulaGrupo,
   removerParticipante,
   salvarContrato,
@@ -100,9 +103,7 @@ function Aula({ aula, grupo, empresaId }: { aula: AulaGrupo; grupo: Grupo; empre
         <form action={excluirAulaGrupo}>
           <input type="hidden" name="aula_id" value={aula.id} />
           <input type="hidden" name="empresa_id" value={empresaId} />
-          <button type="submit" className="text-xs text-[var(--danger-text)] font-semibold">
-            Excluir aula
-          </button>
+          <ConfirmarExclusao rotulo="Excluir aula" aviso="Apaga a aula e a presença registrada nela." />
         </form>
       </div>
     </details>
@@ -142,6 +143,11 @@ export default async function EmpresaPage({
               {c?.max_acessos ? ` · ${pessoas} de ${c.max_acessos} acessos` : ` · ${pessoas} participantes`}
               {empresa.contato_nome ? ` · RH: ${empresa.contato_nome}` : ""}
             </p>
+            {c?.max_acessos && pessoas > c.max_acessos ? (
+              <p className="m-0 text-sm font-semibold text-[var(--danger-text)]">
+                {pessoas - c.max_acessos} {pessoas - c.max_acessos === 1 ? "pessoa" : "pessoas"} acima do contratado. Vale falar com o RH sobre ajuste.
+              </p>
+            ) : null}
           </div>
           <Link href={`/relatorio/empresa/${empresa.id}`} className={`${botao} flex items-center`}>
             Relatório para o RH
@@ -182,28 +188,60 @@ export default async function EmpresaPage({
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2 items-center">
-                    <form action={salvarGrupo} className="flex gap-2 items-center">
-                      <input type="hidden" name="id" value={g.id} />
-                      <input type="hidden" name="empresa_id" value={empresa.id} />
-                      <select name="professor_id" defaultValue={g.professorId ?? ""} aria-label="Quem conduz o grupo" className={campo}>
-                        <option value="">Conduz: você</option>
-                        {(equipe ?? [])
-                          .filter((p) => p.role === "professor")
-                          .map((p) => (
-                            <option key={p.id} value={p.id}>
-                              Conduz: {p.nome || p.email}
-                            </option>
-                          ))}
-                      </select>
-                      <SubmitButton className={botaoLinha} pendingText="..." savedText="✓">
-                        Salvar
-                      </SubmitButton>
-                    </form>
                     <Link href={`/admin/turmas?p=${g.id}`} className={`${botaoLinha} flex items-center`}>
                       Trilha e materiais →
                     </Link>
                   </div>
                 </div>
+
+                <details className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)]">
+                  <summary className="list-none cursor-pointer px-3.5 h-11 flex items-center text-sm font-semibold">
+                    ✎ Editar ou excluir grupo
+                  </summary>
+                  <div className="px-3.5 pb-3.5 flex flex-col gap-3.5">
+                    <form action={salvarGrupo} className="flex flex-wrap gap-2.5 items-end">
+                      <input type="hidden" name="id" value={g.id} />
+                      <input type="hidden" name="empresa_id" value={empresa.id} />
+                      <label className={`${rotulo} flex-1 min-w-[200px]`}>
+                        Nome do grupo
+                        <input name="nome" required defaultValue={g.nome} className={campo} />
+                      </label>
+                      <label className={rotulo}>
+                        Idioma
+                        <select name="idioma" defaultValue={g.idioma} className={campo}>
+                          {IDIOMAS.map((i) => (
+                            <option key={i.valor} value={i.valor}>
+                              {i.rotulo}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className={rotulo}>
+                        Quem conduz
+                        <select name="professor_id" defaultValue={g.professorId ?? ""} className={campo}>
+                          <option value="">Você</option>
+                          {(equipe ?? [])
+                            .filter((p) => p.role === "professor")
+                            .map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.nome || p.email}
+                              </option>
+                            ))}
+                        </select>
+                      </label>
+                      <SubmitButton className={botao}>Salvar</SubmitButton>
+                    </form>
+                    <form action={excluirGrupo}>
+                      <input type="hidden" name="id" value={g.id} />
+                      <input type="hidden" name="empresa_id" value={empresa.id} />
+                      <ConfirmarExclusao
+                        rotulo="Excluir grupo"
+                        aviso={`Isso apaga o grupo "${g.nome}" com ${g.aulas.length} ${g.aulas.length === 1 ? "aula" : "aulas"} e a presença registrada. As ${g.participantes.length} pessoas continuam com acesso à plataforma, só saem do grupo.`}
+                        confirmar="Sim, excluir grupo"
+                      />
+                    </form>
+                  </div>
+                </details>
 
                 <div className="grid gap-5 lg:grid-cols-2 items-start">
                   <div className="flex flex-col gap-2.5">
@@ -251,6 +289,12 @@ export default async function EmpresaPage({
                       <input type="hidden" name="empresa_id" value={empresa.id} />
                       <input name="data" type="datetime-local" required aria-label="Data e hora" className={campo} />
                       <input name="tema" required placeholder="Tema da aula" aria-label="Tema da aula" className={`${campo} flex-1 min-w-[160px]`} />
+                      <select name="semanas" defaultValue="1" aria-label="Repetir" className={campo}>
+                        <option value="1">Só esta</option>
+                        <option value="4">Toda semana · 4</option>
+                        <option value="8">Toda semana · 8</option>
+                        <option value="12">Toda semana · 12</option>
+                      </select>
                       <SubmitButton className={botaoLinha} pendingText="..." savedText="✓ Agendada">
                         Agendar
                       </SubmitButton>
@@ -313,9 +357,7 @@ export default async function EmpresaPage({
                   <form action={excluirContrato}>
                     <input type="hidden" name="id" value={k.id} />
                     <input type="hidden" name="empresa_id" value={empresa.id} />
-                    <button type="submit" className="text-xs text-[var(--danger-text)] font-semibold">
-                      Excluir contrato
-                    </button>
+                    <ConfirmarExclusao rotulo="Excluir contrato" aviso="Apaga este contrato. Grupos e aulas continuam." />
                   </form>
                 </div>
               </details>
@@ -359,6 +401,17 @@ export default async function EmpresaPage({
             />
           </label>
           <SubmitButton className={`${botao} self-start`}>Salvar</SubmitButton>
+        </form>
+      )}
+
+      {aba === "dados" && (
+        <form action={excluirEmpresa} className="max-w-2xl">
+          <input type="hidden" name="id" value={empresa.id} />
+          <ConfirmarExclusao
+            rotulo="Excluir empresa"
+            aviso={`Isso apaga ${empresa.nome} com contratos, grupos, aulas e presença. As pessoas continuam com acesso à plataforma.`}
+            confirmar="Sim, excluir empresa"
+          />
         </form>
       )}
     </div>
