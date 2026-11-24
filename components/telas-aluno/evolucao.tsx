@@ -2,12 +2,13 @@ import { createClient } from "@/lib/supabase/server";
 import { diaCurtoComMes } from "@/lib/datas";
 import { lerCompetencias, nivel } from "@/lib/evolucao";
 import { nomeDoProfessor, type Visao } from "@/lib/visao";
+import { dataExtenso, tituloDoTipo } from "@/lib/certificados";
 
 export default async function TelaEvolucao({ v }: { v: Visao }) {
   const supabase = await createClient();
   const idioma = v.idioma;
 
-  const [{ data: checkpoints }, { data: cfg }, professor] = await Promise.all([
+  const [{ data: checkpoints }, { data: cfg }, professor, { data: certificados }] = await Promise.all([
     supabase
       .from("checkpoints")
       .select("id, data, titulo, niveis, comentario")
@@ -17,6 +18,11 @@ export default async function TelaEvolucao({ v }: { v: Visao }) {
       .order("created_at", { ascending: false }),
     supabase.from("configuracoes").select("valor").eq("chave", "competencias").maybeSingle(),
     nomeDoProfessor(supabase, v),
+    supabase
+      .from("certificados")
+      .select("codigo, tipo, titulo, emitido_em")
+      .eq("aluno_id", v.alunoId)
+      .order("emitido_em", { ascending: false }),
   ]);
 
   const lista = checkpoints ?? [];
@@ -36,6 +42,28 @@ export default async function TelaEvolucao({ v }: { v: Visao }) {
         <p className="m-0 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--gold-text)]">Minha evolução</p>
         <h1 className="m-0 font-serif font-semibold text-[34px] leading-[1.05]">O que mudou desde o início</h1>
       </div>
+
+      {certificados && certificados.length > 0 && (
+        <section className="flex flex-col gap-2.5">
+          {certificados.map((c) => (
+            <a
+              key={c.codigo}
+              href={`/certificado/${c.codigo}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[var(--navy)] text-[var(--on-navy)] rounded-[18px] p-5 flex items-center gap-4 border border-[var(--gold)]/40"
+            >
+              <span aria-hidden="true" className="text-[30px]">🎓</span>
+              <span className="flex-1 flex flex-col gap-0.5">
+                <span className="text-xs tracking-[0.1em] uppercase text-[var(--gold-light)] font-semibold">{tituloDoTipo(c.tipo)}</span>
+                <span className="font-serif text-[22px] font-semibold leading-tight">{c.titulo}</span>
+                <span className="text-[13px] text-[var(--on-navy-muted)]">Emitido em {dataExtenso(c.emitido_em)}</span>
+              </span>
+              <span className="text-sm font-semibold text-[var(--gold-light)] whitespace-nowrap">Abrir ↗</span>
+            </a>
+          ))}
+        </section>
+      )}
 
       {ultimo ? (
         <>

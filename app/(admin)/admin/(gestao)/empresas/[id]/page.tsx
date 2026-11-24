@@ -8,6 +8,7 @@ import SubmitButton from "@/components/submit-button";
 import ParticipantesForm from "@/components/participantes-form";
 import ConfirmarExclusao from "@/components/confirmar-exclusao";
 import PreviaForm from "@/components/previa-form";
+import { emitirCertificadosGrupo } from "@/app/certificado-actions";
 import { lerPrevia } from "@/lib/previa";
 import {
   agendarAulaGrupo,
@@ -135,6 +136,10 @@ export default async function EmpresaPage({
     supabase.from("profiles").select("id, nome, email, role").in("role", ["admin", "professor"]).order("nome"),
   ]);
   if (!empresa) notFound();
+  const { data: certs } = await supabase
+    .from("certificados")
+    .select("turma_id, aluno_id")
+    .in("turma_id", empresa.grupos.map((g) => g.id).concat("00000000-0000-0000-0000-000000000000"));
 
   const hoje = diaISO(new Date());
   const c = contratoAtual(empresa.contratos);
@@ -254,6 +259,64 @@ export default async function EmpresaPage({
                   </div>
                 </details>
 
+                {(() => {
+                  const realizadas = g.aulas.filter((a) => a.status === "realizada" && a.data);
+                  const comCert = new Set((certs ?? []).filter((x) => x.turma_id === g.id).map((x) => x.aluno_id));
+                  return (
+                    <details className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)]">
+                      <summary className="list-none cursor-pointer px-3.5 min-h-11 py-2 flex flex-wrap items-center gap-x-2 text-sm font-semibold">
+                        🎓 Certificados do grupo
+                        <span className="text-xs font-normal text-[var(--text-secondary)]">
+                          {comCert.size} de {g.participantes.length} emitidos
+                        </span>
+                      </summary>
+                      <form action={emitirCertificadosGrupo} className="px-3.5 pb-3.5 flex flex-col gap-3">
+                        <input type="hidden" name="empresa_id" value={empresa.id} />
+                        <input type="hidden" name="turma_id" value={g.id} />
+                        <p className="m-0 text-[13px] text-[var(--text-secondary)]">
+                          Emite o certificado de participação para quem atingiu a frequência mínima. Quem já tem não recebe de novo.
+                          Cada pessoa abre o seu na Evolução, e o certificado tem um código que o RH pode conferir.
+                        </p>
+                        <label className={rotulo}>
+                          Programa
+                          <input name="titulo" required defaultValue={c?.descricao ?? g.nome} className={campo} />
+                        </label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          <label className={rotulo}>
+                            Início
+                            <input name="inicio" type="date" defaultValue={realizadas[0]?.data ? diaISO(realizadas[0].data) : ""} className={campo} />
+                          </label>
+                          <label className={rotulo}>
+                            Fim
+                            <input
+                              name="fim"
+                              type="date"
+                              defaultValue={realizadas.length ? diaISO(realizadas[realizadas.length - 1].data!) : ""}
+                              className={campo}
+                            />
+                          </label>
+                          <label className={rotulo}>
+                            Horas
+                            <input name="carga_horaria" type="number" min={1} defaultValue={realizadas.length || ""} className={campo} />
+                          </label>
+                          <label className={rotulo}>
+                            Frequência mínima
+                            <select name="minimo" defaultValue="75" className={campo}>
+                              <option value="0">Todos</option>
+                              <option value="50">50%</option>
+                              <option value="75">75%</option>
+                              <option value="85">85%</option>
+                            </select>
+                          </label>
+                        </div>
+                        <SubmitButton className={`${botao} self-start`} pendingText="Emitindo..." savedText="✓ Emitidos">
+                          Emitir certificados
+                        </SubmitButton>
+                      </form>
+                    </details>
+                  );
+                })()}
+
                 <div className="grid gap-5 lg:grid-cols-2 items-start">
                   <div className="flex flex-col gap-2.5">
                     <span className="text-xs tracking-[0.1em] uppercase text-[var(--text-secondary)] font-semibold">Participantes</span>
@@ -264,7 +327,12 @@ export default async function EmpresaPage({
                           return (
                             <li key={p.id} className="flex items-center gap-3 px-3 py-2">
                               <Link href={`/admin/alunos/${p.id}`} className="flex-1 min-w-0 flex flex-col">
-                                <span className="text-sm font-semibold truncate">{p.nome}</span>
+                                <span className="text-sm font-semibold truncate">
+                                  {p.nome}
+                                  {(certs ?? []).some((x) => x.turma_id === g.id && x.aluno_id === p.id) && (
+                                    <span title="Certificado emitido" className="ml-1.5">🎓</span>
+                                  )}
+                                </span>
                                 <span className="text-xs text-[var(--text-secondary)] truncate">{p.email}</span>
                               </Link>
                               <span

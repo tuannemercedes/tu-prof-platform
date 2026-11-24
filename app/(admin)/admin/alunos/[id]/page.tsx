@@ -7,6 +7,7 @@ import { rotuloIdioma } from "@/lib/programas";
 import { lerCompetencias, nivel } from "@/lib/evolucao";
 import { idiomasDosProgramas, ROTULO_IDIOMA, type Idioma } from "@/lib/idioma";
 import PreviaForm from "@/components/previa-form";
+import CertificadosAluno from "@/components/certificados-aluno";
 import SubmitButton from "@/components/submit-button";
 import RegistrarAulaForm from "@/components/registrar-aula-form";
 import CheckpointForm from "@/components/checkpoint-form";
@@ -428,6 +429,12 @@ export default async function FichaAlunoPage({
               <p className="m-0 text-sm text-[var(--text-secondary)]">Nenhum checkpoint ainda. O primeiro funciona como diagnóstico.</p>
             )}
           </section>
+          <CertificadosAluno
+            alunoId={id}
+            nome={aluno.nome || aluno.email}
+            programaSugerido={programas[0]?.nome ?? ""}
+            podeEmitir={eu?.role === "admin"}
+          />
         </div>
       )}
 
