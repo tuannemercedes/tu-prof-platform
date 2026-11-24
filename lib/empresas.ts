@@ -26,6 +26,8 @@ export type AulaGrupo = {
   status: string;
   presentes: string[]; // ids de quem foi
   temChamada: boolean;
+  previa: unknown;
+  vistas: string[]; // ids de quem abriu a prévia
 };
 
 export type Grupo = {
@@ -97,16 +99,19 @@ export async function getEmpresas(supabase: Supa, empresaId?: string): Promise<E
     .in("empresa_id", ids)
     .order("nome");
   const turmaIds = (turmas ?? []).map((t) => t.id);
-  const [{ data: aulas }, { data: presencas }] = turmaIds.length
+  const [{ data: aulas }, { data: presencas }, { data: vistas }] = turmaIds.length
     ? await Promise.all([
         supabase
           .from("aulas")
-          .select("id, turma_id, data, tema, resumo, status")
+          .select("id, turma_id, data, tema, resumo, status, previa")
           .in("turma_id", turmaIds)
           .order("data", { ascending: true }),
         supabase.from("presencas").select("aula_id, aluno_id, presente"),
+        supabase.from("previa_vistas").select("aula_id, aluno_id"),
       ])
-    : [{ data: [] }, { data: [] }];
+    : [{ data: [] }, { data: [] }, { data: [] }];
+  const vistasDe = new Map<string, string[]>();
+  (vistas ?? []).forEach((x) => vistasDe.set(x.aula_id, [...(vistasDe.get(x.aula_id) ?? []), x.aluno_id]));
 
   const chamada = new Map<string, string[]>();
   (presencas ?? []).forEach((p) => {
@@ -146,6 +151,8 @@ export async function getEmpresas(supabase: Supa, empresaId?: string): Promise<E
             status: a.status,
             presentes: chamada.get(a.id) ?? [],
             temChamada: comChamada.has(a.id),
+            previa: a.previa,
+            vistas: vistasDe.get(a.id) ?? [],
           })),
       })),
   }));

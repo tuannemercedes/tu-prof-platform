@@ -9,7 +9,7 @@ export type Semana = {
   inicio: string;
   rotulo: string;
   intervalo: string;
-  aulas: { id: string; quando: string; tema: string; descricao: string | null; realizada: boolean }[];
+  aulas: { id: string; quando: string; tema: string; descricao: string | null; realizada: boolean; previaHref?: string | null }[];
   tarefas: TarefaAluno[];
   club: { id: string; tema: string; quando: string }[];
 };
@@ -96,6 +96,11 @@ export default function PlanoSemanas({
                   <div className="bg-[var(--navy)] text-[var(--on-navy)] rounded-2xl p-4 flex flex-col gap-1.5">
                     <span className="font-serif text-[22px] font-semibold">{a.tema}</span>
                     {a.descricao && <span className="text-[13px] text-[var(--on-navy-muted)]">{a.descricao}</span>}
+                    {a.previaHref && (
+                      <Link href={a.previaHref} className="self-start mt-1 text-[13px] font-semibold text-[var(--gold-light)]">
+                        Ver a prévia da aula →
+                      </Link>
+                    )}
                   </div>
                 </div>
               ))

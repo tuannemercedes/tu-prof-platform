@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getTarefasDoAluno, formatarPrazo } from "@/lib/tarefas";
-import { diaISO, diaDoMes, diaSemanaCurto, hojePorExtenso, hora, segundaDaSemana, somarDias } from "@/lib/datas";
+import { diaISO, diaDoMes, diaSemanaCurto, hojePorExtenso, hora, quandoCompleto, segundaDaSemana, somarDias } from "@/lib/datas";
 import { rotuloIdioma } from "@/lib/programas";
 import { doIdioma } from "@/lib/idioma";
+import { lerPrevia, liberaEm, previaLiberada } from "@/lib/previa";
 import { getLiberados, liberado, nomeDoProfessor, rota, type Visao, filtroAulas } from "@/lib/visao";
 import TarefaItem from "@/components/tarefa-item";
 import ClubeCartao from "@/components/clube-cartao";
@@ -32,7 +33,7 @@ export default async function TelaInicio({ v }: { v: Visao }) {
     getTarefasDoAluno(supabase, v.alunoId, lib),
     supabase
       .from("aulas")
-      .select("id, data, tema")
+      .select("id, data, tema, aluno_id, previa")
       .or(filtroAulas(v))
       .eq("status", "agendada")
       .gte("data", agora)
@@ -136,7 +137,20 @@ export default async function TelaInicio({ v }: { v: Visao }) {
                   </span>
                 </div>
               </div>
-              {v.linkAula && (
+              {lerPrevia(proxima.previa) &&
+                (previaLiberada(proxima.data) ? (
+                  <Link
+                    href={rota(v, `/aula/${proxima.id}`)}
+                    className="h-[46px] rounded-xl border border-[var(--gold)] text-[var(--text-primary)] font-semibold text-[15px] flex items-center justify-center gap-2"
+                  >
+                    Ver a prévia da aula →
+                  </Link>
+                ) : (
+                  <p className="m-0 text-[13px] text-[var(--text-secondary)]">
+                    A prévia desta aula abre {quandoCompleto(liberaEm(proxima.data).toISOString())}.
+                  </p>
+                ))}
+              {v.linkAula && proxima.aluno_id && (
                 <a
                   href={v.linkAula}
                   target="_blank"

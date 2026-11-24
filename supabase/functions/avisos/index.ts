@@ -1,6 +1,6 @@
 // Função "avisos" da Tu Prof (Supabase Edge Function).
 // Chamada a cada 5 minutos pelo agendador do banco (pg_cron) e, sob demanda, pela admin.
-// 1) agenda os lembretes do momento (aula amanhã, aula em 1h, prazo amanhã, semana, resumo da equipe)
+// 1) agenda os lembretes do momento (prévia 48h antes, aula amanhã, aula em 1h, prazo amanhã, semana, resumo da equipe)
 // 2) envia o que está na fila (avisos_fila) pelo Resend, respeitando as preferências de cada pessoa.
 // Sem a chave RESEND_API_KEY, nada é enviado e a fila fica guardada.
 
@@ -9,7 +9,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
 });
-const RESEND = Deno.env.get("RESEND_API_KEY") ?? "";
+// Tira espaços e aspas que às vezes vêm junto ao colar a chave.
+const RESEND = (Deno.env.get("RESEND_API_KEY") ?? "").trim().replace(/^["']|["']$/g, "");
 const REMETENTE = Deno.env.get("EMAIL_REMETENTE") || "Tu Prof <avisos@tuprof.com.br>";
 const APP = (Deno.env.get("APP_URL") || "https://tu-prof-platform.vercel.app").replace(/\/$/, "");
 const FUSO = "America/Bahia";
@@ -96,6 +97,7 @@ const PREF: Record<string, string | null> = {
   prazo: "tarefas",
   aula_vespera: "aulas",
   aula_1h: "aulas",
+  aula_previa: "aulas",
   comentario: "comentarios",
   semana: "semana",
   entrega: "entregas",
@@ -222,6 +224,33 @@ async function montar(tipo: string, dados: Record<string, string>, p: Pessoa): P
     };
   }
 
+  if (tipo === "aula_previa") {
+    const { data: a } = await db.from("aulas").select("id, data, tema, status, previa, turmas(nome)").eq("id", dados.aula_id).maybeSingle();
+    type Pv = { objetivo?: string; situacao?: string; expressoes?: { frase: string; traducao: string }[]; erro?: string; preparo?: string };
+    const pv = (a?.previa ?? null) as Pv | null;
+    if (!a?.data || a.status !== "agendada" || !pv || new Date(a.data).getTime() < Date.now()) return null;
+    const grupo = (a.turmas as unknown as { nome: string } | null)?.nome;
+    const expr = (pv.expressoes ?? []).slice(0, 6);
+    return {
+      assunto: `Prévia da aula de ${quando(a.data).replace(/, às.*/, "")}: ${a.tema}`,
+      html: modelo({
+        sobretitulo: "Prévia da aula",
+        titulo: a.tema,
+        intro: `${ola}sua próxima aula é <b>${esc(quando(a.data))}</b>${grupo ? ` (${esc(grupo)})` : ""}. Dê uma olhada antes para chegar com o vocabulário na ponta da língua.`,
+        blocos: [
+          ...(pv.objetivo ? [{ rotulo: "Objetivo", texto: esc(pv.objetivo) }] : []),
+          ...(pv.situacao ? [{ rotulo: "A situação", texto: esc(pv.situacao).replace(/\n/g, "<br>") }] : []),
+          ...(expr.length
+            ? [{ rotulo: "Expressões-chave", texto: expr.map((e) => `<b>${esc(e.frase)}</b>${e.traducao ? ` <span style="color:#7a8190">· ${esc(e.traducao)}</span>` : ""}`).join("<br>") }]
+            : []),
+          ...(pv.preparo ? [{ rotulo: "Para chegar preparado", texto: esc(pv.preparo) }] : []),
+        ],
+        botao: { texto: "Ver a prévia completa", url: `${APP}/aluno/aula/${a.id}` },
+        rodape: rodapeAluno,
+      }),
+    };
+  }
+
   if (tipo === "aula_vespera" || tipo === "aula_1h") {
     const { data: a } = await db.from("aulas").select("id, data, tema, status, aluno_id, turma_id, turmas(nome)").eq("id", dados.aula_id).maybeSingle();
     if (!a?.data || a.status !== "agendada" || new Date(a.data).getTime() < Date.now()) return null;
@@ -322,14 +351,16 @@ async function agendar() {
 
   const { data: aulas } = await db
     .from("aulas")
-    .select("id, data, aluno_id, turma_id")
+    .select("id, data, aluno_id, turma_id, previa")
     .eq("status", "agendada")
     .gte("data", agora.toISOString())
-    .lte("data", new Date(agora.getTime() + 24 * H).toISOString());
+    .lte("data", new Date(agora.getTime() + 48 * H).toISOString());
   for (const a of aulas ?? []) {
     const falta = new Date(a.data!).getTime() - agora.getTime();
     for (const d of await destinos(a.aluno_id, a.turma_id)) {
-      if (falta > 3 * H) linhas.push({ tipo: "aula_vespera", destinatario: d, dados: { aula_id: a.id }, chave: `aula24:${a.id}:${d}` });
+      // Com prévia: um e-mail 48h antes com a prévia (no lugar do lembrete da véspera).
+      if (a.previa && falta > 3 * H) linhas.push({ tipo: "aula_previa", destinatario: d, dados: { aula_id: a.id }, chave: `aula48:${a.id}:${d}` });
+      if (!a.previa && falta > 3 * H && falta <= 24 * H) linhas.push({ tipo: "aula_vespera", destinatario: d, dados: { aula_id: a.id }, chave: `aula24:${a.id}:${d}` });
       if (falta <= 70 * 60 * 1000) linhas.push({ tipo: "aula_1h", destinatario: d, dados: { aula_id: a.id }, chave: `aula1h:${a.id}:${d}` });
     }
   }
@@ -456,6 +487,9 @@ Deno.serve(async (req) => {
   const resultado = RESEND ? await enviar() : null;
   const status = {
     chave: !!RESEND,
+    // Diagnóstico sem expor a chave: formato e tamanho.
+    chave_formato_ok: RESEND.startsWith("re_"),
+    chave_tamanho: RESEND.length,
     remetente: REMETENTE,
     ultima_execucao: new Date().toISOString(),
     agendados,

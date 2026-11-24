@@ -3,7 +3,8 @@ import { getTarefasDoAluno } from "@/lib/tarefas";
 import { diaISO, quandoCompleto, rotuloIntervalo, segundaDaSemana, somarDias } from "@/lib/datas";
 import PlanoSemanas, { type Semana } from "@/components/plano-semanas";
 import { doIdioma } from "@/lib/idioma";
-import { getLiberados, type Visao, filtroAulas } from "@/lib/visao";
+import { getLiberados, rota, type Visao, filtroAulas } from "@/lib/visao";
+import { lerPrevia, previaLiberada } from "@/lib/previa";
 import { getClubeAcessoParaAluno } from "@/lib/clube";
 
 export default async function TelaPlano({ v }: { v: Visao }) {
@@ -17,7 +18,7 @@ export default async function TelaPlano({ v }: { v: Visao }) {
     getTarefasDoAluno(supabase, v.alunoId, lib),
     supabase
       .from("aulas")
-      .select("id, data, tema, descricao, resumo, status")
+      .select("id, data, tema, descricao, resumo, status, previa")
       .or(filtroAulas(v))
       .or(`idioma.is.null,idioma.eq.${idioma}`)
       .order("data"),
@@ -45,6 +46,7 @@ export default async function TelaPlano({ v }: { v: Visao }) {
       tema: a.tema,
       descricao: a.resumo || a.descricao,
       realizada: a.status === "realizada",
+      previaHref: lerPrevia(a.previa) && previaLiberada(a.data) ? rota(v, `/aula/${a.id}`) : null,
     });
   });
 

@@ -59,7 +59,7 @@ const ITENS = [
     chave: "plano",
     caminho: "/plano",
     label: "Plano",
-    ativo: (p: string) => ["/plano", "/planner", "/cronograma", "/calendario", "/clube"].some((r) => p.startsWith(r)),
+    ativo: (p: string) => ["/plano", "/planner", "/cronograma", "/calendario", "/clube", "/aula"].some((r) => p.startsWith(r)),
   },
   {
     chave: "biblioteca",

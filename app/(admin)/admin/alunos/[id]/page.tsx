@@ -6,6 +6,7 @@ import { diaISO, quandoCompleto, diaCurtoComMes } from "@/lib/datas";
 import { rotuloIdioma } from "@/lib/programas";
 import { lerCompetencias, nivel } from "@/lib/evolucao";
 import { idiomasDosProgramas, ROTULO_IDIOMA, type Idioma } from "@/lib/idioma";
+import PreviaForm from "@/components/previa-form";
 import SubmitButton from "@/components/submit-button";
 import RegistrarAulaForm from "@/components/registrar-aula-form";
 import CheckpointForm from "@/components/checkpoint-form";
@@ -54,7 +55,7 @@ export default async function FichaAlunoPage({
   const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: termosAluno }, { data: professor }] =
     await Promise.all([
       supabase.from("turma_membros").select("turma_id, turmas(id, nome, idioma)").eq("aluno_id", id),
-      supabase.from("aulas").select("id, data, tema, descricao, resumo, status, idioma").eq("aluno_id", id).order("data", { ascending: false }),
+      supabase.from("aulas").select("id, data, tema, descricao, resumo, status, idioma, previa").eq("aluno_id", id).order("data", { ascending: false }),
       supabase.from("plano_etapas").select("id, periodo, tema, entrega, idioma").eq("aluno_id", id).order("ordem"),
       supabase.from("checkpoints").select("id, data, titulo, niveis, comentario, idioma").eq("aluno_id", id).order("data", { ascending: false }),
       supabase.from("configuracoes").select("valor").eq("chave", "competencias").maybeSingle(),
@@ -230,18 +231,21 @@ export default async function FichaAlunoPage({
               {proximas.length > 0 && (
                 <ul className="m-0 p-0 list-none flex flex-col">
                   {proximas.map((a) => (
-                    <li key={a.id} className="flex items-center gap-3 py-2.5 border-t border-[var(--border-soft)]">
-                      <span className="flex-1 flex flex-col">
-                        <span className="text-[15px] font-semibold">{a.tema}</span>
-                        <span className="text-[13px] text-[var(--text-secondary)]">{quandoCompleto(a.data!)}</span>
-                      </span>
-                      <form action={excluirAula}>
-                        <input type="hidden" name="aluno_id" value={id} />
-                        <input type="hidden" name="id" value={a.id} />
-                        <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
-                          Cancelar
-                        </button>
-                      </form>
+                    <li key={a.id} className="flex flex-col gap-2 py-2.5 border-t border-[var(--border-soft)]">
+                      <div className="flex items-center gap-3">
+                        <span className="flex-1 flex flex-col">
+                          <span className="text-[15px] font-semibold">{a.tema}</span>
+                          <span className="text-[13px] text-[var(--text-secondary)]">{quandoCompleto(a.data!)}</span>
+                        </span>
+                        <form action={excluirAula}>
+                          <input type="hidden" name="aluno_id" value={id} />
+                          <input type="hidden" name="id" value={a.id} />
+                          <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
+                            Cancelar
+                          </button>
+                        </form>
+                      </div>
+                      <PreviaForm aulaId={a.id} data={a.data} previa={a.previa} voltar={`/admin/alunos/${id}`} />
                     </li>
                   ))}
                 </ul>

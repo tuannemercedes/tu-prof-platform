@@ -7,6 +7,7 @@ import { diaISO, somarDias } from "@/lib/datas";
 import { lerCompetencias, NIVEIS } from "@/lib/evolucao";
 import { rotuloIdioma } from "@/lib/programas";
 import Logo from "@/components/logo";
+import { lerPrevia } from "@/lib/previa";
 import { BotaoImprimir, Comentario } from "@/components/relatorio-acoes";
 
 // Relatório para o RH: frequência, temas trabalhados e evolução no período.
@@ -83,9 +84,15 @@ export default async function RelatorioEmpresa({
     const de = todas.reduce((s, l) => s + l.de, 0);
     return de ? Math.round((foi / de) * 100) : null;
   })();
+  const comPrevia = grupos.flatMap((x) => x.realizadas.filter((a) => lerPrevia(a.previa)).map((a) => ({ a, total: x.g.participantes.length })));
+  const preparo = (() => {
+    const de = comPrevia.reduce((s, x) => s + x.total, 0);
+    const foi = comPrevia.reduce((s, x) => s + x.a.vistas.length, 0);
+    return de ? Math.round((foi / de) * 100) : null;
+  })();
   const ativos = grupos.reduce((s, x) => s + x.linhas.filter((l) => l.foi > 0).length, 0);
   const temas = grupos
-    .flatMap((x) => x.realizadas.map((a) => ({ ...a, grupo: x.g.nome })))
+    .flatMap((x) => x.realizadas.map((a) => ({ ...a, grupo: x.g.nome, total: x.g.participantes.length })))
     .sort((a, b) => ((a.data ?? "") < (b.data ?? "") ? -1 : 1));
 
   const th = "text-left text-[11px] uppercase tracking-[0.08em] text-[#5b6372] font-semibold py-2 pr-3";
@@ -133,7 +140,9 @@ export default async function RelatorioEmpresa({
               { v: totalAulas, l: totalAulas === 1 ? "aula realizada" : "aulas realizadas" },
               { v: presencaGeral != null ? `${presencaGeral}%` : "—", l: "frequência geral" },
               { v: `${ativos}`, l: "participantes ativos" },
-              { v: empresa.grupos.length, l: empresa.grupos.length === 1 ? "grupo" : "grupos" },
+              preparo != null
+                ? { v: `${preparo}%`, l: "abriram a prévia antes da aula" }
+                : { v: empresa.grupos.length, l: empresa.grupos.length === 1 ? "grupo" : "grupos" },
             ].map((k) => (
               <div key={k.l} className="rounded-xl bg-[#f6f2e8] p-4 flex flex-col gap-1 print:[-webkit-print-color-adjust:exact] print:[print-color-adjust:exact]">
                 <span className="font-serif font-semibold text-[32px] leading-none">{k.v}</span>
@@ -224,7 +233,15 @@ export default async function RelatorioEmpresa({
                     <span className="flex flex-col gap-0.5">
                       <span className="text-[15px] font-semibold">{a.tema}</span>
                       {a.resumo && <span className="text-[14px] text-[#3b4352] leading-relaxed">{a.resumo}</span>}
-                      {empresa.grupos.length > 1 && <span className="text-[12px] text-[#8a6a1f]">{a.grupo}</span>}
+                      <span className="text-[12px] text-[#8a6a1f]">
+                        {[
+                          empresa.grupos.length > 1 ? a.grupo : null,
+                          a.temChamada ? `${a.presentes.length} de ${a.total} presentes` : null,
+                          lerPrevia(a.previa) ? `prévia aberta por ${a.vistas.length} de ${a.total}` : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
                     </span>
                   </li>
                 ))}

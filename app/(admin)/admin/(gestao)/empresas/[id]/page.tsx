@@ -7,6 +7,8 @@ import { IDIOMAS, rotuloIdioma } from "@/lib/programas";
 import SubmitButton from "@/components/submit-button";
 import ParticipantesForm from "@/components/participantes-form";
 import ConfirmarExclusao from "@/components/confirmar-exclusao";
+import PreviaForm from "@/components/previa-form";
+import { lerPrevia } from "@/lib/previa";
 import {
   agendarAulaGrupo,
   criarGrupo,
@@ -47,6 +49,7 @@ function Aula({ aula, grupo, empresaId }: { aula: AulaGrupo; grupo: Grupo; empre
           <span className="text-sm font-semibold truncate">{aula.tema}</span>
           <span className="text-xs text-[var(--text-secondary)]">
             {aula.data ? quandoCompleto(aula.data) : "Sem data"}
+            {lerPrevia(aula.previa) ? " · com prévia" : ""}
             {feita
               ? aula.temChamada
                 ? ` · ${aula.presentes.length} de ${grupo.participantes.length} presentes`
@@ -57,6 +60,14 @@ function Aula({ aula, grupo, empresaId }: { aula: AulaGrupo; grupo: Grupo; empre
         <span className="text-xs font-semibold text-[var(--gold-text)] group-open:hidden">{feita ? "Ver" : "Registrar"}</span>
       </summary>
       <div className="border-t border-[var(--border-soft)] p-3.5 flex flex-col gap-3">
+        <PreviaForm
+          aulaId={aula.id}
+          data={aula.data}
+          previa={aula.previa}
+          voltar={`/admin/empresas/${empresaId}`}
+          vistas={aula.vistas.length}
+          total={grupo.participantes.length}
+        />
         <form action={registrarAulaGrupo} className="flex flex-col gap-3">
           <input type="hidden" name="aula_id" value={aula.id} />
           <input type="hidden" name="turma_id" value={grupo.id} />
