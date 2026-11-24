@@ -94,6 +94,8 @@ const rodapeEquipe = `Aviso para a equipe Tu Prof. <a href="${APP}/admin/configu
 const PREF: Record<string, string | null> = {
   teste: null,
   boas_vindas: null,
+  certificado: null,
+  relatorio: null,
   tarefa_nova: "tarefas",
   prazo: "tarefas",
   aula_vespera: "aulas",
@@ -174,6 +176,42 @@ async function montar(tipo: string, dados: Record<string, string>, p: Pessoa): P
         ],
         botao: { texto: "Entrar na plataforma", url: `${APP}/login` },
         rodape: equipe ? rodapeEquipe : "Você recebe este e-mail porque foi cadastrado(a) na plataforma da Tu Prof.",
+      }),
+    };
+  }
+
+  if (tipo === "certificado") {
+    const { data: c } = await db.from("certificados").select("codigo, titulo, tipo").eq("codigo", dados.codigo).maybeSingle();
+    if (!c) return null;
+    return {
+      assunto: `Seu certificado está pronto: ${c.titulo}`,
+      html: modelo({
+        sobretitulo: c.tipo === "participacao" ? "Certificado de participação" : "Certificado de conclusão",
+        titulo: nome ? `Parabéns, ${nome}` : "Parabéns",
+        intro: `Seu certificado de <b>${esc(c.titulo)}</b> está pronto. Você pode abrir, salvar em PDF e compartilhar, inclusive no LinkedIn. Qualquer pessoa confere que ele é verdadeiro pelo código <b>${esc(c.codigo)}</b>.`,
+        botao: { texto: "Abrir meu certificado", url: `${APP}/certificado/${c.codigo}` },
+        rodape: rodapeAluno,
+      }),
+    };
+  }
+
+  if (tipo === "relatorio") {
+    const mes = String(dados.mes ?? "").slice(0, 7);
+    const { data: r } = await db.from("relatorios_mensais").select("comentario, publicado_em").eq("aluno_id", p.id).eq("mes", `${mes}-01`).maybeSingle();
+    if (!r?.publicado_em) return null;
+    const [a, m] = mes.split("-").map(Number);
+    const nomeMes = new Intl.DateTimeFormat("pt-BR", { month: "long", timeZone: "UTC" }).format(new Date(Date.UTC(a, m - 1, 15)));
+    const prof = await nomeProfessorDe(p);
+    const trecho = (r.comentario ?? "").length > 500 ? `${r.comentario!.slice(0, 500)}...` : r.comentario ?? "";
+    return {
+      assunto: `Seu relatório de ${nomeMes} na Tu Prof`,
+      html: modelo({
+        sobretitulo: `Relatório de ${nomeMes}`,
+        titulo: nome ? `${nome}, veja como foi seu mês` : "Veja como foi seu mês",
+        intro: "Seu relatório mensal está na plataforma: aulas, tarefas, sua evolução e o comentário da professora.",
+        blocos: trecho ? [{ rotulo: `Comentário de ${prof}`, texto: esc(trecho).replace(/\n/g, "<br>") }] : [],
+        botao: { texto: "Ver meu relatório", url: `${APP}/aluno/relatorios/${mes}` },
+        rodape: rodapeAluno,
       }),
     };
   }

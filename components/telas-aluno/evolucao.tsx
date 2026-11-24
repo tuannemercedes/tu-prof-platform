@@ -3,12 +3,14 @@ import { diaCurtoComMes } from "@/lib/datas";
 import { lerCompetencias, nivel } from "@/lib/evolucao";
 import { nomeDoProfessor, type Visao } from "@/lib/visao";
 import { dataExtenso, tituloDoTipo } from "@/lib/certificados";
+import { nomeDoMes } from "@/lib/relatorio-aluno";
+import Link from "next/link";
 
 export default async function TelaEvolucao({ v }: { v: Visao }) {
   const supabase = await createClient();
   const idioma = v.idioma;
 
-  const [{ data: checkpoints }, { data: cfg }, professor, { data: certificados }] = await Promise.all([
+  const [{ data: checkpoints }, { data: cfg }, professor, { data: certificados }, { data: relatorios }] = await Promise.all([
     supabase
       .from("checkpoints")
       .select("id, data, titulo, niveis, comentario")
@@ -23,6 +25,12 @@ export default async function TelaEvolucao({ v }: { v: Visao }) {
       .select("codigo, tipo, titulo, emitido_em")
       .eq("aluno_id", v.alunoId)
       .order("emitido_em", { ascending: false }),
+    supabase
+      .from("relatorios_mensais")
+      .select("mes, publicado_em")
+      .eq("aluno_id", v.alunoId)
+      .not("publicado_em", "is", null)
+      .order("mes", { ascending: false }),
   ]);
 
   const lista = checkpoints ?? [];
@@ -42,6 +50,23 @@ export default async function TelaEvolucao({ v }: { v: Visao }) {
         <p className="m-0 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--gold-text)]">Minha evolução</p>
         <h1 className="m-0 font-serif font-semibold text-[34px] leading-[1.05]">O que mudou desde o início</h1>
       </div>
+
+      {relatorios && relatorios.length > 0 && !v.previa && (
+        <section className="bg-[var(--surface)] border border-[var(--border)] rounded-[18px] p-5 flex flex-col gap-2">
+          <p className="m-0 text-xs tracking-[0.1em] uppercase text-[var(--gold-text)] font-semibold">Relatórios mensais</p>
+          <div className="flex flex-wrap gap-2">
+            {relatorios.map((rel) => (
+              <Link
+                key={rel.mes}
+                href={`/aluno/relatorios/${rel.mes.slice(0, 7)}`}
+                className="h-10 px-4 rounded-full border border-[var(--border-strong)] text-sm font-medium flex items-center capitalize"
+              >
+                {nomeDoMes(rel.mes.slice(0, 7))}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {certificados && certificados.length > 0 && (
         <section className="flex flex-col gap-2.5">

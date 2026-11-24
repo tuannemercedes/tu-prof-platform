@@ -71,7 +71,7 @@ const ITENS = [
     chave: "evolucao",
     caminho: "/evolucao",
     label: "Evolução",
-    ativo: (p: string) => p.startsWith("/evolucao") || p.startsWith("/perfil"),
+    ativo: (p: string) => p.startsWith("/evolucao") || p.startsWith("/perfil") || p.startsWith("/relatorios"),
   },
 ];
 

@@ -152,7 +152,13 @@ export default async function FichaAlunoPage({
             </Link>
           )}
         </div>
-        {(
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/relatorio/aluno/${id}`}
+            className="h-11 px-[18px] rounded-xl border border-[var(--border-strong)] font-semibold text-sm flex items-center"
+          >
+            Relatório do mês
+          </Link>
           <Link
             href={`/previa/${id}`}
             className="h-11 px-[18px] rounded-xl border border-[var(--accent)] font-semibold text-sm flex items-center gap-2"
@@ -163,7 +169,7 @@ export default async function FichaAlunoPage({
             </svg>
             Ver como aluno
           </Link>
-        )}
+        </div>
       </div>
 
       {bilingue && (
