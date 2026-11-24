@@ -3,10 +3,27 @@ import Link from "next/link";
 import { salvarCompetencias, updateConfiguracoes } from "./actions";
 import { lerCompetencias } from "@/lib/evolucao";
 import SubmitButton from "@/components/submit-button";
+import AvisosPreferencias from "@/components/avisos-preferencias";
+import BotaoTesteEmail from "@/components/botao-teste-email";
+import { AVISOS_EQUIPE, ROTULO_TIPO } from "@/lib/avisos";
+import { getProfile } from "@/lib/dal";
+import { quandoCompleto } from "@/lib/datas";
 
 export default async function ConfiguracoesPage() {
   const supabase = await createClient();
-  const { data: config } = await supabase.from("configuracoes").select("chave, valor");
+  const [{ data: config }, profile, { data: historico }] = await Promise.all([
+    supabase.from("configuracoes").select("chave, valor"),
+    getProfile(),
+    supabase
+      .from("avisos_fila")
+      .select("id, tipo, status, erro, criado_em, enviado_em, profiles(nome, email)")
+      .order("criado_em", { ascending: false })
+      .limit(15),
+  ]);
+  let emailStatus: { chave?: boolean; remetente?: string; ultima_execucao?: string } = {};
+  try {
+    emailStatus = JSON.parse(config?.find((c) => c.chave === "email_status")?.valor ?? "{}");
+  } catch {}
 
   const appTreinoUrl = config?.find((c) => c.chave === "app_treino_url")?.valor ?? "";
   const appTreinoLabel =
@@ -25,6 +42,63 @@ export default async function ConfiguracoesPage() {
           Recado do Início, botões do UZUS e de contato, competências da evolução e as demais ferramentas.
         </p>
       </div>
+
+      <section id="avisos" className="bg-[var(--surface)] border border-[var(--border)] rounded-[18px] p-5 space-y-4 scroll-mt-6">
+        <div className="space-y-1">
+          <h2 className="m-0 font-serif font-semibold text-2xl">Avisos por e-mail</h2>
+          <p className="m-0 text-[13px] text-[var(--text-secondary)]">
+            Lembretes de aula, tarefas novas, prazos, comentários e o resumo da semana saem sozinhos para os alunos.
+            Cada aluno escolhe o que quer receber em &quot;Meu perfil&quot;.
+          </p>
+        </div>
+        <div
+          className={`rounded-xl p-3.5 text-sm ${emailStatus.chave ? "bg-[var(--success-bg)] text-[var(--success-text)]" : "bg-[var(--warning-bg)] text-[var(--warning-text)]"}`}
+        >
+          {emailStatus.chave ? (
+            <>
+              <strong>Ligado.</strong> Remetente: {emailStatus.remetente}.
+            </>
+          ) : (
+            <>
+              <strong>Ainda não está enviando.</strong> Falta cadastrar a chave do Resend. Enquanto isso, os avisos ficam guardados na fila.
+            </>
+          )}
+          {emailStatus.ultima_execucao && (
+            <span className="block text-[12px] opacity-80 mt-1">Última verificação: {quandoCompleto(emailStatus.ultima_execucao)}</span>
+          )}
+        </div>
+        <BotaoTesteEmail email={profile?.email ?? ""} />
+        <div className="space-y-2">
+          <h3 className="m-0 text-sm font-semibold">Os seus avisos</h3>
+          <AvisosPreferencias opcoes={AVISOS_EQUIPE} atuais={(profile?.avisos ?? {}) as Record<string, unknown>} />
+        </div>
+        {historico && historico.length > 0 && (
+          <details className="rounded-xl border border-[var(--border)]">
+            <summary className="cursor-pointer px-3.5 h-11 flex items-center text-sm font-semibold">Últimos avisos</summary>
+            <ul className="m-0 p-0 list-none divide-y divide-[var(--border-soft)] border-t border-[var(--border)]">
+              {historico.map((h) => {
+                const quem = h.profiles as unknown as { nome: string | null; email: string } | null;
+                const cor =
+                  h.status === "enviado"
+                    ? "text-[var(--success-text)]"
+                    : h.status === "erro"
+                      ? "text-[var(--danger-text)]"
+                      : "text-[var(--text-secondary)]";
+                return (
+                  <li key={h.id} className="px-3.5 py-2.5 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-[13px]">
+                    <span className="font-semibold">{ROTULO_TIPO[h.tipo] ?? h.tipo}</span>
+                    <span className="text-[var(--text-secondary)]">{quem?.nome || quem?.email}</span>
+                    <span className={`ml-auto font-semibold ${cor}`}>
+                      {h.status === "enviado" ? "enviado" : h.status === "pendente" ? "na fila" : h.status}
+                    </span>
+                    {h.erro && h.status !== "enviado" && <span className="basis-full text-[12px] text-[var(--text-secondary)]">{h.erro}</span>}
+                  </li>
+                );
+              })}
+            </ul>
+          </details>
+        )}
+      </section>
 
       <section className="bg-[var(--surface)] border border-[var(--border)] rounded-[18px] p-5 space-y-3">
         <h2 className="m-0 font-serif font-semibold text-2xl">Ferramentas</h2>
