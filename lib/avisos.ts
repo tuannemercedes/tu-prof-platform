@@ -14,6 +14,7 @@ export const AVISOS_EQUIPE: OpcaoAviso[] = [
 
 export const ROTULO_TIPO: Record<string, string> = {
   teste: "Teste",
+  boas_vindas: "Boas-vindas",
   tarefa_nova: "Tarefa nova",
   prazo: "Prazo amanhã",
   aula_vespera: "Aula (véspera)",

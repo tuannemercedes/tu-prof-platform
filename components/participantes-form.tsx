@@ -11,13 +11,14 @@ export default function ParticipantesForm({ empresaId, turmaId }: { empresaId: s
   const [erro, setErro] = useState<string | null>(null);
   const [resultados, setResultados] = useState<ResultadoParticipante[]>([]);
   const [copiado, setCopiado] = useState(false);
+  const [boasVindas, setBoasVindas] = useState(true);
   const [isPending, startTransition] = useTransition();
 
   function enviar() {
     setErro(null);
     setResultados([]);
     startTransition(async () => {
-      const r = await adicionarParticipantes(empresaId, turmaId, texto);
+      const r = await adicionarParticipantes(empresaId, turmaId, texto, boasVindas);
       if (r.error) setErro(r.error);
       else {
         setResultados(r.resultados);
@@ -49,7 +50,9 @@ export default function ParticipantesForm({ empresaId, turmaId }: { empresaId: s
         <div className="rounded-xl bg-[var(--success-bg)] p-3.5 flex flex-col gap-2 text-sm">
           <span className="font-semibold text-[var(--success-text)]">
             {novos.length
-              ? `${novos.length} ${novos.length === 1 ? "acesso criado" : "acessos criados"}. Envie os dados para o RH ou para cada pessoa:`
+              ? `${novos.length} ${novos.length === 1 ? "acesso criado" : "acessos criados"}. ${
+                  boasVindas ? "Cada pessoa recebe os dados por e-mail em alguns minutos. Se quiser, copie também:" : "Envie os dados para o RH ou para cada pessoa:"
+                }`
               : "Pronto."}
           </span>
           <ul className="m-0 p-0 list-none flex flex-col gap-1">
@@ -84,6 +87,10 @@ export default function ParticipantesForm({ empresaId, turmaId }: { empresaId: s
           placeholder={"Mariana Souza, mariana@empresa.com\nJoão Lima, joao@empresa.com"}
           className="rounded-[10px] border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2.5 text-sm font-normal font-mono"
         />
+      </label>
+      <label className="flex items-center gap-2.5 text-sm">
+        <input type="checkbox" checked={boasVindas} onChange={(e) => setBoasVindas(e.target.checked)} className="w-[18px] h-[18px] accent-[var(--navy)]" />
+        Enviar e-mail de boas-vindas para cada pessoa (com login e senha)
       </label>
       {erro && <p role="alert" className="m-0 text-sm text-[var(--danger-text)]">{erro}</p>}
       <div className="flex gap-2">

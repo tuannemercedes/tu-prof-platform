@@ -137,7 +137,8 @@ export type ResultadoParticipante = { nome: string | null; email: string; senha:
 export async function adicionarParticipantes(
   empresaId: string,
   turmaId: string,
-  texto: string
+  texto: string,
+  boasVindas = true
 ): Promise<{ resultados: ResultadoParticipante[]; error?: string }> {
   await requireAdmin();
   const linhas = lerLinhas(texto);
@@ -173,6 +174,9 @@ export async function adicionarParticipantes(
     }
     if (nome) await supabase.from("profiles").update({ nome }).eq("id", id);
     await supabase.from("turma_membros").upsert({ turma_id: turmaId, aluno_id: id });
+    if (nova && boasVindas) {
+      await supabase.from("avisos_fila").insert({ tipo: "boas_vindas", destinatario: id, dados: { senha } });
+    }
     resultados.push({ nome, email, senha: nova ? senha : null });
   }
 

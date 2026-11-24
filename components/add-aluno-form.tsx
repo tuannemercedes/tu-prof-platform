@@ -9,7 +9,7 @@ type Props = {
   professores: { id: string; nome: string | null; email: string }[];
 };
 
-type Criado = { email: string; password: string | null; papel: string };
+type Criado = { email: string; password: string | null; papel: string; boasVindas?: boolean };
 
 export default function AddAlunoForm({ turmas, professores }: Props) {
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +28,7 @@ export default function AddAlunoForm({ turmas, professores }: Props) {
       } else if (result?.success) {
         formRef.current?.reset();
         setPapel("aluno");
-        setCreated({ email: result.email, password: result.password ?? null, papel: result.papel });
+        setCreated({ email: result.email, password: result.password ?? null, papel: result.papel, boasVindas: result.boasVindas });
       }
     });
   }
@@ -42,7 +42,10 @@ export default function AddAlunoForm({ turmas, professores }: Props) {
           {created.password ? (
             <>
               <p className="text-[var(--success-text)] font-medium">
-                {created.papel === "professor" ? "Professor" : "Aluno"} adicionado. Envie estes dados por fora (WhatsApp, e-mail):
+                {created.papel === "professor" ? "Professor" : "Aluno"} adicionado.{" "}
+                {created.boasVindas
+                  ? "O e-mail de boas-vindas com estes dados sai em alguns minutos:"
+                  : "Envie estes dados por fora (WhatsApp, e-mail):"}
               </p>
               <p className="text-[var(--success-text)]">
                 E-mail: <span className="font-mono">{created.email}</span>
@@ -150,6 +153,14 @@ export default function AddAlunoForm({ turmas, professores }: Props) {
             </label>
           </>
         )}
+
+        <label className="flex items-start gap-2.5 text-sm">
+          <input type="checkbox" name="boas_vindas" value="1" defaultChecked className="mt-0.5 w-[18px] h-[18px] accent-[var(--navy)]" />
+          <span>
+            Enviar e-mail de boas-vindas
+            <span className="block text-xs text-[var(--text-secondary)]">Com o link da plataforma, o login e a senha. Sai em alguns minutos.</span>
+          </span>
+        </label>
 
         {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
         <button

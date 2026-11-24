@@ -93,6 +93,7 @@ const rodapeEquipe = `Aviso para a equipe Tu Prof. <a href="${APP}/admin/configu
 
 const PREF: Record<string, string | null> = {
   teste: null,
+  boas_vindas: null,
   tarefa_nova: "tarefas",
   prazo: "tarefas",
   aula_vespera: "aulas",
@@ -143,6 +144,36 @@ async function montar(tipo: string, dados: Record<string, string>, p: Pessoa): P
         intro: `${ola}este é um teste enviado pela plataforma. É assim que os alunos vão receber lembretes de aula, tarefas novas e comentários.`,
         botao: { texto: "Abrir a plataforma", url: APP },
         rodape: rodapeEquipe,
+      }),
+    };
+  }
+
+  if (tipo === "boas_vindas") {
+    if (!dados.senha) return null;
+    const { data: m } = await db.from("turma_membros").select("turmas(nome)").eq("aluno_id", p.id);
+    const programas = (m ?? []).map((x) => (x.turmas as unknown as { nome: string } | null)?.nome).filter(Boolean) as string[];
+    const equipe = p.role !== "aluno";
+    return {
+      assunto: equipe ? "Seu acesso à equipe Tu Prof" : "Boas-vindas à Tu Prof: seu acesso à plataforma",
+      html: modelo({
+        sobretitulo: equipe ? "Equipe Tu Prof" : "Boas-vindas",
+        titulo: nome ? `Que bom ter você aqui, ${nome}` : "Que bom ter você aqui",
+        intro: equipe
+          ? "Seu acesso à plataforma da Tu Prof está pronto. É por ela que você acompanha seus alunos, aulas e entregas."
+          : "Sua plataforma da Tu Prof está pronta. É nela que ficam suas aulas, seu plano da semana, as tarefas, o acervo de materiais e a sua evolução.",
+        blocos: [
+          {
+            rotulo: "Seus dados de acesso",
+            texto: `Endereço: <a href="${APP}" style="color:#0e1b33">${esc(APP.replace(/^https?:\/\//, ""))}</a><br>E-mail: <b>${esc(p.email)}</b><br>Senha: <b style="font-family:Menlo,Consolas,monospace;letter-spacing:.5px">${esc(dados.senha)}</b>`,
+          },
+          ...(programas.length && !equipe ? [{ rotulo: programas.length === 1 ? "Seu programa" : "Seus programas", texto: programas.map(esc).join("<br>") }] : []),
+          {
+            rotulo: "Duas dicas",
+            texto: "Troque a senha por uma sua em <b>Meu perfil</b>, logo no primeiro acesso.<br>No celular, abra o endereço e escolha <b>Adicionar à tela de início</b>: a plataforma fica como um app.",
+          },
+        ],
+        botao: { texto: "Entrar na plataforma", url: `${APP}/login` },
+        rodape: equipe ? rodapeEquipe : "Você recebe este e-mail porque foi cadastrado(a) na plataforma da Tu Prof.",
       }),
     };
   }
@@ -404,8 +435,17 @@ async function enviar() {
   const madrugada = horaLocal(agora) >= 22 || horaLocal(agora) < 7;
   for (const item of fila ?? []) {
     const p = item.profiles as unknown as Pessoa | null;
+    // A senha do e-mail de boas-vindas não fica guardada depois do envio.
     const marcar = (status: string, erro?: string) =>
-      db.from("avisos_fila").update({ status, erro: erro ?? null, enviado_em: status === "enviado" ? new Date().toISOString() : null }).eq("id", item.id);
+      db
+        .from("avisos_fila")
+        .update({
+          status,
+          erro: erro ?? null,
+          enviado_em: status === "enviado" ? new Date().toISOString() : null,
+          ...(item.tipo === "boas_vindas" ? { dados: {} } : {}),
+        })
+        .eq("id", item.id);
 
     const pref = PREF[item.tipo];
     if (!p || !p.email || p.email.endsWith(".invalid") || (pref && p.avisos?.[pref] === false)) {
@@ -457,7 +497,7 @@ async function enviar() {
         .from("avisos_fila")
         .update(
           tentativas >= 3
-            ? { status: "erro", erro, tentativas }
+            ? { status: "erro", erro, tentativas, ...(item.tipo === "boas_vindas" ? { dados: {} } : {}) }
             : { erro, tentativas, enviar_apos: new Date(Date.now() + 15 * 60 * 1000).toISOString() }
         )
         .eq("id", item.id);

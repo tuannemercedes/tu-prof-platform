@@ -74,9 +74,15 @@ export async function addAluno(formData: FormData) {
       .upsert(turmaIds.map((turma_id) => ({ turma_id, aluno_id: pessoaId })));
   }
 
+  // E-mail de boas-vindas com link, login e senha (só para conta nova).
+  const boasVindas = !jaExistia && formData.get("boas_vindas") === "1";
+  if (boasVindas) {
+    await supabase.from("avisos_fila").insert({ tipo: "boas_vindas", destinatario: pessoaId, dados: { senha: password } });
+  }
+
   revalidatePath("/admin/alunos");
   // Se a conta já existia, a senha dela não mudou: não mostramos uma senha falsa.
-  return { success: true, email, password: jaExistia ? null : password, papel };
+  return { success: true, email, password: jaExistia ? null : password, papel, boasVindas };
 }
 
 export async function resetAlunoPassword(alunoId: string) {
