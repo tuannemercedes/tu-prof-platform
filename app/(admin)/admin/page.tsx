@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/dal";
 import { getResumoEquipe } from "@/lib/equipe";
+import { fimDoPlano } from "@/lib/financeiro";
+import { dataCurta, moeda } from "@/lib/empresas";
 import { diaISO, diaSemanaCurto, hojePorExtenso, hora, segundaDaSemana, somarDias } from "@/lib/datas";
 
 const SITUACAO = {
@@ -40,6 +42,26 @@ export default async function EquipeInicioPage({
     clubeSemana = data ?? [];
   }
 
+  // Financeiro (só na visão da fundadora): mensalidades em atraso e contratos perto do fim.
+  let financeiro: { atrasadas: { cliente: string; valor: number; vencimento: string }[]; vencendo: { cliente: string; fim: string }[] } = {
+    atrasadas: [],
+    vencendo: [],
+  };
+  if (ehAdmin && !visaoProfessor) {
+    const hoje = diaISO(new Date());
+    await supabase.rpc("gerar_mensalidades");
+    const [{ data: cob }, { data: planos }] = await Promise.all([
+      supabase.from("cobrancas").select("cliente, valor, vencimento").is("pago_em", null).lt("vencimento", hoje).order("vencimento"),
+      supabase.from("planos_alunos").select("cliente, inicio, meses, encerrado_em").is("encerrado_em", null).not("meses", "is", null),
+    ]);
+    financeiro = {
+      atrasadas: (cob ?? []).map((c) => ({ ...c, valor: Number(c.valor) })),
+      vencendo: (planos ?? [])
+        .map((p) => ({ cliente: p.cliente, fim: fimDoPlano(p) ?? "" }))
+        .filter((p) => p.fim && p.fim >= hoje && p.fim <= somarDias(hoje, 30)),
+    };
+  }
+
   const atrasados = alunos.filter((a) => a.tarefasAtrasadas > 0);
   const checkpoint = alunos.filter((a) => a.aulasDesdeCheckpoint >= 4);
   const semAula = alunos.filter((a) => !a.proximaAula);
@@ -60,6 +82,22 @@ export default async function EquipeInicioPage({
 
   type Alerta = { chave: string; titulo: string; meta: string; acao: string; cor: string; href: string };
   const alertas: Alerta[] = [
+    ...financeiro.atrasadas.map((c, i) => ({
+      chave: `fin-${i}`,
+      titulo: `Pagamento em atraso: ${c.cliente}`,
+      meta: `${moeda(c.valor)} · venceu em ${dataCurta(c.vencimento)}`,
+      acao: "Ver",
+      cor: "#c2553e",
+      href: "/admin/financeiro?aba=cobrancas",
+    })),
+    ...financeiro.vencendo.map((p, i) => ({
+      chave: `ven-${i}`,
+      titulo: `Contrato de ${p.cliente} vence em ${dataCurta(p.fim)}`,
+      meta: "Hora de conversar sobre a renovação",
+      acao: "Ver",
+      cor: "#c9a24d",
+      href: "/admin/financeiro?aba=contratos&filtro=vencendo",
+    })),
     ...alunos
       .filter((a) => a.pedidosRemarcacao > 0)
       .map((a) => ({
@@ -104,7 +142,7 @@ export default async function EquipeInicioPage({
       cor: "#16284a",
       href: `/admin/alunos/${a.id}`,
     })),
-  ].slice(0, 6);
+  ].slice(0, 8);
 
   const tag = (bg: string, fg: string) => ({ background: bg, color: fg });
   const primeiroNome = (profile!.nome || "").split(" ")[0];

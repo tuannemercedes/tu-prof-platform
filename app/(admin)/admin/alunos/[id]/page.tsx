@@ -8,6 +8,7 @@ import { lerCompetencias, nivel } from "@/lib/evolucao";
 import { idiomasDosProgramas, ROTULO_IDIOMA, type Idioma } from "@/lib/idioma";
 import PreviaForm from "@/components/previa-form";
 import AulaMudar from "@/components/aula-mudar";
+import { fimDoPlano } from "@/lib/financeiro";
 import { reativarAula, resolverPedido } from "@/app/remarcacao-actions";
 import { liberarAlunos } from "../actions";
 import CertificadosAluno from "@/components/certificados-aluno";
@@ -56,7 +57,7 @@ export default async function FichaAlunoPage({
     .maybeSingle();
   if (!aluno || aluno.role !== "aluno") notFound();
 
-  const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: termosAluno }, { data: professor }, { data: pedidos }] =
+  const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: termosAluno }, { data: professor }, { data: pedidos }, { data: planosFin }] =
     await Promise.all([
       supabase.from("turma_membros").select("turma_id, turmas(id, nome, idioma)").eq("aluno_id", id),
       supabase.from("aulas").select("id, data, tema, descricao, resumo, status, idioma, previa, cancelamento, motivo, remarcada_de, reposicao_de").eq("aluno_id", id).order("data", { ascending: false }),
@@ -74,6 +75,8 @@ export default async function FichaAlunoPage({
         ? supabase.from("profiles").select("nome, email").eq("id", aluno.professor_id).maybeSingle()
         : Promise.resolve({ data: null }),
       supabase.from("pedidos_remarcacao").select("id, aula_id, mensagem, sugestao, criado_em").eq("aluno_id", id).is("resolvido_em", null).order("criado_em"),
+      // Contrato do financeiro (só a admin enxerga): dá o prazo das reposições.
+      supabase.from("planos_alunos").select("inicio, meses, encerrado_em").eq("aluno_id", id).is("encerrado_em", null).order("inicio", { ascending: false }).limit(1),
     ]);
 
   const programas = (membros ?? [])
@@ -102,6 +105,7 @@ export default async function FichaAlunoPage({
   const temaDe = new Map(aulas.map((a) => [a.id, a]));
   const pedidoDe = new Map((pedidos ?? []).map((p) => [p.aula_id, p]));
   const voltarFicha = `/admin/alunos/${id}`;
+  const fimContrato = planosFin?.[0] ? fimDoPlano(planosFin[0]) : null;
 
   const competencias = lerCompetencias(cfg?.valor);
   const ultimo = checkpoints[0];
@@ -313,8 +317,8 @@ export default async function FichaAlunoPage({
                 {aRepor.length > 0 && (
                   <p className="m-0 text-sm rounded-xl bg-[var(--surface-2)] px-3.5 py-2.5">
                     <b>{aRepor.length} {aRepor.length === 1 ? "reposição pendente" : "reposições pendentes"}:</b>{" "}
-                    {aRepor.map((a) => `${a.tema}${a.data ? ` (${diaCurtoComMes(diaISO(a.data))})` : ""}`).join(", ")}. Ao agendar, escolha
-                    “É reposição de”.
+                    {aRepor.map((a) => `${a.tema}${a.data ? ` (${diaCurtoComMes(diaISO(a.data))})` : ""}`).join(", ")}.
+                    {fimContrato ? ` Repor até ${diaCurtoComMes(fimContrato)}, fim do contrato.` : ""} Ao agendar, escolha “É reposição de”.
                   </p>
                 )}
                 <ul className="m-0 p-0 list-none flex flex-col">

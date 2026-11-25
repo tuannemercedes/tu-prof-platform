@@ -35,6 +35,12 @@ const ICONES: Record<string, React.ReactNode> = {
       <path d="M4 19a2 2 0 0 0 2 2h13" />
     </>
   ),
+  financeiro: (
+    <>
+      <rect x="2.5" y="6" width="19" height="13" rx="2" />
+      <path d="M2.5 10h19M6.5 15h3" />
+    </>
+  ),
   config: (
     <>
       <circle cx="12" cy="12" r="3" />
@@ -61,6 +67,7 @@ const ITENS_ADMIN: Item[] = [
     label: "Acervo",
     ativo: (p) => ["/admin/biblioteca", "/admin/fia", "/admin/glossario"].some((r) => p.startsWith(r)),
   },
+  { chave: "financeiro", href: "/admin/financeiro", label: "Financeiro", ativo: (p) => p.startsWith("/admin/financeiro") },
   {
     chave: "config",
     href: "/admin/configuracoes",
