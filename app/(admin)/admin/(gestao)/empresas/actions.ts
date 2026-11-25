@@ -175,6 +175,7 @@ export async function adicionarParticipantes(
     if (nome) await supabase.from("profiles").update({ nome }).eq("id", id);
     await supabase.from("turma_membros").upsert({ turma_id: turmaId, aluno_id: id });
     if (nova && boasVindas) {
+      await supabase.from("profiles").update({ liberado_em: new Date().toISOString() }).eq("id", id);
       await supabase.from("avisos_fila").insert({ tipo: "boas_vindas", destinatario: id, dados: { senha } });
     }
     resultados.push({ nome, email, senha: nova ? senha : null });
