@@ -10,7 +10,7 @@ import PreviaForm from "@/components/previa-form";
 import AulaMudar from "@/components/aula-mudar";
 import { fimDoPlano } from "@/lib/financeiro";
 import { reativarAula, resolverPedido } from "@/app/remarcacao-actions";
-import { liberarAlunos } from "../actions";
+import { alterarEmail, liberarAlunos } from "../actions";
 import CertificadosAluno from "@/components/certificados-aluno";
 import SubmitButton from "@/components/submit-button";
 import RegistrarAulaForm from "@/components/registrar-aula-form";
@@ -156,6 +156,14 @@ export default async function FichaAlunoPage({
         <div className="flex-[1_1_280px] flex flex-col gap-1.5">
           <h1 className="m-0 font-serif font-semibold text-[36px] leading-[1.05]">{nome}</h1>
           <span className="text-sm text-[var(--text-secondary)]">{linha}</span>
+          {eu?.role === "admin" && aluno.email.endsWith(".invalid") && !aluno.email.startsWith("demonstracao@") && (
+            <form action={alterarEmail} className="flex flex-wrap items-center gap-2 text-sm">
+              <input type="hidden" name="aluno_id" value={id} />
+              <span className="font-semibold text-[var(--danger-text)]">Falta o e-mail real:</span>
+              <input type="email" name="email" required placeholder="email@do-aluno.com" aria-label="E-mail do aluno" className="h-9 rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 text-sm" />
+              <SubmitButton className="h-9 px-3 rounded-lg bg-[var(--accent)] text-[var(--accent-contrast)] text-[13px] font-semibold">Salvar e-mail</SubmitButton>
+            </form>
+          )}
           {!aluno.liberado_em && (
             <span className="flex flex-wrap items-center gap-2 text-sm">
               <span className="text-[11px] font-semibold uppercase tracking-wide rounded-md px-2 py-0.5 bg-[var(--warning-bg)] text-[var(--gold-text)]">
