@@ -65,6 +65,8 @@ export async function addAluno(formData: FormData) {
       ...(nome ? { nome } : {}),
       role: papel,
       professor_id: papel === "aluno" ? professorId : null,
+      // Aluno novo começa "em montagem" (sem e-mails), a não ser que seja liberado já.
+      ...(papel === "aluno" && !jaExistia && formData.get("boas_vindas") === "1" ? { liberado_em: new Date().toISOString() } : {}),
     })
     .eq("id", pessoaId);
 
@@ -83,6 +85,26 @@ export async function addAluno(formData: FormData) {
   revalidatePath("/admin/alunos");
   // Se a conta já existia, a senha dela não mudou: não mostramos uma senha falsa.
   return { success: true, email, password: jaExistia ? null : password, papel, boasVindas };
+}
+
+// Libera o acesso de alunos "em montagem": gera uma senha nova, envia as boas-vindas
+// e liga os avisos por e-mail. Serve para um aluno ou para vários de uma vez.
+export async function liberarAlunos(formData: FormData) {
+  await requireAdmin();
+  const ids = formData.getAll("aluno_id").map(String).filter(Boolean);
+  if (!ids.length) return;
+  const admin = createAdminClient();
+  const supabase = await createClient();
+  const { data: alunos } = await supabase.from("profiles").select("id").in("id", ids).eq("role", "aluno").is("liberado_em", null);
+  for (const a of alunos ?? []) {
+    const senha = generatePassword();
+    const { error } = await admin.auth.admin.updateUserById(a.id, { password: senha });
+    if (error) continue;
+    await supabase.from("profiles").update({ liberado_em: new Date().toISOString() }).eq("id", a.id);
+    await supabase.from("avisos_fila").insert({ tipo: "boas_vindas", destinatario: a.id, dados: { senha } });
+  }
+  revalidatePath("/admin/alunos", "layout");
+  revalidatePath("/admin");
 }
 
 export async function resetAlunoPassword(alunoId: string) {

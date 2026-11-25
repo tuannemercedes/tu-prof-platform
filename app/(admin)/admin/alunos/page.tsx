@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { updateAlunoTurmas } from "./actions";
+import { liberarAlunos, updateAlunoTurmas } from "./actions";
 import AddAlunoForm from "@/components/add-aluno-form";
 import ResetPasswordButton from "@/components/reset-password-button";
 import SubmitButton from "@/components/submit-button";
@@ -14,6 +14,7 @@ type Pessoa = {
   email: string;
   role: string;
   professor_id: string | null;
+  liberado_em: string | null;
   turma_membros: { turma_id: string }[];
 };
 
@@ -54,7 +55,7 @@ export default async function PessoasPage() {
   const [{ data: pessoas }, { data: turmas }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, nome, email, role, professor_id, turma_membros(turma_id)")
+      .select("id, nome, email, role, professor_id, liberado_em, turma_membros(turma_id)")
       .in("role", ["aluno", "professor"])
       .order("nome"),
     supabase.from("turmas").select("id, nome, idioma").order("ordem").order("nome"),
@@ -63,6 +64,8 @@ export default async function PessoasPage() {
   const lista = (pessoas ?? []) as Pessoa[];
   const professores = lista.filter((p) => p.role === "professor");
   const alunos = lista.filter((p) => p.role === "aluno");
+  // Os de demonstração (.invalid) não entram no "Liberar todos".
+  const emMontagem = alunos.filter((a) => !a.liberado_em && !a.email.endsWith(".invalid"));
   const nomeProfessor = new Map(professores.map((p) => [p.id, p.nome || p.email]));
 
   return (
@@ -70,8 +73,8 @@ export default async function PessoasPage() {
       <div id="adicionar">
         <h1 className="m-0 font-serif font-semibold text-[40px] leading-[1.05]">Pessoas</h1>
         <p className="text-sm text-[var(--text-secondary)]">
-          Alunos e professores da Tu Prof. Ao adicionar, uma senha é gerada: envie o e-mail e a
-          senha por fora (WhatsApp, e-mail). O professor vê só os alunos que estão com ele.
+          Alunos e professores da Tu Prof. Aluno novo entra “em montagem”: você organiza tudo e só depois libera o acesso, que
+          envia as boas-vindas com login e senha. O professor vê só os alunos que estão com ele.
         </p>
       </div>
 
@@ -105,6 +108,23 @@ export default async function PessoasPage() {
 
       <section className="space-y-2">
         <h2 className="m-0 font-serif font-semibold text-[26px]">Alunos ({alunos.length})</h2>
+        {emMontagem.length > 0 && (
+          <form action={liberarAlunos} className="rounded-[18px] border border-[var(--gold)] bg-[var(--warning-bg)] p-4 flex flex-wrap items-center gap-3 justify-between">
+            <p className="m-0 text-sm flex-1 min-w-[220px]">
+              <b>
+                {emMontagem.length} {emMontagem.length === 1 ? "aluno em montagem" : "alunos em montagem"}
+              </b>
+              : não recebem nenhum e-mail. Quando a plataforma estiver pronta, libere para enviar as boas-vindas (com uma senha nova) e ligar os
+              avisos.
+            </p>
+            {emMontagem.map((a) => (
+              <input key={a.id} type="hidden" name="aluno_id" value={a.id} />
+            ))}
+            <SubmitButton className="h-10 px-4 rounded-xl bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-semibold" pendingText="Liberando..." savedText="✓ Liberados">
+              Liberar todos
+            </SubmitButton>
+          </form>
+        )}
         <ul className="divide-y divide-[var(--border)] border border-[var(--border)] rounded-[18px] bg-[var(--surface)]">
           {alunos.length ? (
             alunos.map((aluno) => {
@@ -116,6 +136,11 @@ export default async function PessoasPage() {
                       <Link href={`/admin/alunos/${aluno.id}`} className="text-[15px] font-semibold">
                         {aluno.nome || aluno.email}
                       </Link>
+                      {!aluno.liberado_em && (
+                        <span className="ml-2 text-[11px] font-semibold uppercase tracking-wide rounded-md px-2 py-0.5 bg-[var(--warning-bg)] text-[var(--gold-text)]">
+                          Em montagem
+                        </span>
+                      )}
                       <p className="text-xs text-[var(--text-secondary)]">
                         {aluno.email} · Professor:{" "}
                         {aluno.professor_id ? nomeProfessor.get(aluno.professor_id) ?? "—" : "você"}

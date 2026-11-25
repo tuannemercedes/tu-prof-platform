@@ -11,7 +11,7 @@ export default function ParticipantesForm({ empresaId, turmaId }: { empresaId: s
   const [erro, setErro] = useState<string | null>(null);
   const [resultados, setResultados] = useState<ResultadoParticipante[]>([]);
   const [copiado, setCopiado] = useState(false);
-  const [boasVindas, setBoasVindas] = useState(true);
+  const [boasVindas, setBoasVindas] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function enviar() {
@@ -90,7 +90,7 @@ export default function ParticipantesForm({ empresaId, turmaId }: { empresaId: s
       </label>
       <label className="flex items-center gap-2.5 text-sm">
         <input type="checkbox" checked={boasVindas} onChange={(e) => setBoasVindas(e.target.checked)} className="w-[18px] h-[18px] accent-[var(--navy)]" />
-        Enviar e-mail de boas-vindas para cada pessoa (com login e senha)
+        Liberar o acesso agora (boas-vindas com login e senha, e avisos ligados). Sem marcar, ficam “em montagem”.
       </label>
       {erro && <p role="alert" className="m-0 text-sm text-[var(--danger-text)]">{erro}</p>}
       <div className="flex gap-2">

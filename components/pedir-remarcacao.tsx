@@ -30,6 +30,10 @@ export default function PedirRemarcacao({
 
   return (
     <form action={enviar} className="flex flex-col gap-3">
+      <p className="m-0 text-sm text-[var(--text-secondary)] leading-relaxed">
+        Avise com o máximo de antecedência que puder (o combinado do contrato é 24 horas). A reposição pode ser na semana seguinte, nas
+        próximas semanas ou no fim do plano, sempre dentro do período do seu contrato.
+      </p>
       <input type="hidden" name="aula_id" value={aulaId} />
       <label className="flex flex-col gap-1.5 text-[13px] font-semibold">
         Que dias e horários funcionam para você?

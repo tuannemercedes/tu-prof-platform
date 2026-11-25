@@ -155,10 +155,13 @@ export default function AddAlunoForm({ turmas, professores }: Props) {
         )}
 
         <label className="flex items-start gap-2.5 text-sm">
-          <input type="checkbox" name="boas_vindas" value="1" defaultChecked className="mt-0.5 w-[18px] h-[18px] accent-[var(--navy)]" />
+          <input type="checkbox" name="boas_vindas" value="1" className="mt-0.5 w-[18px] h-[18px] accent-[var(--navy)]" />
           <span>
-            Enviar e-mail de boas-vindas
-            <span className="block text-xs text-[var(--text-secondary)]">Com o link da plataforma, o login e a senha. Sai em alguns minutos.</span>
+            Liberar o acesso agora
+            <span className="block text-xs text-[var(--text-secondary)]">
+              Envia o e-mail de boas-vindas (link, login e senha) e liga os avisos. Sem marcar, o aluno fica “em montagem”: não recebe
+              nenhum e-mail até você liberar.
+            </span>
           </span>
         </label>
 

@@ -9,6 +9,7 @@ import { idiomasDosProgramas, ROTULO_IDIOMA, type Idioma } from "@/lib/idioma";
 import PreviaForm from "@/components/previa-form";
 import AulaMudar from "@/components/aula-mudar";
 import { reativarAula, resolverPedido } from "@/app/remarcacao-actions";
+import { liberarAlunos } from "../actions";
 import CertificadosAluno from "@/components/certificados-aluno";
 import SubmitButton from "@/components/submit-button";
 import RegistrarAulaForm from "@/components/registrar-aula-form";
@@ -50,7 +51,7 @@ export default async function FichaAlunoPage({
 
   const { data: aluno } = await supabase
     .from("profiles")
-    .select("id, nome, email, role, professor_id, objetivo, foco, horario, plano_nome, link_aula")
+    .select("id, nome, email, role, professor_id, objetivo, foco, horario, plano_nome, link_aula, liberado_em")
     .eq("id", id)
     .maybeSingle();
   if (!aluno || aluno.role !== "aluno") notFound();
@@ -151,6 +152,22 @@ export default async function FichaAlunoPage({
         <div className="flex-[1_1_280px] flex flex-col gap-1.5">
           <h1 className="m-0 font-serif font-semibold text-[36px] leading-[1.05]">{nome}</h1>
           <span className="text-sm text-[var(--text-secondary)]">{linha}</span>
+          {!aluno.liberado_em && (
+            <span className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="text-[11px] font-semibold uppercase tracking-wide rounded-md px-2 py-0.5 bg-[var(--warning-bg)] text-[var(--gold-text)]">
+                Em montagem
+              </span>
+              <span className="text-[var(--text-secondary)]">não recebe nenhum e-mail ainda.</span>
+              {eu?.role === "admin" && !aluno.email.endsWith(".invalid") && (
+                <form action={liberarAlunos}>
+                  <input type="hidden" name="aluno_id" value={id} />
+                  <SubmitButton className="text-sm font-semibold underline text-[var(--gold-text)]" pendingText="Liberando..." savedText="✓ Liberado">
+                    Liberar acesso e enviar boas-vindas
+                  </SubmitButton>
+                </form>
+              )}
+            </span>
+          )}
           {aluno.objetivo ? (
             <span className="text-sm">
               <b className="font-semibold">Objetivo:</b> {aluno.objetivo}

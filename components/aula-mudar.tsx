@@ -43,12 +43,19 @@ export default function AulaMudar({ aulaId, data, voltar, grupo }: { aulaId: str
             <legend className="text-[13px] font-semibold mb-1">Desmarcar a aula</legend>
             <label className="flex gap-2 items-start">
               <input type="radio" name="cancelamento" value="repor" defaultChecked className="mt-1" />
-              <span>Desmarcada com aviso: <b>fica uma reposição pendente</b></span>
+              <span>
+                {grupo ? "Desmarcada pela professora" : "Desmarcada com aviso"}: <b>fica uma reposição pendente</b>
+              </span>
             </label>
             <label className="flex gap-2 items-start">
               <input type="radio" name="cancelamento" value="sem_reposicao" className="mt-1" />
-              <span>Falta sem aviso: <b>conta como aula dada</b>, sem reposição</span>
+              <span>
+                {grupo ? "Cancelada sem reposição" : "Falta sem aviso"}: <b>conta como aula dada</b>
+              </span>
             </label>
+            {grupo && (
+              <span className="text-xs text-[var(--text-secondary)]">Em turma, só há reposição quando quem desmarca é a professora.</span>
+            )}
           </fieldset>
           <input name="motivo" placeholder="Motivo (opcional)" aria-label="Motivo" className={campo} />
           <div>

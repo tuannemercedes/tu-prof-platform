@@ -110,7 +110,7 @@ const PREF: Record<string, string | null> = {
   diario: "diario",
 };
 
-type Pessoa = { id: string; email: string; nome: string | null; role: string; avisos: Record<string, unknown>; link_aula: string | null; professor_id: string | null };
+type Pessoa = { id: string; email: string; nome: string | null; role: string; avisos: Record<string, unknown>; link_aula: string | null; professor_id: string | null; liberado_em: string | null };
 type Email = { assunto: string; html: string } | null;
 
 const ROTULO_ENTREGA: Record<string, string> = {
@@ -534,7 +534,7 @@ async function enviar() {
   const agora = new Date();
   const { data: fila } = await db
     .from("avisos_fila")
-    .select("id, tipo, destinatario, dados, criado_em, tentativas, profiles(id, email, nome, role, avisos, link_aula, professor_id)")
+    .select("id, tipo, destinatario, dados, criado_em, tentativas, profiles(id, email, nome, role, avisos, link_aula, professor_id, liberado_em)")
     .eq("status", "pendente")
     .lte("enviar_apos", agora.toISOString())
     .order("enviar_apos")
@@ -558,6 +558,12 @@ async function enviar() {
     const pref = PREF[item.tipo];
     if (!p || !p.email || p.email.endsWith(".invalid") || (pref && p.avisos?.[pref] === false)) {
       await marcar("ignorado", !p ? "sem destinatário" : pref && p.avisos?.[pref] === false ? "desligado pela pessoa" : "e-mail inválido");
+      r.ignorados++;
+      continue;
+    }
+    // Aluno "em montagem": nenhum e-mail até a admin liberar o acesso.
+    if (p.role === "aluno" && !p.liberado_em && item.tipo !== "teste") {
+      await marcar("ignorado", "aluno em montagem");
       r.ignorados++;
       continue;
     }
