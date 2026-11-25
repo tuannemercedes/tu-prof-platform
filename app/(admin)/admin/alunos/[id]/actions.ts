@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/lib/dal";
+import { aulasDoPar, duplaDe } from "@/lib/dupla";
 
 // Todas as ações abaixo passam pela RLS: a admin mexe em qualquer aluno,
 // o professor só nos alunos que estão com ele.
@@ -24,6 +25,7 @@ function lerIdioma(f: FormData) {
 }
 
 function atualizar(alunoId: string) {
+  revalidatePath("/admin/alunos", "layout");
   revalidatePath(`/admin/alunos/${alunoId}`);
   revalidatePath("/admin");
 }
@@ -54,9 +56,14 @@ export async function agendarAula(formData: FormData) {
   if (!tema || !data) return;
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("aulas")
-    .insert({ aluno_id: alunoId, professor_id: profile.id, data, tema, descricao: txt(formData, "descricao"), idioma: lerIdioma(formData), reposicao_de: txt(formData, "reposicao_de") });
+  const linha = { professor_id: profile.id, data, tema, descricao: txt(formData, "descricao"), idioma: lerIdioma(formData) };
+  // Em dupla: agenda a mesma aula para as duas pessoas, ligadas pelo par_id.
+  const dupla = await duplaDe(supabase, alunoId);
+  const par = dupla ? crypto.randomUUID() : null;
+  const { error } = await supabase.from("aulas").insert([
+    { ...linha, aluno_id: alunoId, par_id: par, reposicao_de: txt(formData, "reposicao_de") },
+    ...(dupla ? [{ ...linha, aluno_id: dupla, par_id: par }] : []),
+  ]);
   if (error) throw new Error("Não foi possível agendar.");
   atualizar(alunoId);
 }
@@ -74,22 +81,28 @@ export async function registrarAula(formData: FormData) {
   const supabase = await createClient();
   let idAula = aulaId;
 
+  const dupla = await duplaDe(supabase, alunoId);
+  // Tarefa vale para as duas da dupla, a não ser que a professora desmarque.
+  const paraDupla = dupla && formData.get("tarefa_dupla") !== "0";
   if (aulaId) {
-    const { error } = await supabase.from("aulas").update({ tema, resumo, status: "realizada" }).eq("id", aulaId);
+    const ids = await aulasDoPar(supabase, aulaId);
+    const { error } = await supabase.from("aulas").update({ tema, resumo, status: "realizada" }).in("id", ids);
     if (error) return { error: "Não foi possível salvar a aula." };
   } else {
+    const par = dupla ? crypto.randomUUID() : null;
+    const linha = { professor_id: profile.id, data: new Date().toISOString(), tema, resumo, status: "realizada", idioma: lerIdioma(formData), par_id: par };
     const { data, error } = await supabase
       .from("aulas")
-      .insert({ aluno_id: alunoId, professor_id: profile.id, data: new Date().toISOString(), tema, resumo, status: "realizada", idioma: lerIdioma(formData) })
-      .select("id")
-      .single();
+      .insert([{ ...linha, aluno_id: alunoId }, ...(dupla ? [{ ...linha, aluno_id: dupla }] : [])])
+      .select("id, aluno_id");
     if (error) return { error: "Não foi possível salvar a aula." };
-    idAula = data.id;
+    idAula = data.find((a) => a.aluno_id === alunoId)?.id ?? null;
   }
 
   if (tarefa) {
-    const { error } = await supabase.from("tarefas").insert({
-      aluno_id: alunoId,
+    const { error } = await supabase.from("tarefas").insert(
+      [alunoId, ...(paraDupla ? [dupla!] : [])].map((quem) => ({
+      aluno_id: quem,
       aula_id: idAula,
       idioma: lerIdioma(formData),
       texto: tarefa,
@@ -97,7 +110,8 @@ export async function registrarAula(formData: FormData) {
       link_url: txt(formData, "link_url"),
       prazo: txt(formData, "prazo"),
       created_by: profile.id,
-    });
+    }))
+    );
     if (error) return { error: "A aula foi salva, mas a tarefa não. Tente de novo." };
   }
 
@@ -109,7 +123,7 @@ export async function excluirAula(formData: FormData) {
   await requireStaff();
   const alunoId = String(formData.get("aluno_id"));
   const supabase = await createClient();
-  await supabase.from("aulas").delete().eq("id", String(formData.get("id")));
+  await supabase.from("aulas").delete().in("id", await aulasDoPar(supabase, String(formData.get("id"))));
   atualizar(alunoId);
 }
 
@@ -228,4 +242,33 @@ export async function salvarCheckpoint(
   if (error) return { error: "Não foi possível salvar o checkpoint." };
   atualizar(alunoId);
   return { ok: true };
+}
+
+// Forma ou desfaz uma dupla. Ao desfazer, as aulas futuras deixam de andar juntas
+// (cada uma passa a ser remarcada e registrada separadamente); o histórico fica.
+export async function formarDupla(formData: FormData) {
+  await requireStaff();
+  const a = String(formData.get("aluno_id"));
+  const b = String(formData.get("dupla_com") || "");
+  if (!b || a === b) return;
+  const supabase = await createClient();
+  await supabase.from("profiles").update({ dupla_com: null }).in("dupla_com", [a, b]);
+  await supabase.from("profiles").update({ dupla_com: b }).eq("id", a);
+  await supabase.from("profiles").update({ dupla_com: a }).eq("id", b);
+  atualizar(a);
+}
+
+export async function desfazerDupla(formData: FormData) {
+  await requireStaff();
+  const a = String(formData.get("aluno_id"));
+  const supabase = await createClient();
+  const b = await duplaDe(supabase, a);
+  await supabase.from("profiles").update({ dupla_com: null }).in("id", [a, ...(b ? [b] : [])]);
+  await supabase
+    .from("aulas")
+    .update({ par_id: null })
+    .in("aluno_id", [a, ...(b ? [b] : [])])
+    .gte("data", new Date().toISOString())
+    .not("par_id", "is", null);
+  atualizar(a);
 }

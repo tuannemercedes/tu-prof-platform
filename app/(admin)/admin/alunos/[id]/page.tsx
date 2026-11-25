@@ -8,6 +8,7 @@ import { lerCompetencias, nivel } from "@/lib/evolucao";
 import { idiomasDosProgramas, ROTULO_IDIOMA, type Idioma } from "@/lib/idioma";
 import PreviaForm from "@/components/previa-form";
 import AulaMudar from "@/components/aula-mudar";
+import ConfirmarExclusao from "@/components/confirmar-exclusao";
 import { fimDoPlano } from "@/lib/financeiro";
 import { reativarAula, resolverPedido } from "@/app/remarcacao-actions";
 import { alterarEmail, liberarAlunos } from "../actions";
@@ -28,6 +29,8 @@ import {
   excluirTarefa,
   salvarDadosAluno,
   salvarEtapa,
+  formarDupla,
+  desfazerDupla,
 } from "./actions";
 
 const card = "bg-[var(--surface)] border border-[var(--border)] rounded-[18px] p-[22px] flex flex-col gap-3.5";
@@ -36,7 +39,12 @@ const campo = "h-[42px] rounded-[10px] border border-[var(--border-strong)] bg-[
 const botao = "h-[42px] px-4 rounded-xl bg-[var(--accent)] text-[var(--accent-contrast)] font-semibold text-sm";
 const botaoLinha = "h-[38px] px-3.5 rounded-xl border border-[var(--border-strong)] text-sm font-medium hover:bg-[var(--surface-2)]";
 
-const ENTREGA_ROTULO: Record<string, string> = { feito: "Marcar como feita", texto: "Texto", audio: "Áudio", link: "Link externo" };
+const ENTREGA_ROTULO: Record<string, string> = {
+  feito: "Marcar como feita",
+  texto: "Texto",
+  audio: "Áudio",
+  link: "Link externo",
+};
 
 export default async function FichaAlunoPage({
   params,
@@ -52,35 +60,70 @@ export default async function FichaAlunoPage({
 
   const { data: aluno } = await supabase
     .from("profiles")
-    .select("id, nome, email, role, professor_id, objetivo, foco, horario, plano_nome, link_aula, liberado_em")
+    .select("id, nome, email, role, professor_id, objetivo, foco, horario, plano_nome, link_aula, liberado_em, dupla_com")
     .eq("id", id)
     .maybeSingle();
   if (!aluno || aluno.role !== "aluno") notFound();
 
-  const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: termosAluno }, { data: professor }, { data: pedidos }, { data: planosFin }] =
-    await Promise.all([
-      supabase.from("turma_membros").select("turma_id, turmas(id, nome, idioma)").eq("aluno_id", id),
-      supabase.from("aulas").select("id, data, tema, descricao, resumo, status, idioma, previa, cancelamento, motivo, remarcada_de, reposicao_de").eq("aluno_id", id).order("data", { ascending: false }),
-      supabase.from("plano_etapas").select("id, periodo, tema, entrega, idioma").eq("aluno_id", id).order("ordem"),
-      supabase.from("checkpoints").select("id, data, titulo, niveis, comentario, idioma").eq("aluno_id", id).order("data", { ascending: false }),
-      supabase.from("configuracoes").select("valor").eq("chave", "competencias").maybeSingle(),
-      supabase.from("tarefas").select("id, texto, entrega, prazo, created_at, aluno_id, idioma").eq("aluno_id", id).order("created_at", { ascending: false }),
-      supabase.from("tarefa_entregas").select("tarefa_id, concluida, resposta, arquivo_path, comentario").eq("aluno_id", id),
-      supabase
-        .from("glossario_termos")
-        .select("id, termo, definicao, exemplo, categoria, idioma")
-        .eq("aluno_id", id)
-        .order("termo"),
-      aluno.professor_id
-        ? supabase.from("profiles").select("nome, email").eq("id", aluno.professor_id).maybeSingle()
-        : Promise.resolve({ data: null }),
-      supabase.from("pedidos_remarcacao").select("id, aula_id, mensagem, sugestao, criado_em").eq("aluno_id", id).is("resolvido_em", null).order("criado_em"),
-      // Contrato do financeiro (só a admin enxerga): dá o prazo das reposições.
-      supabase.from("planos_alunos").select("inicio, meses, encerrado_em").eq("aluno_id", id).is("encerrado_em", null).order("inicio", { ascending: false }).limit(1),
-    ]);
+  const [
+    { data: membros },
+    { data: todasAulas },
+    { data: todasEtapas },
+    { data: todosCheckpoints },
+    { data: cfg },
+    { data: todasTarefas },
+    { data: entregas },
+    { data: termosAluno },
+    { data: professor },
+    { data: pedidos },
+    { data: planosFin },
+    { data: outrosAlunos },
+  ] = await Promise.all([
+    supabase.from("turma_membros").select("turma_id, turmas(id, nome, idioma)").eq("aluno_id", id),
+    supabase
+      .from("aulas")
+      .select("id, data, tema, descricao, resumo, status, idioma, previa, cancelamento, motivo, remarcada_de, reposicao_de")
+      .eq("aluno_id", id)
+      .order("data", { ascending: false }),
+    supabase.from("plano_etapas").select("id, periodo, tema, entrega, idioma").eq("aluno_id", id).order("ordem"),
+    supabase.from("checkpoints").select("id, data, titulo, niveis, comentario, idioma").eq("aluno_id", id).order("data", { ascending: false }),
+    supabase.from("configuracoes").select("valor").eq("chave", "competencias").maybeSingle(),
+    supabase
+      .from("tarefas")
+      .select("id, texto, entrega, prazo, created_at, aluno_id, idioma")
+      .eq("aluno_id", id)
+      .order("created_at", { ascending: false }),
+    supabase.from("tarefa_entregas").select("tarefa_id, concluida, resposta, arquivo_path, comentario").eq("aluno_id", id),
+    supabase.from("glossario_termos").select("id, termo, definicao, exemplo, categoria, idioma").eq("aluno_id", id).order("termo"),
+    aluno.professor_id ? supabase.from("profiles").select("nome, email").eq("id", aluno.professor_id).maybeSingle() : Promise.resolve({ data: null }),
+    supabase
+      .from("pedidos_remarcacao")
+      .select("id, aula_id, mensagem, sugestao, criado_em")
+      .eq("aluno_id", id)
+      .is("resolvido_em", null)
+      .order("criado_em"),
+    // Contrato do financeiro (só a admin enxerga): dá o prazo das reposições.
+    supabase
+      .from("planos_alunos")
+      .select("inicio, meses, encerrado_em")
+      .eq("aluno_id", id)
+      .is("encerrado_em", null)
+      .order("inicio", { ascending: false })
+      .limit(1),
+    supabase.from("profiles").select("id, nome, email").eq("role", "aluno").neq("id", id).order("nome"),
+  ]);
+  const parceira = aluno.dupla_com ? (outrosAlunos ?? []).find((o) => o.id === aluno.dupla_com) : null;
+  const nomeParceira = parceira ? (parceira.nome || parceira.email).split(" ")[0] : null;
 
   const programas = (membros ?? [])
-    .map((m) => m.turmas as unknown as { id: string; nome: string; idioma: string } | null)
+    .map(
+      (m) =>
+        m.turmas as unknown as {
+          id: string;
+          nome: string;
+          idioma: string;
+        } | null,
+    )
     .filter((t): t is { id: string; nome: string; idioma: string } => !!t);
 
   const idiomas = idiomasDosProgramas(programas.map((p) => p.idioma));
@@ -95,8 +138,7 @@ export default async function FichaAlunoPage({
 
   const hoje = diaISO(new Date());
   const agora = new Date().toISOString();
-  const aulaHoje =
-    aulas.find((a) => a.status === "agendada" && a.data && diaISO(a.data) === hoje) ?? null;
+  const aulaHoje = aulas.find((a) => a.status === "agendada" && a.data && diaISO(a.data) === hoje) ?? null;
   const proximas = aulas.filter((a) => a.status === "agendada" && a.data && a.data >= agora).reverse();
   const realizadas = aulas.filter((a) => a.status !== "agendada");
   // Reposições pendentes: aulas desmarcadas com aviso que ainda não têm uma aula de reposição.
@@ -117,12 +159,17 @@ export default async function FichaAlunoPage({
       .map(async (e) => {
         const { data } = await supabase.storage.from("entregas").createSignedUrl(e.arquivo_path!, 3600);
         if (data?.signedUrl) audios.set(e.tarefa_id, data.signedUrl);
-      })
+      }),
   );
 
   const nome = aluno.nome || aluno.email;
   const primeiroNome = nome.split(" ")[0];
-  const iniciais = nome.split(" ").filter(Boolean).slice(0, 2).map((p: string) => p[0]?.toUpperCase()).join("");
+  const iniciais = nome
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p: string) => p[0]?.toUpperCase())
+    .join("");
   const nomeProf = professor ? professor.nome || professor.email : eu?.role === "admin" ? eu.nome || "você" : "—";
   const ehAdmin = eu?.role === "admin";
 
@@ -156,12 +203,30 @@ export default async function FichaAlunoPage({
         <div className="flex-[1_1_280px] flex flex-col gap-1.5">
           <h1 className="m-0 font-serif font-semibold text-[36px] leading-[1.05]">{nome}</h1>
           <span className="text-sm text-[var(--text-secondary)]">{linha}</span>
+          {parceira && (
+            <span className="text-sm">
+              👭 Em dupla com{" "}
+              <Link href={`/admin/alunos/${parceira.id}`} className="font-semibold text-[var(--gold-text)]">
+                {parceira.nome || parceira.email}
+              </Link>
+              <span className="text-[var(--text-secondary)]"> · aulas, remarcações e registros valem para as duas</span>
+            </span>
+          )}
           {eu?.role === "admin" && aluno.email.endsWith(".invalid") && !aluno.email.startsWith("demonstracao@") && (
             <form action={alterarEmail} className="flex flex-wrap items-center gap-2 text-sm">
               <input type="hidden" name="aluno_id" value={id} />
               <span className="font-semibold text-[var(--danger-text)]">Falta o e-mail real:</span>
-              <input type="email" name="email" required placeholder="email@do-aluno.com" aria-label="E-mail do aluno" className="h-9 rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 text-sm" />
-              <SubmitButton className="h-9 px-3 rounded-lg bg-[var(--accent)] text-[var(--accent-contrast)] text-[13px] font-semibold">Salvar e-mail</SubmitButton>
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="email@do-aluno.com"
+                aria-label="E-mail do aluno"
+                className="h-9 rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 text-sm"
+              />
+              <SubmitButton className="h-9 px-3 rounded-lg bg-[var(--accent)] text-[var(--accent-contrast)] text-[13px] font-semibold">
+                Salvar e-mail
+              </SubmitButton>
             </form>
           )}
           {!aluno.liberado_em && (
@@ -201,7 +266,17 @@ export default async function FichaAlunoPage({
             href={`/previa/${id}`}
             className="h-11 px-[18px] rounded-xl border border-[var(--accent)] font-semibold text-sm flex items-center gap-2"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
@@ -251,7 +326,13 @@ export default async function FichaAlunoPage({
       {aba === "aulas" && (
         <div className="grid gap-5 items-start [grid-template-columns:repeat(auto-fit,minmax(320px,1fr))]">
           <div className="flex flex-col gap-5">
-            <RegistrarAulaForm alunoId={id} primeiroNome={primeiroNome} aulaHoje={aulaHoje ? { id: aulaHoje.id, tema: aulaHoje.tema } : null} idioma={idioma} />
+            <RegistrarAulaForm
+              alunoId={id}
+              primeiroNome={primeiroNome}
+              aulaHoje={aulaHoje ? { id: aulaHoje.id, tema: aulaHoje.tema } : null}
+              idioma={idioma}
+              dupla={nomeParceira}
+            />
 
             <form action={agendarAula} className={card}>
               <h2 className={h2}>Agendar próxima aula</h2>
@@ -290,9 +371,7 @@ export default async function FichaAlunoPage({
 
             {(pedidos ?? []).length > 0 && (
               <section className="rounded-[18px] border border-[var(--gold)] bg-[var(--warning-bg)] p-[22px] flex flex-col gap-3">
-                <h2 className="m-0 font-serif font-semibold text-[22px]">
-                  {primeiroNome} pediu para remarcar
-                </h2>
+                <h2 className="m-0 font-serif font-semibold text-[22px]">{primeiroNome} pediu para remarcar</h2>
                 {(pedidos ?? []).map((p) => {
                   const a = temaDe.get(p.aula_id);
                   return (
@@ -303,9 +382,7 @@ export default async function FichaAlunoPage({
                       </span>
                       {p.sugestao && <span>Sugere: {p.sugestao}</span>}
                       {p.mensagem && <span className="text-[var(--text-secondary)]">“{p.mensagem}”</span>}
-                      <span className="text-xs text-[var(--text-secondary)]">
-                        Remarque ou desmarque a aula logo abaixo; o pedido some sozinho.{" "}
-                      </span>
+                      <span className="text-xs text-[var(--text-secondary)]">Remarque ou desmarque a aula logo abaixo; o pedido some sozinho. </span>
                       <form action={resolverPedido}>
                         <input type="hidden" name="pedido_id" value={p.id} />
                         <input type="hidden" name="voltar" value={voltarFicha} />
@@ -324,7 +401,9 @@ export default async function FichaAlunoPage({
                 <h2 className={h2}>Próximas aulas</h2>
                 {aRepor.length > 0 && (
                   <p className="m-0 text-sm rounded-xl bg-[var(--surface-2)] px-3.5 py-2.5">
-                    <b>{aRepor.length} {aRepor.length === 1 ? "reposição pendente" : "reposições pendentes"}:</b>{" "}
+                    <b>
+                      {aRepor.length} {aRepor.length === 1 ? "reposição pendente" : "reposições pendentes"}:
+                    </b>{" "}
                     {aRepor.map((a) => `${a.tema}${a.data ? ` (${diaCurtoComMes(diaISO(a.data))})` : ""}`).join(", ")}.
                     {fimContrato ? ` Repor até ${diaCurtoComMes(fimContrato)}, fim do contrato.` : ""} Ao agendar, escolha “É reposição de”.
                   </p>
@@ -347,7 +426,11 @@ export default async function FichaAlunoPage({
                         <form action={excluirAula}>
                           <input type="hidden" name="aluno_id" value={id} />
                           <input type="hidden" name="id" value={a.id} />
-                          <button type="submit" title="Apagar (para aula agendada por engano)" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
+                          <button
+                            type="submit"
+                            title="Apagar (para aula agendada por engano)"
+                            className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]"
+                          >
                             Apagar
                           </button>
                         </form>
@@ -382,8 +465,14 @@ export default async function FichaAlunoPage({
                           className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-[10px]"
                           style={
                             e?.concluida
-                              ? { background: "var(--success-bg)", color: "var(--success-text)" }
-                              : { background: "var(--warning-bg)", color: "var(--warning-text)" }
+                              ? {
+                                  background: "var(--success-bg)",
+                                  color: "var(--success-text)",
+                                }
+                              : {
+                                  background: "var(--warning-bg)",
+                                  color: "var(--warning-text)",
+                                }
                           }
                         >
                           {e?.concluida ? "Entregue" : "Pendente"}
@@ -395,7 +484,13 @@ export default async function FichaAlunoPage({
                         <form action={comentarEntrega} className="flex gap-2">
                           <input type="hidden" name="aluno_id" value={id} />
                           <input type="hidden" name="tarefa_id" value={t.id} />
-                          <input name="comentario" defaultValue={e.comentario ?? ""} placeholder="Comentário para o aluno" aria-label="Comentário" className={`${campo} flex-1`} />
+                          <input
+                            name="comentario"
+                            defaultValue={e.comentario ?? ""}
+                            placeholder="Comentário para o aluno"
+                            aria-label="Comentário"
+                            className={`${campo} flex-1`}
+                          />
                           <SubmitButton className={botaoLinha}>Salvar</SubmitButton>
                         </form>
                       )}
@@ -424,7 +519,13 @@ export default async function FichaAlunoPage({
                     <option value="link">Link externo</option>
                   </select>
                   <input name="prazo" type="date" aria-label="Prazo" className={campo} />
-                  <input name="link_url" type="url" placeholder="Link (se for externo)" aria-label="Link" className={`${campo} flex-1 min-w-[160px]`} />
+                  <input
+                    name="link_url"
+                    type="url"
+                    placeholder="Link (se for externo)"
+                    aria-label="Link"
+                    className={`${campo} flex-1 min-w-[160px]`}
+                  />
                 </div>
                 <div>
                   <SubmitButton className={botaoLinha} pendingText="Adicionando..." savedText="✓ Adicionada">
@@ -444,9 +545,7 @@ export default async function FichaAlunoPage({
                         {a.tema}
                         {a.reposicao_de && <span className="ml-2 text-xs font-semibold text-[var(--gold-text)]">Reposição</span>}
                       </span>
-                      <span className="text-[13px] font-normal text-[var(--text-secondary)]">
-                        {a.data ? diaCurtoComMes(diaISO(a.data)) : ""}
-                      </span>
+                      <span className="text-[13px] font-normal text-[var(--text-secondary)]">{a.data ? diaCurtoComMes(diaISO(a.data)) : ""}</span>
                     </span>
                     {a.status === "cancelada" && (
                       <span className="flex flex-wrap items-center gap-2 text-[13px] text-[var(--text-secondary)]">
@@ -500,7 +599,11 @@ export default async function FichaAlunoPage({
             )}
           </div>
           {etapas.map((e) => (
-            <form key={e.id} action={salvarEtapa} className="grid gap-2.5 items-center py-2.5 border-b border-[var(--border-soft)] [grid-template-columns:minmax(110px,140px)_minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
+            <form
+              key={e.id}
+              action={salvarEtapa}
+              className="grid gap-2.5 items-center py-2.5 border-b border-[var(--border-soft)] [grid-template-columns:minmax(110px,140px)_minmax(0,1fr)_minmax(0,1fr)_auto_auto]"
+            >
               <input type="hidden" name="aluno_id" value={id} />
               <input type="hidden" name="id" value={e.id} />
               <input name="periodo" defaultValue={e.periodo} aria-label="Período" className={`${campo} font-semibold`} />
@@ -512,7 +615,10 @@ export default async function FichaAlunoPage({
               </button>
             </form>
           ))}
-          <form action={salvarEtapa} className="grid gap-2.5 items-center pt-2 [grid-template-columns:minmax(110px,140px)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+          <form
+            action={salvarEtapa}
+            className="grid gap-2.5 items-center pt-2 [grid-template-columns:minmax(110px,140px)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+          >
             <input type="hidden" name="aluno_id" value={id} />
             <input type="hidden" name="idioma" value={idioma} />
             <input name="periodo" required placeholder="Ex.: Janeiro" aria-label="Período" className={campo} />
@@ -571,14 +677,14 @@ export default async function FichaAlunoPage({
         <div className="grid gap-5 items-start [grid-template-columns:repeat(auto-fit,minmax(320px,1fr))]">
           <section className={card}>
             <h2 className={h2}>Glossário de {primeiroNome}</h2>
-            <p className="m-0 text-sm text-[var(--text-secondary)]">
-              Termos exclusivos: só {primeiroNome} vê, junto com os glossários gerais.
-            </p>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">Termos exclusivos: só {primeiroNome} vê, junto com os glossários gerais.</p>
             <GlossarioForm categoria={null} alunoId={id} />
             <GlossarioImportForm categoria={null} alunoId={id} />
           </section>
           <section className={card}>
-            <h2 className={h2}>Termos ({(termosAluno ?? []).filter((t) => !t.idioma || t.idioma === idioma || t.idioma === "espanhol_ingles").length})</h2>
+            <h2 className={h2}>
+              Termos ({(termosAluno ?? []).filter((t) => !t.idioma || t.idioma === idioma || t.idioma === "espanhol_ingles").length})
+            </h2>
             {(termosAluno ?? []).length ? (
               <ul className="m-0 p-0 list-none divide-y divide-[var(--border)] border border-[var(--border)] rounded-xl">
                 {(termosAluno ?? [])
@@ -595,36 +701,104 @@ export default async function FichaAlunoPage({
       )}
 
       {aba === "dados" && (
-        <form action={salvarDadosAluno} className={`${card} max-w-2xl`}>
-          <h2 className={h2}>Dados do aluno</h2>
-          <input type="hidden" name="aluno_id" value={id} />
-          {[
-            { n: "objetivo", l: "Objetivo", v: aluno.objetivo, p: "Ex.: conduzir as reuniões com o time do México" },
-            { n: "foco", l: "Foco do mês", v: aluno.foco, p: "Ex.: abrir e fechar reuniões" },
-            { n: "horario", l: "Dia e horário das aulas", v: aluno.horario, p: "Ex.: quartas, 18h" },
-            { n: "plano_nome", l: "Plano", v: aluno.plano_nome, p: "Ex.: plano semestral" },
-            { n: "link_aula", l: "Link da sala de aula", v: aluno.link_aula, p: "https://meet.google.com/..." },
-          ].map((c) => (
-            <label key={c.n} className="flex flex-col gap-1.5 text-[13px] font-semibold">
-              {c.l}
-              <input name={c.n} defaultValue={c.v ?? ""} placeholder={c.p} className={campo} />
-            </label>
-          ))}
-          <div>
-            <SubmitButton className={botao} pendingText="Salvando..." savedText="✓ Salvo">
-              Salvar dados
-            </SubmitButton>
-          </div>
-          {ehAdmin && (
-            <p className="m-0 text-[13px] text-[var(--text-secondary)]">
-              Programas e professor responsável ficam em{" "}
-              <Link href="/admin/alunos" className="font-semibold text-[var(--gold-text)]">
-                Pessoas
-              </Link>
-              .
-            </p>
-          )}
-        </form>
+        <>
+          <section className={`${card} max-w-2xl`}>
+            <h2 className={h2}>Mentoria em dupla</h2>
+            {parceira ? (
+              <>
+                <p className="m-0 text-sm">
+                  {primeiroNome} faz aula em dupla com <b>{parceira.nome || parceira.email}</b>. Agendar, remarcar, desmarcar e registrar uma aula
+                  vale para as duas; tarefas, glossário e evolução continuam individuais.
+                </p>
+                <form action={desfazerDupla}>
+                  <input type="hidden" name="aluno_id" value={id} />
+                  <ConfirmarExclusao
+                    rotulo="Desfazer a dupla"
+                    aviso="As próximas aulas passam a ser separadas (cada uma com a sua). O histórico continua como está."
+                    confirmar="Sim, desfazer"
+                  />
+                </form>
+              </>
+            ) : (
+              <form action={formarDupla} className="flex flex-wrap items-end gap-2">
+                <input type="hidden" name="aluno_id" value={id} />
+                <label className="flex flex-col gap-1.5 text-[13px] font-semibold flex-1 min-w-[200px]">
+                  Fazer dupla com
+                  <select name="dupla_com" required defaultValue="" className={campo}>
+                    <option value="" disabled>
+                      Escolha o aluno
+                    </option>
+                    {(outrosAlunos ?? [])
+                      .filter((o) => !o.email.startsWith("demonstracao@"))
+                      .map((o) => (
+                        <option key={o.id} value={o.id}>
+                          {o.nome || o.email}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <SubmitButton className={botao} pendingText="Salvando..." savedText="✓ Dupla formada">
+                  Formar dupla
+                </SubmitButton>
+              </form>
+            )}
+          </section>
+          <form action={salvarDadosAluno} className={`${card} max-w-2xl`}>
+            <h2 className={h2}>Dados do aluno</h2>
+            <input type="hidden" name="aluno_id" value={id} />
+            {[
+              {
+                n: "objetivo",
+                l: "Objetivo",
+                v: aluno.objetivo,
+                p: "Ex.: conduzir as reuniões com o time do México",
+              },
+              {
+                n: "foco",
+                l: "Foco do mês",
+                v: aluno.foco,
+                p: "Ex.: abrir e fechar reuniões",
+              },
+              {
+                n: "horario",
+                l: "Dia e horário das aulas",
+                v: aluno.horario,
+                p: "Ex.: quartas, 18h",
+              },
+              {
+                n: "plano_nome",
+                l: "Plano",
+                v: aluno.plano_nome,
+                p: "Ex.: plano semestral",
+              },
+              {
+                n: "link_aula",
+                l: "Link da sala de aula",
+                v: aluno.link_aula,
+                p: "https://meet.google.com/...",
+              },
+            ].map((c) => (
+              <label key={c.n} className="flex flex-col gap-1.5 text-[13px] font-semibold">
+                {c.l}
+                <input name={c.n} defaultValue={c.v ?? ""} placeholder={c.p} className={campo} />
+              </label>
+            ))}
+            <div>
+              <SubmitButton className={botao} pendingText="Salvando..." savedText="✓ Salvo">
+                Salvar dados
+              </SubmitButton>
+            </div>
+            {ehAdmin && (
+              <p className="m-0 text-[13px] text-[var(--text-secondary)]">
+                Programas e professor responsável ficam em{" "}
+                <Link href="/admin/alunos" className="font-semibold text-[var(--gold-text)]">
+                  Pessoas
+                </Link>
+                .
+              </p>
+            )}
+          </form>
+        </>
       )}
     </div>
   );

@@ -18,9 +18,10 @@ type Props = {
   primeiroNome: string;
   aulaHoje: { id: string; tema: string } | null;
   idioma: string | null;
+  dupla?: string | null;
 };
 
-export default function RegistrarAulaForm({ alunoId, primeiroNome, aulaHoje, idioma }: Props) {
+export default function RegistrarAulaForm({ alunoId, primeiroNome, aulaHoje, idioma, dupla }: Props) {
   const [entrega, setEntrega] = useState("feito");
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -29,6 +30,7 @@ export default function RegistrarAulaForm({ alunoId, primeiroNome, aulaHoje, idi
   function enviar(formData: FormData) {
     setMsg(null);
     formData.set("entrega", entrega);
+    if (dupla && !formData.get("tarefa_dupla")) formData.set("tarefa_dupla", "0");
     startTransition(async () => {
       const r = await registrarAula(formData);
       if (r?.error) setMsg({ ok: false, texto: r.error });
@@ -68,6 +70,12 @@ export default function RegistrarAulaForm({ alunoId, primeiroNome, aulaHoje, idi
         Tarefa para a próxima aula
         <input name="tarefa" placeholder="Ex.: fechar a weekly de segunda com as decisões em espanhol" className={campo} />
       </label>
+      {dupla && (
+        <label className="flex items-center gap-2 text-[13px]">
+          <input type="checkbox" name="tarefa_dupla" value="1" defaultChecked className="w-[18px] h-[18px]" />
+          Tarefa também para {dupla} (a aula é registrada para as duas)
+        </label>
+      )}
       <div className="flex flex-col gap-2">
         <span className="text-[13px] font-semibold">Como o aluno entrega</span>
         <div className="flex gap-2 flex-wrap">
