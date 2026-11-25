@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getUser, requireStaff } from "@/lib/dal";
+import { aulasDoPar } from "@/lib/dupla";
 
 // Remarcar, desmarcar e pedir remarcação. Servem para aula individual e de grupo;
 // a RLS decide quem pode mexer em cada aula. Os e-mails saem pelos gatilhos do banco.
@@ -26,13 +27,14 @@ export async function remarcarAula(formData: FormData) {
   const supabase = await createClient();
   const { data: aula } = await supabase.from("aulas").select("data, remarcada_de").eq("id", aulaId).single();
   if (!aula || aula.data === nova) return;
+  const ids = await aulasDoPar(supabase, aulaId);
   const { error } = await supabase
     .from("aulas")
     // Guarda a data original (a primeira), mesmo que a aula seja remarcada mais de uma vez.
     .update({ data: nova, remarcada_de: aula.remarcada_de ?? aula.data, motivo: txt(formData, "motivo") })
-    .eq("id", aulaId);
+    .in("id", ids);
   if (error) throw new Error("Não foi possível remarcar.");
-  await supabase.from("pedidos_remarcacao").update({ resolvido_em: new Date().toISOString() }).eq("aula_id", aulaId).is("resolvido_em", null);
+  await supabase.from("pedidos_remarcacao").update({ resolvido_em: new Date().toISOString() }).in("aula_id", ids).is("resolvido_em", null);
   atualizar(formData);
 }
 
@@ -41,12 +43,13 @@ export async function desmarcarAula(formData: FormData) {
   const aulaId = String(formData.get("aula_id"));
   const cancelamento = formData.get("cancelamento") === "sem_reposicao" ? "sem_reposicao" : "repor";
   const supabase = await createClient();
+  const ids = await aulasDoPar(supabase, aulaId);
   const { error } = await supabase
     .from("aulas")
     .update({ status: "cancelada", cancelamento, motivo: txt(formData, "motivo") })
-    .eq("id", aulaId);
+    .in("id", ids);
   if (error) throw new Error("Não foi possível desmarcar.");
-  await supabase.from("pedidos_remarcacao").update({ resolvido_em: new Date().toISOString() }).eq("aula_id", aulaId).is("resolvido_em", null);
+  await supabase.from("pedidos_remarcacao").update({ resolvido_em: new Date().toISOString() }).in("aula_id", ids).is("resolvido_em", null);
   atualizar(formData);
 }
 
@@ -54,7 +57,8 @@ export async function desmarcarAula(formData: FormData) {
 export async function reativarAula(formData: FormData) {
   await requireStaff();
   const supabase = await createClient();
-  await supabase.from("aulas").update({ status: "agendada", cancelamento: null }).eq("id", String(formData.get("aula_id")));
+  const ids = await aulasDoPar(supabase, String(formData.get("aula_id")));
+  await supabase.from("aulas").update({ status: "agendada", cancelamento: null }).in("id", ids);
   atualizar(formData);
 }
 
