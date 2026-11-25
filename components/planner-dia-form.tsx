@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { createPlannerDia } from "@/app/(admin)/admin/planner/[id]/actions";
+import { createPlannerDia } from "@/app/(admin)/admin/(gestao)/planner/[id]/actions";
 
 const NOVA_SEMANA = "__nova__";
 

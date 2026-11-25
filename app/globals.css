@@ -1,12 +1,97 @@
 @import "tailwindcss";
 
-/* ===== Tu Prof — design tokens ===========================================
-   Paleta: Bege Areia / Azul Noite / Ouro Antigo / Marrom Profundo /
-   Terracota Vibrante / Creme (+ secundária: Terroso Editorial, Bronze
-   Escovado, Marrom Chocolate, Cinza Quente).
+/* ===== Tu Prof: identidade 2026 ==========================================
+   Azul-marinho, marfim, dourado e prata. Títulos em serifa (Cormorant).
    Tema controlado via [data-theme] em <html> (ver app/layout.tsx). */
 
 :root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface-2: #f1ece1;
+  --surface-3: #e9e3d6;
+  --border: #e6e1d6;
+  --border-strong: #cfc7b6;
+  --border-soft: #efeae0;
+
+  --text-primary: #1a1f2b;
+  --text-secondary: #5b6272;
+  --text-faint: #6b6559;
+
+  --accent: #0e1b33;
+  --accent-hover: #16284a;
+  --accent-contrast: #f7f5f0;
+  --accent-secondary: #c9a24d;
+  --accent-secondary-contrast: #0e1b33;
+  --gold-text: #8a6a1e;
+
+  --navy: #0e1b33;
+  --navy-2: #16284a;
+  --on-navy: #f4f1ea;
+  --on-navy-muted: #c9ccd3;
+  --gold: #c9a24d;
+  --gold-light: #d9b866;
+
+  --success-bg: #e4f1ea;
+  --success-text: #1f6b4a;
+  --warning-bg: #efe7d3;
+  --warning-text: #6e5418;
+  --danger-bg: #f8e4de;
+  --danger-text: #a3341f;
+  --info-bg: #e3e8f2;
+  --info-text: #16284a;
+
+  --glow-accent: rgba(14, 27, 51, 0.25);
+  --glow-secondary: rgba(201, 162, 77, 0.35);
+
+  --font-display: var(--font-cormorant);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0b1629;
+  --surface: #12223f;
+  --surface-2: #182c50;
+  --surface-3: #1f3660;
+  --border: #2a3f66;
+  --border-strong: #3c5584;
+  --border-soft: #1c3056;
+
+  --text-primary: #f4f1ea;
+  --text-secondary: #c9ccd3;
+  --text-faint: #a9b0bf;
+
+  --accent: #c9a24d;
+  --accent-hover: #d9b866;
+  --accent-contrast: #0e1b33;
+  --accent-secondary: #c9ccd3;
+  --accent-secondary-contrast: #0e1b33;
+  --gold-text: #d9b866;
+
+  --navy: #0e1b33;
+  --navy-2: #16284a;
+  --on-navy: #f4f1ea;
+  --on-navy-muted: #c9ccd3;
+  --gold: #c9a24d;
+  --gold-light: #d9b866;
+
+  --success-bg: rgba(46, 138, 97, 0.2);
+  --success-text: #7fd1a8;
+  --warning-bg: rgba(201, 162, 77, 0.2);
+  --warning-text: #e0c48c;
+  --danger-bg: rgba(194, 85, 62, 0.22);
+  --danger-text: #f0a08c;
+  --info-bg: rgba(122, 150, 184, 0.2);
+  --info-text: #b9cde6;
+
+  --glow-accent: rgba(201, 162, 77, 0.35);
+  --glow-secondary: rgba(201, 204, 211, 0.25);
+
+  color-scheme: dark;
+}
+
+/* Tema clássico: mantido só na página de entrada (login), como pedido. */
+.tema-classico {
   --bg: #ede3d2;
   --surface: #f7f4ee;
   --surface-2: #e6dcc5;
@@ -38,9 +123,10 @@
   --glow-secondary: rgba(200, 166, 107, 0.35);
 
   color-scheme: light;
+  --font-display: var(--font-playfair);
 }
 
-[data-theme="dark"] {
+[data-theme="dark"] .tema-classico {
   --bg: #0d1b2a;
   --surface: #15283b;
   --surface-2: #1b3348;
@@ -79,7 +165,7 @@
   --color-surface: var(--surface);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-serif: var(--font-playfair);
+  --font-serif: var(--font-display);
 }
 
 body {
@@ -158,4 +244,10 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Tema clássico aplicado num bloco precisa repintar fundo e texto. */
+.tema-classico {
+  background: var(--bg);
+  color: var(--text-primary);
 }

@@ -34,6 +34,9 @@ export async function updateSession(request: NextRequest) {
 
   const isProtected =
     request.nextUrl.pathname.startsWith("/admin") ||
+    request.nextUrl.pathname.startsWith("/professor") ||
+    request.nextUrl.pathname.startsWith("/previa") ||
+    request.nextUrl.pathname.startsWith("/relatorio") ||
     request.nextUrl.pathname.startsWith("/aluno");
 
   if (!user && isProtected) {

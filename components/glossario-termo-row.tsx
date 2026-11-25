@@ -1,9 +1,10 @@
 "use client";
 
+import CampoIdioma from "./campo-idioma";
 import { useState, useTransition } from "react";
-import { saveTermo, deleteTermo } from "@/app/(admin)/admin/glossario/actions";
+import { saveTermo, deleteTermo } from "@/app/(admin)/admin/(gestao)/glossario/actions";
 
-type Termo = { id: string; termo: string; definicao: string; exemplo: string | null; categoria: string | null };
+type Termo = { id: string; termo: string; definicao: string; exemplo: string | null; categoria: string | null; idioma?: string | null };
 
 export default function GlossarioTermoRow({ termo, categorias }: { termo: Termo; categorias: string[] }) {
   const [editing, setEditing] = useState(false);
@@ -28,6 +29,9 @@ export default function GlossarioTermoRow({ termo, categorias }: { termo: Termo;
         <div className="min-w-0">
           <p className="text-sm font-medium">
             {termo.termo}
+            <span className="ml-2 text-[10px] font-semibold text-[var(--gold-text)] bg-[var(--warning-bg)] px-1.5 py-0.5 rounded-full align-middle">
+              {termo.idioma === "ingles" ? "Inglês" : termo.idioma === "espanhol_ingles" ? "ES + EN" : "Espanhol"}
+            </span>
             {termo.categoria && (
               <span className="ml-2 text-[10px] font-medium text-[var(--text-faint)] bg-[var(--surface-2)] px-1.5 py-0.5 rounded-full align-middle">
                 {termo.categoria}
@@ -56,6 +60,7 @@ export default function GlossarioTermoRow({ termo, categorias }: { termo: Termo;
       {editing && (
         <form action={handleSubmit} className="space-y-2 border-t border-[var(--border-soft)] pt-3">
           <input type="hidden" name="id" value={termo.id} />
+          <CampoIdioma defaultValue={termo.idioma} />
           <input
             type="text"
             name="termo"

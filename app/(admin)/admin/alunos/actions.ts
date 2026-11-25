@@ -4,10 +4,22 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { generatePassword } from "@/lib/password";
+import { requireAdmin } from "@/lib/dal";
+
+type Papel = "aluno" | "professor";
+
+function lerPapel(valor: FormDataEntryValue | null): Papel {
+  return valor === "professor" ? "professor" : "aluno";
+}
 
 export async function addAluno(formData: FormData) {
+  // Usa a chave de serviço (cria login): só a admin pode chamar.
+  await requireAdmin();
+
   const email = String(formData.get("email") || "").trim().toLowerCase();
   const nome = String(formData.get("nome") || "").trim();
+  const papel = lerPapel(formData.get("papel"));
+  const professorId = String(formData.get("professor_id") || "") || null;
   const turmaIds = formData.getAll("turmas").map(String);
 
   if (!email) return { error: "Informe um e-mail." };
@@ -20,33 +32,63 @@ export async function addAluno(formData: FormData) {
     email_confirm: true,
   });
 
-  let alunoId = data?.user?.id;
+  let pessoaId = data?.user?.id;
+  let jaExistia = false;
 
   if (error) {
+    jaExistia = true;
     if (error.message.toLowerCase().includes("already")) {
       const { data: list } = await admin.auth.admin.listUsers();
-      alunoId = list?.users.find((u) => u.email?.toLowerCase() === email)?.id;
+      pessoaId = list?.users.find((u) => u.email?.toLowerCase() === email)?.id;
     } else {
       return { error: error.message };
     }
   }
 
-  if (!alunoId) return { error: "Não foi possível criar o aluno." };
+  if (!pessoaId) return { error: "Não foi possível criar a pessoa." };
 
   const supabase = await createClient();
-  if (nome) await supabase.from("profiles").update({ nome }).eq("id", alunoId);
+  const { data: atual } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", pessoaId)
+    .single();
 
-  if (turmaIds.length) {
+  // Nunca rebaixa uma conta de admin que já exista com esse e-mail.
+  if (atual?.role === "admin") {
+    return { error: "Esse e-mail já é de uma conta de administração." };
+  }
+
+  await supabase
+    .from("profiles")
+    .update({
+      ...(nome ? { nome } : {}),
+      role: papel,
+      professor_id: papel === "aluno" ? professorId : null,
+    })
+    .eq("id", pessoaId);
+
+  if (papel === "aluno" && turmaIds.length) {
     await supabase
       .from("turma_membros")
-      .upsert(turmaIds.map((turma_id) => ({ turma_id, aluno_id: alunoId })));
+      .upsert(turmaIds.map((turma_id) => ({ turma_id, aluno_id: pessoaId })));
+  }
+
+  // E-mail de boas-vindas com link, login e senha (só para conta nova).
+  const boasVindas = !jaExistia && formData.get("boas_vindas") === "1";
+  if (boasVindas) {
+    await supabase.from("avisos_fila").insert({ tipo: "boas_vindas", destinatario: pessoaId, dados: { senha: password } });
   }
 
   revalidatePath("/admin/alunos");
-  return { success: true, email, password };
+  // Se a conta já existia, a senha dela não mudou: não mostramos uma senha falsa.
+  return { success: true, email, password: jaExistia ? null : password, papel, boasVindas };
 }
 
 export async function resetAlunoPassword(alunoId: string) {
+  // Usa a chave de serviço (troca senha): só a admin pode chamar.
+  await requireAdmin();
+
   const admin = createAdminClient();
   const password = generatePassword();
 
@@ -59,9 +101,11 @@ export async function resetAlunoPassword(alunoId: string) {
 export async function updateAlunoTurmas(formData: FormData) {
   const alunoId = String(formData.get("aluno_id") || "");
   const turmaIds = formData.getAll("turmas").map(String);
+  const professorId = String(formData.get("professor_id") || "") || null;
   if (!alunoId) return;
 
   const supabase = await createClient();
+  await supabase.from("profiles").update({ professor_id: professorId }).eq("id", alunoId);
   await supabase.from("turma_membros").delete().eq("aluno_id", alunoId);
 
   if (turmaIds.length) {

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import CalendarGrid from "@/components/calendar-grid";
 import ClubeRsvpButtons from "@/components/clube-rsvp-buttons";
 import { getUser } from "@/lib/dal";
+import CabecalhoPagina from "@/components/cabecalho-pagina";
 
 export default async function AlunoClubePage() {
   const user = await getUser();
@@ -16,7 +17,7 @@ export default async function AlunoClubePage() {
     return (
       <div className="max-w-2xl">
         <p className="text-sm text-[var(--text-secondary)]">
-          Você ainda não tem acesso ao Clube de Conversação.
+          Você ainda não tem acesso ao Club Hispano.
         </p>
       </div>
     );
@@ -41,10 +42,7 @@ export default async function AlunoClubePage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-lg font-serif font-semibold">Clube de Conversação</h1>
-        <p className="text-sm text-[var(--text-secondary)]">Pratique conversação com a turma.</p>
-      </div>
+<CabecalhoPagina sobretitulo="Benefício Tu Prof" titulo="Club Hispano" descricao="Encontros ao vivo para praticar a conversa, com temas profissionais e do dia a dia." />
 
       <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 space-y-2 card-elevated">
         {config.dia_horario && (

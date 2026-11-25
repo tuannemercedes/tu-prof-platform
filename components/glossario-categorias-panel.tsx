@@ -1,13 +1,19 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { criarCategoria } from "@/app/(admin)/admin/glossario/actions";
+import { criarCategoria } from "@/app/(admin)/admin/(gestao)/glossario/actions";
 import GlossarioForm from "./glossario-form";
 import GlossarioImportForm from "./glossario-import-form";
 
 const SEM_CATEGORIA = "Sem categoria";
 
-export default function GlossarioCategoriasPanel({ categorias: categoriasIniciais }: { categorias: string[] }) {
+export default function GlossarioCategoriasPanel({
+  categorias: categoriasIniciais,
+  alunos,
+}: {
+  categorias: string[];
+  alunos?: { id: string; nome: string }[];
+}) {
   const [categorias, setCategorias] = useState(categoriasIniciais);
   const [categoriaAtiva, setCategoriaAtiva] = useState<string | null>(categoriasIniciais[0] ?? null);
   const [novaCategoria, setNovaCategoria] = useState("");
@@ -89,9 +95,9 @@ export default function GlossarioCategoriasPanel({ categorias: categoriasIniciai
         <p className="text-sm font-medium">
           Adicionando em: <span className="text-[var(--accent)]">{categoriaAtiva ?? SEM_CATEGORIA}</span>
         </p>
-        <GlossarioForm categoria={categoriaAtiva} />
+        <GlossarioForm categoria={categoriaAtiva} alunos={alunos} />
         <div className="border-t border-[var(--border-soft)] pt-4">
-          <GlossarioImportForm categoria={categoriaAtiva} />
+          <GlossarioImportForm categoria={categoriaAtiva} alunos={alunos} />
         </div>
       </div>
     </div>

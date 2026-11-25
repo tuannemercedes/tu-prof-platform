@@ -31,7 +31,7 @@ export default function EsqueciSenhaPage() {
   }
 
   return (
-    <main className="relative min-h-screen flex items-center justify-center px-4">
+    <main className="tema-classico relative min-h-screen flex items-center justify-center px-4">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>

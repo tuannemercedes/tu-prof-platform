@@ -1,9 +1,17 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { saveTermo } from "@/app/(admin)/admin/glossario/actions";
+import CampoIdioma from "./campo-idioma";
+import { saveTermo } from "@/app/(admin)/admin/(gestao)/glossario/actions";
 
-export default function GlossarioForm({ categoria }: { categoria: string | null }) {
+type Props = {
+  categoria: string | null;
+  // Fixo: termo exclusivo deste aluno. Lista: deixa escolher entre geral e um aluno.
+  alunoId?: string;
+  alunos?: { id: string; nome: string }[];
+};
+
+export default function GlossarioForm({ categoria, alunoId, alunos }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -27,6 +35,22 @@ export default function GlossarioForm({ categoria }: { categoria: string | null 
   return (
     <form ref={formRef} action={handleSubmit} className="space-y-2">
       <input type="hidden" name="categoria" value={categoria ?? ""} />
+      <CampoIdioma rotulo="Idioma do termo" />
+      {alunoId ? (
+        <input type="hidden" name="aluno_id" value={alunoId} />
+      ) : alunos && alunos.length > 0 ? (
+        <label className="flex flex-wrap items-center gap-2.5 text-[13px] font-semibold">
+          Para quem
+          <select name="aluno_id" defaultValue="" className="h-9 rounded-[10px] border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 text-sm font-normal">
+            <option value="">Glossário geral</option>
+            {alunos.map((a) => (
+              <option key={a.id} value={a.id}>
+                Só para {a.nome}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <div className="grid sm:grid-cols-2 gap-2">
         <input
           type="text"

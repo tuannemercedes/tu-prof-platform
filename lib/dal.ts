@@ -26,16 +26,29 @@ export const getProfile = cache(async () => {
   return data;
 });
 
+export function homeFor(role: string | null | undefined) {
+  if (role === "admin" || role === "professor") return "/admin";
+  return "/aluno";
+}
+
 export async function requireAdmin() {
   const profile = await getProfile();
   if (!profile) redirect("/login");
-  if (profile.role !== "admin") redirect("/aluno");
+  if (profile.role !== "admin") redirect(homeFor(profile.role));
+  return profile;
+}
+
+// Equipe: admin ou professor (o professor vê só os alunos dele).
+export async function requireStaff() {
+  const profile = await getProfile();
+  if (!profile) redirect("/login");
+  if (profile.role !== "admin" && profile.role !== "professor") redirect(homeFor(profile.role));
   return profile;
 }
 
 export async function requireAluno() {
   const profile = await getProfile();
   if (!profile) redirect("/login");
-  if (profile.role === "admin") redirect("/admin");
+  if (profile.role !== "aluno") redirect(homeFor(profile.role));
   return profile;
 }

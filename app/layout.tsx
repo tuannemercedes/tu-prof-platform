@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import { Cormorant_Garamond, Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,6 +12,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
@@ -19,11 +25,11 @@ const playfairDisplay = Playfair_Display({
 
 export const metadata: Metadata = {
   title: "Tu Prof",
-  description: "Plataforma de mentoria — materiais, turmas e acompanhamento dos alunos.",
+  description: "Tu Prof · comunicação profissional e internacional.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#c46a43",
+  themeColor: "#0e1b33",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -32,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="pt-BR"
       data-theme="light"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${cormorant.variable} h-full antialiased`}
     >
       <head>
         <script
