@@ -8,8 +8,9 @@ import { lerCompetencias, nivel } from "@/lib/evolucao";
 import { idiomasDosProgramas, ROTULO_IDIOMA, type Idioma } from "@/lib/idioma";
 import PreviaForm from "@/components/previa-form";
 import AulaMudar from "@/components/aula-mudar";
+import { fimDoPlano } from "@/lib/financeiro";
 import { reativarAula, resolverPedido } from "@/app/remarcacao-actions";
-import { liberarAlunos } from "../actions";
+import { alterarEmail, liberarAlunos } from "../actions";
 import CertificadosAluno from "@/components/certificados-aluno";
 import SubmitButton from "@/components/submit-button";
 import RegistrarAulaForm from "@/components/registrar-aula-form";
@@ -56,7 +57,7 @@ export default async function FichaAlunoPage({
     .maybeSingle();
   if (!aluno || aluno.role !== "aluno") notFound();
 
-  const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: termosAluno }, { data: professor }, { data: pedidos }] =
+  const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: termosAluno }, { data: professor }, { data: pedidos }, { data: planosFin }] =
     await Promise.all([
       supabase.from("turma_membros").select("turma_id, turmas(id, nome, idioma)").eq("aluno_id", id),
       supabase.from("aulas").select("id, data, tema, descricao, resumo, status, idioma, previa, cancelamento, motivo, remarcada_de, reposicao_de").eq("aluno_id", id).order("data", { ascending: false }),
@@ -74,6 +75,8 @@ export default async function FichaAlunoPage({
         ? supabase.from("profiles").select("nome, email").eq("id", aluno.professor_id).maybeSingle()
         : Promise.resolve({ data: null }),
       supabase.from("pedidos_remarcacao").select("id, aula_id, mensagem, sugestao, criado_em").eq("aluno_id", id).is("resolvido_em", null).order("criado_em"),
+      // Contrato do financeiro (só a admin enxerga): dá o prazo das reposições.
+      supabase.from("planos_alunos").select("inicio, meses, encerrado_em").eq("aluno_id", id).is("encerrado_em", null).order("inicio", { ascending: false }).limit(1),
     ]);
 
   const programas = (membros ?? [])
@@ -102,6 +105,7 @@ export default async function FichaAlunoPage({
   const temaDe = new Map(aulas.map((a) => [a.id, a]));
   const pedidoDe = new Map((pedidos ?? []).map((p) => [p.aula_id, p]));
   const voltarFicha = `/admin/alunos/${id}`;
+  const fimContrato = planosFin?.[0] ? fimDoPlano(planosFin[0]) : null;
 
   const competencias = lerCompetencias(cfg?.valor);
   const ultimo = checkpoints[0];
@@ -152,6 +156,14 @@ export default async function FichaAlunoPage({
         <div className="flex-[1_1_280px] flex flex-col gap-1.5">
           <h1 className="m-0 font-serif font-semibold text-[36px] leading-[1.05]">{nome}</h1>
           <span className="text-sm text-[var(--text-secondary)]">{linha}</span>
+          {eu?.role === "admin" && aluno.email.endsWith(".invalid") && !aluno.email.startsWith("demonstracao@") && (
+            <form action={alterarEmail} className="flex flex-wrap items-center gap-2 text-sm">
+              <input type="hidden" name="aluno_id" value={id} />
+              <span className="font-semibold text-[var(--danger-text)]">Falta o e-mail real:</span>
+              <input type="email" name="email" required placeholder="email@do-aluno.com" aria-label="E-mail do aluno" className="h-9 rounded-lg border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 text-sm" />
+              <SubmitButton className="h-9 px-3 rounded-lg bg-[var(--accent)] text-[var(--accent-contrast)] text-[13px] font-semibold">Salvar e-mail</SubmitButton>
+            </form>
+          )}
           {!aluno.liberado_em && (
             <span className="flex flex-wrap items-center gap-2 text-sm">
               <span className="text-[11px] font-semibold uppercase tracking-wide rounded-md px-2 py-0.5 bg-[var(--warning-bg)] text-[var(--gold-text)]">
@@ -313,8 +325,8 @@ export default async function FichaAlunoPage({
                 {aRepor.length > 0 && (
                   <p className="m-0 text-sm rounded-xl bg-[var(--surface-2)] px-3.5 py-2.5">
                     <b>{aRepor.length} {aRepor.length === 1 ? "reposição pendente" : "reposições pendentes"}:</b>{" "}
-                    {aRepor.map((a) => `${a.tema}${a.data ? ` (${diaCurtoComMes(diaISO(a.data))})` : ""}`).join(", ")}. Ao agendar, escolha
-                    “É reposição de”.
+                    {aRepor.map((a) => `${a.tema}${a.data ? ` (${diaCurtoComMes(diaISO(a.data))})` : ""}`).join(", ")}.
+                    {fimContrato ? ` Repor até ${diaCurtoComMes(fimContrato)}, fim do contrato.` : ""} Ao agendar, escolha “É reposição de”.
                   </p>
                 )}
                 <ul className="m-0 p-0 list-none flex flex-col">

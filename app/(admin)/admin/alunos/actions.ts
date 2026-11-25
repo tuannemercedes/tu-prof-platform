@@ -107,6 +107,20 @@ export async function liberarAlunos(formData: FormData) {
   revalidatePath("/admin");
 }
 
+// Troca o e-mail de login (ex.: aluno cadastrado com e-mail provisório).
+export async function alterarEmail(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("aluno_id") || "");
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  if (!id || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return;
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.updateUserById(id, { email, email_confirm: true });
+  if (error) throw new Error(error.message.includes("already") ? "Esse e-mail já está em uso." : "Não foi possível trocar o e-mail.");
+  const supabase = await createClient();
+  await supabase.from("profiles").update({ email }).eq("id", id);
+  revalidatePath("/admin/alunos", "layout");
+}
+
 export async function resetAlunoPassword(alunoId: string) {
   // Usa a chave de serviço (troca senha): só a admin pode chamar.
   await requireAdmin();
