@@ -7,6 +7,8 @@ import { rotuloIdioma } from "@/lib/programas";
 import { lerCompetencias, nivel } from "@/lib/evolucao";
 import { idiomasDosProgramas, ROTULO_IDIOMA, type Idioma } from "@/lib/idioma";
 import PreviaForm from "@/components/previa-form";
+import AulaMudar from "@/components/aula-mudar";
+import { reativarAula, resolverPedido } from "@/app/remarcacao-actions";
 import CertificadosAluno from "@/components/certificados-aluno";
 import SubmitButton from "@/components/submit-button";
 import RegistrarAulaForm from "@/components/registrar-aula-form";
@@ -53,10 +55,10 @@ export default async function FichaAlunoPage({
     .maybeSingle();
   if (!aluno || aluno.role !== "aluno") notFound();
 
-  const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: termosAluno }, { data: professor }] =
+  const [{ data: membros }, { data: todasAulas }, { data: todasEtapas }, { data: todosCheckpoints }, { data: cfg }, { data: todasTarefas }, { data: entregas }, { data: termosAluno }, { data: professor }, { data: pedidos }] =
     await Promise.all([
       supabase.from("turma_membros").select("turma_id, turmas(id, nome, idioma)").eq("aluno_id", id),
-      supabase.from("aulas").select("id, data, tema, descricao, resumo, status, idioma, previa").eq("aluno_id", id).order("data", { ascending: false }),
+      supabase.from("aulas").select("id, data, tema, descricao, resumo, status, idioma, previa, cancelamento, motivo, remarcada_de, reposicao_de").eq("aluno_id", id).order("data", { ascending: false }),
       supabase.from("plano_etapas").select("id, periodo, tema, entrega, idioma").eq("aluno_id", id).order("ordem"),
       supabase.from("checkpoints").select("id, data, titulo, niveis, comentario, idioma").eq("aluno_id", id).order("data", { ascending: false }),
       supabase.from("configuracoes").select("valor").eq("chave", "competencias").maybeSingle(),
@@ -70,6 +72,7 @@ export default async function FichaAlunoPage({
       aluno.professor_id
         ? supabase.from("profiles").select("nome, email").eq("id", aluno.professor_id).maybeSingle()
         : Promise.resolve({ data: null }),
+      supabase.from("pedidos_remarcacao").select("id, aula_id, mensagem, sugestao, criado_em").eq("aluno_id", id).is("resolvido_em", null).order("criado_em"),
     ]);
 
   const programas = (membros ?? [])
@@ -92,6 +95,12 @@ export default async function FichaAlunoPage({
     aulas.find((a) => a.status === "agendada" && a.data && diaISO(a.data) === hoje) ?? null;
   const proximas = aulas.filter((a) => a.status === "agendada" && a.data && a.data >= agora).reverse();
   const realizadas = aulas.filter((a) => a.status !== "agendada");
+  // Reposições pendentes: aulas desmarcadas com aviso que ainda não têm uma aula de reposição.
+  const repostas = new Set(aulas.map((a) => a.reposicao_de).filter(Boolean));
+  const aRepor = aulas.filter((a) => a.status === "cancelada" && a.cancelamento === "repor" && !repostas.has(a.id));
+  const temaDe = new Map(aulas.map((a) => [a.id, a]));
+  const pedidoDe = new Map((pedidos ?? []).map((p) => [p.aula_id, p]));
+  const voltarFicha = `/admin/alunos/${id}`;
 
   const competencias = lerCompetencias(cfg?.valor);
   const ultimo = checkpoints[0];
@@ -230,34 +239,97 @@ export default async function FichaAlunoPage({
                 </label>
               </div>
               <input name="descricao" placeholder="Descrição curta (opcional)" aria-label="Descrição" className={campo} />
+              {aRepor.length > 0 && (
+                <label className="flex flex-col gap-1.5 text-[13px] font-semibold">
+                  É reposição de
+                  <select name="reposicao_de" defaultValue="" className={campo}>
+                    <option value="">Não, é uma aula normal</option>
+                    {aRepor.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.tema} ({a.data ? diaCurtoComMes(diaISO(a.data)) : ""})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <div>
                 <SubmitButton className={botao} pendingText="Agendando..." savedText="✓ Agendada">
                   Agendar
                 </SubmitButton>
               </div>
-              {proximas.length > 0 && (
+            </form>
+
+            {(pedidos ?? []).length > 0 && (
+              <section className="rounded-[18px] border border-[var(--gold)] bg-[var(--warning-bg)] p-[22px] flex flex-col gap-3">
+                <h2 className="m-0 font-serif font-semibold text-[22px]">
+                  {primeiroNome} pediu para remarcar
+                </h2>
+                {(pedidos ?? []).map((p) => {
+                  const a = temaDe.get(p.aula_id);
+                  return (
+                    <div key={p.id} className="flex flex-col gap-1 text-sm border-t border-[var(--border-soft)] pt-2.5">
+                      <span className="font-semibold">
+                        {a?.tema ?? "Aula"}
+                        {a?.data ? ` · ${quandoCompleto(a.data)}` : ""}
+                      </span>
+                      {p.sugestao && <span>Sugere: {p.sugestao}</span>}
+                      {p.mensagem && <span className="text-[var(--text-secondary)]">“{p.mensagem}”</span>}
+                      <span className="text-xs text-[var(--text-secondary)]">
+                        Remarque ou desmarque a aula logo abaixo; o pedido some sozinho.{" "}
+                      </span>
+                      <form action={resolverPedido}>
+                        <input type="hidden" name="pedido_id" value={p.id} />
+                        <input type="hidden" name="voltar" value={voltarFicha} />
+                        <button type="submit" className="text-xs underline text-[var(--text-secondary)]">
+                          Já resolvi por fora
+                        </button>
+                      </form>
+                    </div>
+                  );
+                })}
+              </section>
+            )}
+
+            {(proximas.length > 0 || aRepor.length > 0) && (
+              <section className={card}>
+                <h2 className={h2}>Próximas aulas</h2>
+                {aRepor.length > 0 && (
+                  <p className="m-0 text-sm rounded-xl bg-[var(--surface-2)] px-3.5 py-2.5">
+                    <b>{aRepor.length} {aRepor.length === 1 ? "reposição pendente" : "reposições pendentes"}:</b>{" "}
+                    {aRepor.map((a) => `${a.tema}${a.data ? ` (${diaCurtoComMes(diaISO(a.data))})` : ""}`).join(", ")}. Ao agendar, escolha
+                    “É reposição de”.
+                  </p>
+                )}
                 <ul className="m-0 p-0 list-none flex flex-col">
                   {proximas.map((a) => (
                     <li key={a.id} className="flex flex-col gap-2 py-2.5 border-t border-[var(--border-soft)]">
                       <div className="flex items-center gap-3">
                         <span className="flex-1 flex flex-col">
-                          <span className="text-[15px] font-semibold">{a.tema}</span>
-                          <span className="text-[13px] text-[var(--text-secondary)]">{quandoCompleto(a.data!)}</span>
+                          <span className="text-[15px] font-semibold">
+                            {a.tema}
+                            {a.reposicao_de && <span className="ml-2 text-xs font-semibold text-[var(--gold-text)]">Reposição</span>}
+                            {pedidoDe.has(a.id) && <span className="ml-2 text-xs font-semibold text-[var(--danger-text)]">Pedido de remarcação</span>}
+                          </span>
+                          <span className="text-[13px] text-[var(--text-secondary)]">
+                            {quandoCompleto(a.data!)}
+                            {a.remarcada_de && ` · remarcada (era ${quandoCompleto(a.remarcada_de)})`}
+                          </span>
                         </span>
                         <form action={excluirAula}>
                           <input type="hidden" name="aluno_id" value={id} />
                           <input type="hidden" name="id" value={a.id} />
-                          <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
-                            Cancelar
+                          <button type="submit" title="Apagar (para aula agendada por engano)" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)]">
+                            Apagar
                           </button>
                         </form>
                       </div>
-                      <PreviaForm aulaId={a.id} data={a.data} previa={a.previa} voltar={`/admin/alunos/${id}`} />
+                      <AulaMudar aulaId={a.id} data={a.data} voltar={voltarFicha} />
+                      <PreviaForm aulaId={a.id} data={a.data} previa={a.previa} voltar={voltarFicha} />
                     </li>
                   ))}
                 </ul>
-              )}
-            </form>
+              </section>
+            )}
           </div>
 
           <div className="flex flex-col gap-5">
@@ -339,11 +411,33 @@ export default async function FichaAlunoPage({
                 realizadas.map((a) => (
                   <div key={a.id} className="py-3 border-b border-[var(--border-soft)] flex flex-col gap-1">
                     <span className="flex justify-between gap-3 text-[15px] font-semibold">
-                      <span>{a.tema}</span>
+                      <span className={a.status === "cancelada" ? "text-[var(--text-secondary)]" : ""}>
+                        {a.tema}
+                        {a.reposicao_de && <span className="ml-2 text-xs font-semibold text-[var(--gold-text)]">Reposição</span>}
+                      </span>
                       <span className="text-[13px] font-normal text-[var(--text-secondary)]">
                         {a.data ? diaCurtoComMes(diaISO(a.data)) : ""}
                       </span>
                     </span>
+                    {a.status === "cancelada" && (
+                      <span className="flex flex-wrap items-center gap-2 text-[13px] text-[var(--text-secondary)]">
+                        <span className="font-semibold text-[var(--danger-text)]">
+                          {a.cancelamento === "sem_reposicao"
+                            ? "Falta sem aviso (conta como dada)"
+                            : repostas.has(a.id)
+                              ? "Desmarcada · já reposta"
+                              : "Desmarcada · reposição pendente"}
+                        </span>
+                        {a.motivo && <span>· {a.motivo}</span>}
+                        <form action={reativarAula}>
+                          <input type="hidden" name="aula_id" value={a.id} />
+                          <input type="hidden" name="voltar" value={voltarFicha} />
+                          <button type="submit" className="text-xs underline">
+                            Desfazer
+                          </button>
+                        </form>
+                      </span>
+                    )}
                     {a.resumo && <span className="text-[13px] text-[var(--text-secondary)]">{a.resumo}</span>}
                   </div>
                 ))

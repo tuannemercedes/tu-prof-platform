@@ -101,6 +101,9 @@ const PREF: Record<string, string | null> = {
   aula_vespera: "aulas",
   aula_1h: "aulas",
   aula_previa: "aulas",
+  aula_remarcada: "aulas",
+  aula_desmarcada: "aulas",
+  pedido_remarcacao: null,
   comentario: "comentarios",
   semana: "semana",
   entrega: "entregas",
@@ -212,6 +215,71 @@ async function montar(tipo: string, dados: Record<string, string>, p: Pessoa): P
         blocos: trecho ? [{ rotulo: `Comentário de ${prof}`, texto: esc(trecho).replace(/\n/g, "<br>") }] : [],
         botao: { texto: "Ver meu relatório", url: `${APP}/aluno/relatorios/${mes}` },
         rodape: rodapeAluno,
+      }),
+    };
+  }
+
+  if (tipo === "aula_remarcada" || tipo === "aula_desmarcada") {
+    const { data: a } = await db.from("aulas").select("id, data, tema, status, aluno_id, motivo, remarcada_de, cancelamento, turmas(nome)").eq("id", dados.aula_id).maybeSingle();
+    if (!a?.data) return null;
+    const grupo = (a.turmas as unknown as { nome: string } | null)?.nome;
+    if (tipo === "aula_remarcada") {
+      if (a.status !== "agendada" || new Date(a.data).getTime() < Date.now()) return null;
+      return {
+        assunto: `Aula remarcada: ${quando(a.data)}`,
+        html: modelo({
+          sobretitulo: "Aula remarcada",
+          titulo: `Nova data: ${quando(a.data)}`,
+          intro: `${ola}a aula <b>${esc(a.tema)}</b>${grupo ? ` (${esc(grupo)})` : ""} mudou de dia ou horário.`,
+          blocos: [
+            ...(a.remarcada_de ? [{ rotulo: "Antes", texto: `<span style="text-decoration:line-through;color:#7a8190">${esc(diaExtenso(a.remarcada_de))}, às ${esc(hora(a.remarcada_de))}</span>` }] : []),
+            { rotulo: "Agora", texto: `<b>${esc(diaExtenso(a.data))}, às ${esc(hora(a.data))}</b>` },
+            ...(a.motivo ? [{ rotulo: "Motivo", texto: esc(a.motivo) }] : []),
+          ],
+          botao: { texto: "Ver no Plano", url: `${APP}/aluno/plano` },
+          rodape: rodapeAluno,
+        }),
+      };
+    }
+    if (a.status !== "cancelada") return null;
+    const repor = a.cancelamento === "repor";
+    return {
+      assunto: `Aula desmarcada: ${diaExtenso(a.data)}, às ${hora(a.data)}`,
+      html: modelo({
+        sobretitulo: "Aula desmarcada",
+        titulo: "Sua aula foi desmarcada",
+        intro: `${ola}a aula <b>${esc(a.tema)}</b>${grupo ? ` (${esc(grupo)})` : ""} de <b>${esc(diaExtenso(a.data))}, às ${esc(hora(a.data))}</b> não vai acontecer.${
+          repor && !grupo ? " Vamos combinar a reposição e ela aparece no seu Plano assim que for marcada." : ""
+        }`,
+        blocos: a.motivo ? [{ rotulo: "Motivo", texto: esc(a.motivo) }] : [],
+        botao: { texto: "Ver no Plano", url: `${APP}/aluno/plano` },
+        rodape: rodapeAluno,
+      }),
+    };
+  }
+
+  if (tipo === "pedido_remarcacao") {
+    const { data: pr } = await db
+      .from("pedidos_remarcacao")
+      .select("aluno_id, mensagem, sugestao, resolvido_em, aulas(data, tema), profiles(nome, email)")
+      .eq("id", dados.pedido_id)
+      .maybeSingle();
+    if (!pr || pr.resolvido_em) return null;
+    const aula = pr.aulas as unknown as { data: string | null; tema: string } | null;
+    const aluno = pr.profiles as unknown as { nome: string | null; email: string } | null;
+    const quem = aluno?.nome || aluno?.email || "Um aluno";
+    return {
+      assunto: `${primeiro(quem)} pediu para remarcar a aula`,
+      html: modelo({
+        sobretitulo: "Pedido de remarcação",
+        titulo: `${quem} pediu para remarcar`,
+        blocos: [
+          { rotulo: "Aula", texto: `${esc(aula?.tema ?? "")}${aula?.data ? `<br>${esc(diaExtenso(aula.data))}, às ${esc(hora(aula.data))}` : ""}` },
+          ...(pr.sugestao ? [{ rotulo: "Dias e horários que funcionam", texto: esc(pr.sugestao) }] : []),
+          ...(pr.mensagem ? [{ rotulo: "Recado", texto: esc(pr.mensagem).replace(/\n/g, "<br>") }] : []),
+        ],
+        botao: { texto: "Remarcar na ficha", url: `${APP}/admin/alunos/${pr.aluno_id}` },
+        rodape: rodapeEquipe,
       }),
     };
   }
@@ -426,11 +494,13 @@ async function agendar() {
     .lte("data", new Date(agora.getTime() + 48 * H).toISOString());
   for (const a of aulas ?? []) {
     const falta = new Date(a.data!).getTime() - agora.getTime();
+    // A hora da aula entra na chave: se a aula for remarcada, os lembretes saem de novo.
+    const t = Math.floor(new Date(a.data!).getTime() / 1000);
     for (const d of await destinos(a.aluno_id, a.turma_id)) {
       // Com prévia: um e-mail 48h antes com a prévia (no lugar do lembrete da véspera).
-      if (a.previa && falta > 3 * H) linhas.push({ tipo: "aula_previa", destinatario: d, dados: { aula_id: a.id }, chave: `aula48:${a.id}:${d}` });
-      if (!a.previa && falta > 3 * H && falta <= 24 * H) linhas.push({ tipo: "aula_vespera", destinatario: d, dados: { aula_id: a.id }, chave: `aula24:${a.id}:${d}` });
-      if (falta <= 70 * 60 * 1000) linhas.push({ tipo: "aula_1h", destinatario: d, dados: { aula_id: a.id }, chave: `aula1h:${a.id}:${d}` });
+      if (a.previa && falta > 3 * H) linhas.push({ tipo: "aula_previa", destinatario: d, dados: { aula_id: a.id }, chave: `aula48:${a.id}:${d}:${t}` });
+      if (!a.previa && falta > 3 * H && falta <= 24 * H) linhas.push({ tipo: "aula_vespera", destinatario: d, dados: { aula_id: a.id }, chave: `aula24:${a.id}:${d}:${t}` });
+      if (falta <= 70 * 60 * 1000) linhas.push({ tipo: "aula_1h", destinatario: d, dados: { aula_id: a.id }, chave: `aula1h:${a.id}:${d}:${t}` });
     }
   }
 

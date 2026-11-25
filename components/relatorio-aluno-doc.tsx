@@ -93,6 +93,17 @@ export default function RelatorioAlunoDoc({ r, comentario }: { r: RelatorioAluno
             <p className="m-0 text-sm text-[#5b6372]">Nenhuma aula registrada neste mês.</p>
           )}
           {r.faltas > 0 && <p className="m-0 text-[13px] text-[#5b6372]">Faltas em aulas de grupo: {r.faltas}.</p>}
+          {(r.desmarcadas > 0 || r.faltasSemAviso > 0) && (
+            <p className="m-0 text-[13px] text-[#5b6372]">
+              {[
+                r.desmarcadas ? `${r.desmarcadas} ${r.desmarcadas === 1 ? "aula desmarcada" : "aulas desmarcadas"} com aviso (com reposição)` : "",
+                r.faltasSemAviso ? `${r.faltasSemAviso} ${r.faltasSemAviso === 1 ? "falta" : "faltas"} sem aviso` : "",
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+              .
+            </p>
+          )}
         </section>
 
         {r.tarefas.length > 0 && (

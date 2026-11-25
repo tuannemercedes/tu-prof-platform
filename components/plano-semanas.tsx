@@ -9,7 +9,7 @@ export type Semana = {
   inicio: string;
   rotulo: string;
   intervalo: string;
-  aulas: { id: string; quando: string; tema: string; descricao: string | null; realizada: boolean; previaHref?: string | null }[];
+  aulas: { id: string; quando: string; tema: string; descricao: string | null; realizada: boolean; previaHref?: string | null; desmarcada?: boolean; remarcadaDe?: string | null; remarcarHref?: string | null }[];
   tarefas: TarefaAluno[];
   club: { id: string; tema: string; quando: string }[];
 };
@@ -92,13 +92,26 @@ export default function PlanoSemanas({
                   <Rotulo>
                     Aula · {a.quando}
                     {a.realizada ? " · realizada" : ""}
+                    {a.desmarcada ? " · desmarcada" : ""}
                   </Rotulo>
-                  <div className="bg-[var(--navy)] text-[var(--on-navy)] rounded-2xl p-4 flex flex-col gap-1.5">
+                  <div
+                    className={`rounded-2xl p-4 flex flex-col gap-1.5 ${
+                      a.desmarcada ? "bg-[var(--surface-2)] text-[var(--text-secondary)] line-through decoration-1" : "bg-[var(--navy)] text-[var(--on-navy)]"
+                    }`}
+                  >
                     <span className="font-serif text-[22px] font-semibold">{a.tema}</span>
-                    {a.descricao && <span className="text-[13px] text-[var(--on-navy-muted)]">{a.descricao}</span>}
+                    {a.descricao && !a.desmarcada && <span className="text-[13px] text-[var(--on-navy-muted)]">{a.descricao}</span>}
+                    {a.remarcadaDe && !a.desmarcada && (
+                      <span className="text-[13px] text-[var(--on-navy-muted)]">Remarcada (antes: {a.remarcadaDe})</span>
+                    )}
                     {a.previaHref && (
                       <Link href={a.previaHref} className="self-start mt-1 text-[13px] font-semibold text-[var(--gold-light)]">
                         Ver a prévia da aula →
+                      </Link>
+                    )}
+                    {a.remarcarHref && (
+                      <Link href={a.remarcarHref} className="self-start text-[13px] text-[var(--on-navy-muted)] underline underline-offset-2">
+                        Precisa remarcar?
                       </Link>
                     )}
                   </div>

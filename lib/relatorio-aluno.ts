@@ -48,7 +48,7 @@ export async function getRelatorioAluno(supabase: Supa, alunoId: string, mes: st
 
   const [{ data: aulas }, { data: presencas }, { data: tarefas }, { data: entregas }, { data: checkpoints }, { data: cfg }, { data: relatorio }, { data: certificados }] =
     await Promise.all([
-      supabase.from("aulas").select("id, data, tema, resumo, status, aluno_id, turma_id").or(filtro).gte("data", ini).lt("data", fim).order("data"),
+      supabase.from("aulas").select("id, data, tema, resumo, status, aluno_id, turma_id, cancelamento").or(filtro).gte("data", ini).lt("data", fim).order("data"),
       supabase.from("presencas").select("aula_id, presente").eq("aluno_id", alunoId),
       supabase.from("tarefas").select("id, texto, prazo, created_at").or(filtro).or(`and(prazo.gte.${diaIni},prazo.lt.${diaFim}),and(prazo.is.null,created_at.gte.${ini},created_at.lt.${fim})`).order("prazo"),
       supabase.from("tarefa_entregas").select("tarefa_id, concluida, resposta, arquivo_path, comentario").eq("aluno_id", alunoId),
@@ -90,6 +90,9 @@ export async function getRelatorioAluno(supabase: Supa, alunoId: string, mes: st
     programas,
     aulas: minhas.map((a) => ({ id: a.id, data: a.data!, tema: a.tema, resumo: a.resumo, grupo: !!a.turma_id })),
     faltas,
+    // Aulas individuais desmarcadas no mês
+    desmarcadas: (aulas ?? []).filter((a) => a.status === "cancelada" && a.aluno_id === alunoId && a.cancelamento === "repor").length,
+    faltasSemAviso: (aulas ?? []).filter((a) => a.status === "cancelada" && a.aluno_id === alunoId && a.cancelamento === "sem_reposicao").length,
     agendadas: (aulas ?? []).filter((a) => a.status === "agendada").length,
     tarefas: listaTarefas,
     evolucao,

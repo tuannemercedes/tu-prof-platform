@@ -15,6 +15,8 @@ export type ResumoAluno = {
   tarefasAtrasadas: number;
   proximaAula: string | null;
   aulasDesdeCheckpoint: number;
+  pedidosRemarcacao: number;
+  reposicoesPendentes: number;
   situacao: "em_dia" | "atrasado" | "sem_aula";
 };
 
@@ -36,15 +38,17 @@ export async function getResumoEquipe(supabase: Supa, opcoes: { soDe?: string | 
   const segunda = segundaDaSemana(hoje);
   const proximaSegunda = somarDias(segunda, 7);
 
-  const [{ data: perfis }, { data: membros }, { data: tarefas }, { data: entregas }, { data: aulas }, { data: checkpoints }] =
+  const [{ data: perfis }, { data: membros }, { data: tarefas }, { data: entregas }, { data: aulas }, { data: checkpoints }, { data: pedidos }] =
     await Promise.all([
       supabase.from("profiles").select("id, nome, email, role, professor_id").order("nome"),
       supabase.from("turma_membros").select("aluno_id, turma_id, turmas(id, nome, idioma)"),
       supabase.from("tarefas").select("id, aluno_id, turma_id, prazo"),
       supabase.from("tarefa_entregas").select("tarefa_id, aluno_id, concluida"),
-      supabase.from("aulas").select("id, aluno_id, turma_id, data, tema, status, turmas(nome, empresa_id, professor_id, empresas(nome))").order("data"),
+      supabase.from("aulas").select("id, aluno_id, turma_id, data, tema, status, cancelamento, reposicao_de, turmas(nome, empresa_id, professor_id, empresas(nome))").order("data"),
       supabase.from("checkpoints").select("aluno_id, data").order("data", { ascending: false }),
+      supabase.from("pedidos_remarcacao").select("aluno_id").is("resolvido_em", null),
     ]);
+  const repostas = new Set((aulas ?? []).map((x) => x.reposicao_de).filter(Boolean));
 
   const todos = perfis ?? [];
   const nomeDe = new Map(todos.map((p) => [p.id, p.nome || p.email]));
@@ -85,13 +89,15 @@ export async function getResumoEquipe(supabase: Supa, opcoes: { soDe?: string | 
       tarefasAtrasadas: atrasadas.length,
       proximaAula: proxima,
       aulasDesdeCheckpoint: desde,
+      pedidosRemarcacao: (pedidos ?? []).filter((p) => p.aluno_id === a.id).length,
+      reposicoesPendentes: doAluno.filter((x) => x.status === "cancelada" && x.cancelamento === "repor" && !repostas.has(x.id)).length,
       situacao: atrasadas.length ? "atrasado" : proxima ? "em_dia" : "sem_aula",
     };
   });
 
   const ids = new Set(resumo.map((r) => r.id));
   type Grupo = { nome: string; empresa_id: string | null; professor_id: string | null; empresas: { nome: string } | null } | null;
-  const naSemana = (aulas ?? []).filter((x) => x.data && diaISO(x.data) >= segunda && diaISO(x.data) < proximaSegunda);
+  const naSemana = (aulas ?? []).filter((x) => x.status !== "cancelada" && x.data && diaISO(x.data) >= segunda && diaISO(x.data) < proximaSegunda);
   const aulasSemana: AulaSemana[] = [
     ...naSemana
       .filter((x) => x.aluno_id && ids.has(x.aluno_id))

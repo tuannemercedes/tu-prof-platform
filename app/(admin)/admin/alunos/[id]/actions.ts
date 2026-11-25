@@ -56,7 +56,7 @@ export async function agendarAula(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("aulas")
-    .insert({ aluno_id: alunoId, professor_id: profile.id, data, tema, descricao: txt(formData, "descricao"), idioma: lerIdioma(formData) });
+    .insert({ aluno_id: alunoId, professor_id: profile.id, data, tema, descricao: txt(formData, "descricao"), idioma: lerIdioma(formData), reposicao_de: txt(formData, "reposicao_de") });
   if (error) throw new Error("Não foi possível agendar.");
   atualizar(alunoId);
 }

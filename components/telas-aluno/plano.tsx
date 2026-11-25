@@ -10,6 +10,7 @@ import { getClubeAcessoParaAluno } from "@/lib/clube";
 export default async function TelaPlano({ v }: { v: Visao }) {
   const supabase = await createClient();
   const hoje = diaISO(new Date());
+  const agora = new Date().toISOString();
   const idioma = v.idioma;
   const lib = await getLiberados(supabase, v);
   const temClube = !v.previa || (await getClubeAcessoParaAluno(supabase, v.alunoId));
@@ -18,7 +19,7 @@ export default async function TelaPlano({ v }: { v: Visao }) {
     getTarefasDoAluno(supabase, v.alunoId, lib),
     supabase
       .from("aulas")
-      .select("id, data, tema, descricao, resumo, status, previa")
+      .select("id, data, tema, descricao, resumo, status, previa, aluno_id, remarcada_de")
       .or(filtroAulas(v))
       .or(`idioma.is.null,idioma.eq.${idioma}`)
       .order("data"),
@@ -46,6 +47,9 @@ export default async function TelaPlano({ v }: { v: Visao }) {
       tema: a.tema,
       descricao: a.resumo || a.descricao,
       realizada: a.status === "realizada",
+      desmarcada: a.status === "cancelada",
+      remarcadaDe: a.remarcada_de ? quandoCompleto(a.remarcada_de) : null,
+      remarcarHref: a.status === "agendada" && a.aluno_id && a.data > agora ? rota(v, `/aula/${a.id}`, "#remarcar") : null,
       previaHref: lerPrevia(a.previa) && previaLiberada(a.data) ? rota(v, `/aula/${a.id}`) : null,
     });
   });

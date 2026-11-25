@@ -60,6 +60,26 @@ export default async function EquipeInicioPage({
 
   type Alerta = { chave: string; titulo: string; meta: string; acao: string; cor: string; href: string };
   const alertas: Alerta[] = [
+    ...alunos
+      .filter((a) => a.pedidosRemarcacao > 0)
+      .map((a) => ({
+        chave: `pr-${a.id}`,
+        titulo: `${a.nome} pediu para remarcar`,
+        meta: a.pedidosRemarcacao === 1 ? "1 pedido de remarcação" : `${a.pedidosRemarcacao} pedidos de remarcação`,
+        acao: "Responder",
+        cor: "#c2553e",
+        href: `/admin/alunos/${a.id}`,
+      })),
+    ...alunos
+      .filter((a) => a.reposicoesPendentes > 0)
+      .map((a) => ({
+        chave: `rp-${a.id}`,
+        titulo: `Reposição pendente: ${a.nome}`,
+        meta: a.reposicoesPendentes === 1 ? "1 aula para repor" : `${a.reposicoesPendentes} aulas para repor`,
+        acao: "Agendar",
+        cor: "#c9a24d",
+        href: `/admin/alunos/${a.id}`,
+      })),
     ...atrasados.map((a) => ({
       chave: `at-${a.id}`,
       titulo: `${a.nome} está com tarefas atrasadas`,

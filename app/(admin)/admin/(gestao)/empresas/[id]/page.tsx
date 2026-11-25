@@ -8,6 +8,7 @@ import SubmitButton from "@/components/submit-button";
 import ParticipantesForm from "@/components/participantes-form";
 import ConfirmarExclusao from "@/components/confirmar-exclusao";
 import PreviaForm from "@/components/previa-form";
+import AulaMudar from "@/components/aula-mudar";
 import { emitirCertificadosGrupo } from "@/app/certificado-actions";
 import { lerPrevia } from "@/lib/previa";
 import {
@@ -61,6 +62,7 @@ function Aula({ aula, grupo, empresaId }: { aula: AulaGrupo; grupo: Grupo; empre
         <span className="text-xs font-semibold text-[var(--gold-text)] group-open:hidden">{feita ? "Ver" : "Registrar"}</span>
       </summary>
       <div className="border-t border-[var(--border-soft)] p-3.5 flex flex-col gap-3">
+        {!feita && <AulaMudar aulaId={aula.id} data={aula.data} voltar={`/admin/empresas/${empresaId}`} grupo />}
         <PreviaForm
           aulaId={aula.id}
           data={aula.data}
@@ -189,8 +191,8 @@ export default async function EmpresaPage({
       {aba === "grupos" && (
         <div className="flex flex-col gap-5">
           {empresa.grupos.map((g) => {
-            const proximas = g.aulas.filter((a) => a.status !== "realizada" && (!a.data || diaISO(a.data) >= hoje));
-            const pendentes = g.aulas.filter((a) => a.status !== "realizada" && a.data && diaISO(a.data) < hoje);
+            const proximas = g.aulas.filter((a) => a.status === "agendada" && (!a.data || diaISO(a.data) >= hoje));
+            const pendentes = g.aulas.filter((a) => a.status === "agendada" && a.data && diaISO(a.data) < hoje);
             const feitas = g.aulas.filter((a) => a.status === "realizada").reverse();
             const freq = frequencia(g.aulas) as { media: number; aulas: number } | null;
             return (
