@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Logo from "./logo";
+import BotaoBarra from "./botao-barra";
 import SignOutButton from "./sign-out-button";
 import ThemeToggle from "./theme-toggle";
 
@@ -83,6 +85,7 @@ const ITENS_PROFESSOR: Item[] = [
 
 export default function EquipeSidebar({ nome, papel }: { nome: string; papel: string }) {
   const pathname = usePathname();
+  const [menuAberto, setMenuAberto] = useState(false);
   const itens = papel === "admin" ? ITENS_ADMIN : ITENS_PROFESSOR;
   const iniciais = nome
     .split(" ")
@@ -92,11 +95,32 @@ export default function EquipeSidebar({ nome, papel }: { nome: string; papel: st
     .join("");
 
   return (
-    <aside className="flex-[1_1_232px] max-w-full sm:max-w-[260px] box-border bg-[var(--navy)] text-[var(--on-navy)] px-[18px] py-7 flex flex-col gap-7 sm:min-h-screen sm:sticky sm:top-0 sm:h-screen">
-      <div className="ml-2.5">
-        <Logo className="text-[28px]" />
+    <aside className="barra-lateral w-full sm:w-[248px] shrink-0 box-border bg-[var(--navy)] text-[var(--on-navy)] px-[18px] py-4 sm:py-7 flex flex-col gap-4 sm:gap-7 sticky top-0 z-30 sm:h-screen overflow-y-auto overflow-x-hidden">
+      <div className="barra-topo ml-2.5 flex items-center justify-between gap-2">
+        <span className="barra-texto">
+          <Logo className="h-[26px] sm:h-[30px]" />
+        </span>
+        <BotaoBarra />
+        {/* Celular: o menu abre e fecha por este botão */}
+        <button
+          type="button"
+          onClick={() => setMenuAberto((v) => !v)}
+          aria-expanded={menuAberto}
+          aria-label="Menu"
+          className="sm:hidden w-11 h-11 -mr-2 flex items-center justify-center rounded-lg"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+            {menuAberto ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
       </div>
-      <nav aria-label="Menu da equipe" className="flex flex-col gap-1">
+      <nav
+        aria-label="Menu da equipe"
+        className={`${menuAberto ? "flex" : "hidden"} sm:flex flex-col gap-1`}
+        onClick={(e) => {
+          if ((e.target as HTMLElement).closest("a")) setMenuAberto(false);
+        }}
+      >
         {itens.map((item) => {
           const ativo = item.ativo(pathname);
           return (
@@ -104,30 +128,33 @@ export default function EquipeSidebar({ nome, papel }: { nome: string; papel: st
               key={item.chave}
               href={item.href}
               aria-current={ativo ? "page" : undefined}
-              className={`flex items-center gap-3 h-11 px-3 rounded-[10px] text-[15px] ${
+              title={item.label}
+              className={`barra-item flex items-center gap-3 h-11 px-3 rounded-[10px] text-[15px] ${
                 ativo ? "bg-[#1e3360] text-white font-semibold" : "text-[var(--on-navy-muted)] hover:text-white"
               }`}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={ativo ? "#d9b866" : "currentColor"} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 {ICONES[item.chave]}
               </svg>
-              {item.label}
+              <span className="barra-texto">{item.label}</span>
             </Link>
           );
         })}
       </nav>
-      <div className="mt-auto flex flex-col gap-3">
-        <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[var(--navy-2)]">
+      <div className={`${menuAberto ? "flex" : "hidden"} sm:flex mt-auto flex-col gap-3`}>
+        <div className="barra-item flex items-center gap-2.5 p-3 rounded-xl bg-[var(--navy-2)]">
           <span className="w-9 h-9 shrink-0 rounded-full bg-[var(--gold)] text-[var(--navy)] font-semibold flex items-center justify-center">
             {iniciais || "TP"}
           </span>
-          <span className="flex flex-col min-w-0">
+          <span className="barra-texto flex flex-col min-w-0">
             <span className="text-sm font-semibold truncate">{nome}</span>
             <span className="text-xs text-[var(--on-navy-muted)]">{papel === "admin" ? "Fundadora · admin" : "Professor"}</span>
           </span>
         </div>
-        <div className="flex items-center justify-between px-1 [&_button]:!text-[var(--on-navy-muted)]">
-          <SignOutButton />
+        <div className="barra-topo flex items-center justify-between px-1 [&_button]:!text-[var(--on-navy-muted)]">
+          <span className="barra-texto">
+            <SignOutButton />
+          </span>
           <ThemeToggle />
         </div>
       </div>

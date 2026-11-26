@@ -15,7 +15,7 @@ export default function RelatorioAlunoDoc({ r, comentario }: { r: RelatorioAluno
     <article className="max-w-[820px] w-full mx-auto bg-white text-[#0e1b33] rounded-2xl print:rounded-none shadow-[0_8px_24px_rgba(14,27,51,0.08)] print:shadow-none overflow-hidden">
       <header className="bg-[#0e1b33] text-white px-8 sm:px-10 py-8 flex flex-col gap-4 [-webkit-print-color-adjust:exact] [print-color-adjust:exact]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-tuprof.png" alt="Tu Prof" className="w-[150px] h-auto" />
+        <img src="/logo-tuprof-claro.png" alt="Tu Prof" className="w-[150px] h-auto" />
         <div className="flex flex-col gap-1">
           <span className="text-xs tracking-[0.14em] uppercase text-[#e3c77d] font-semibold">Relatório de {nomeDoMes(r.mes)}</span>
           <h1 className="m-0 font-serif font-semibold text-[34px] leading-tight">{r.aluno?.nome}</h1>

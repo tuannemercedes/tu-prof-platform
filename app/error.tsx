@@ -18,7 +18,7 @@ export default function Error({
   return (
     <main className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm text-center space-y-4">
-        <Logo className="text-2xl" />
+        <Logo className="h-7 mx-auto block" fundo="auto" />
         <div className="space-y-1">
           <p className="text-lg font-semibold">Algo deu errado</p>
           <p className="text-sm text-[var(--text-secondary)]">

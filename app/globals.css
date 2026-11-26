@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ===== Tu Prof: identidade 2026 ==========================================
-   Azul-marinho, marfim, dourado e prata. Títulos em serifa (Cormorant).
+   Azul-marinho, marfim, dourado e prata. Títulos em Arimo (fonte oficial da marca).
    Tema controlado via [data-theme] em <html> (ver app/layout.tsx). */
 
 :root {
@@ -43,7 +43,7 @@
   --glow-accent: rgba(14, 27, 51, 0.25);
   --glow-secondary: rgba(201, 162, 77, 0.35);
 
-  --font-display: var(--font-cormorant);
+  --font-display: var(--font-arimo);
 
   color-scheme: light;
 }
@@ -123,7 +123,7 @@
   --glow-secondary: rgba(200, 166, 107, 0.35);
 
   color-scheme: light;
-  --font-display: var(--font-playfair);
+  --font-display: var(--font-arimo);
 }
 
 [data-theme="dark"] .tema-classico {
@@ -250,4 +250,31 @@ body {
 .tema-classico {
   background: var(--bg);
   color: var(--text-primary);
+}
+
+/* Logo: no modo "auto" mostra a versão certa para o tema */
+.logo-tema-escuro { display: none; }
+[data-theme="dark"] .logo-tema-claro { display: none; }
+[data-theme="dark"] .logo-tema-escuro { display: block; }
+
+/* Títulos (classe font-serif = fonte de destaque): Arimo com letras mais juntas, como nas artes */
+.font-serif {
+  letter-spacing: -0.025em;
+}
+
+/* Barra lateral recolhível (computador). Recolhida: só os ícones. */
+@media (min-width: 640px) {
+  .barra-lateral { transition: width 0.2s ease, padding 0.2s ease; }
+  [data-barra="recolhida"] .barra-lateral {
+    width: 76px !important;
+    min-width: 76px;
+    max-width: 76px !important;
+    flex: 0 0 76px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  [data-barra="recolhida"] .barra-texto { display: none !important; }
+  [data-barra="recolhida"] .barra-item { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; gap: 0 !important; }
+  [data-barra="recolhida"] .barra-topo { flex-direction: column; align-items: center; margin-left: 0 !important; }
+  [data-barra="recolhida"] .barra-seta { transform: rotate(180deg); transform-origin: 14.5px 12px; }
 }

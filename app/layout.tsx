@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import { Arimo, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,14 +12,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
-
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
+// Fonte oficial da Tu Prof para títulos (guia de estilo, 16/11/2026): Arimo.
+const arimo = Arimo({
+  variable: "--font-arimo",
   subsets: ["latin"],
 });
 
@@ -38,12 +33,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="pt-BR"
       data-theme="light"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${cormorant.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${arimo.variable} h-full antialiased`}
     >
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`,
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);if(localStorage.getItem("barra")==="recolhida")document.documentElement.setAttribute("data-barra","recolhida")}catch(e){}})()`,
           }}
         />
       </head>
