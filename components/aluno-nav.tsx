@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import SignOutButton from "./sign-out-button";
 import ThemeToggle from "./theme-toggle";
 import Logo from "./logo";
+import BotaoBarra from "./botao-barra";
 import NotificationBell from "./notification-bell";
 import ChaveIdioma from "./chave-idioma";
 import type { Novidade } from "@/lib/notificacoes";
@@ -136,12 +137,17 @@ export default function AlunoNav({ nome, novidades = [], idioma: idiomaBase, bas
   return (
     <>
       {/* ===== Computador: barra lateral azul-marinho ===== */}
-      <aside className="hidden sm:flex sm:w-64 shrink-0 flex-col gap-8 bg-[var(--navy)] text-[var(--on-navy)] px-5 py-7 sm:h-screen sm:sticky sm:top-0 overflow-y-auto">
-        <div className="space-y-1 px-2">
-          <Logo className="text-2xl" />
-          <p className="text-xs text-[var(--on-navy-muted)] truncate">Olá, {nome}</p>
+      <aside className="barra-lateral hidden sm:flex sm:w-64 shrink-0 flex-col gap-8 bg-[var(--navy)] text-[var(--on-navy)] px-5 py-7 sm:h-screen sm:sticky sm:top-0 overflow-y-auto overflow-x-hidden">
+        <div className="space-y-1 px-2 barra-topo-wrap">
+          <div className="barra-topo flex items-center justify-between gap-2">
+            <span className="barra-texto">
+              <Logo className="h-7" />
+            </span>
+            <BotaoBarra />
+          </div>
+          <p className="barra-texto text-xs text-[var(--on-navy-muted)] truncate">Olá, {nome}</p>
           {idioma.opcoes.length > 1 && (
-            <div className="pt-3">
+            <div className="barra-texto pt-3">
               <ChaveIdioma atual={idioma.atual} opcoes={idioma.opcoes} previa={previa} />
             </div>
           )}
@@ -155,31 +161,34 @@ export default function AlunoNav({ nome, novidades = [], idioma: idiomaBase, bas
                 key={item.chave}
                 href={href(item.caminho)}
                 aria-current={ativo ? "page" : undefined}
-                className={`flex items-center gap-3 h-11 px-3 rounded-xl text-[15px] transition-colors ${
+                title={item.label}
+                className={`barra-item flex items-center gap-3 h-11 px-3 rounded-xl text-[15px] transition-colors ${
                   ativo
                     ? "bg-[var(--navy-2)] text-white font-semibold"
                     : "text-[var(--on-navy-muted)] hover:bg-[var(--navy-2)] hover:text-white"
                 }`}
               >
                 <Icone nome={item.chave} ativo={ativo} />
-                {item.label}
+                <span className="barra-texto">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
         <div className="mt-auto space-y-3">
-          <LinksExtras {...extras} />
-          <div className="flex items-center justify-between gap-2 px-2 pt-3 border-t border-[var(--navy-2)] text-[var(--on-navy-muted)]">
-            <Link href={previa ? "#" : "/aluno/perfil"} className="text-sm hover:text-white">
+          <div className="barra-texto space-y-3">
+            <LinksExtras {...extras} />
+          </div>
+          <div className="barra-topo flex items-center justify-between gap-2 px-2 pt-3 border-t border-[var(--navy-2)] text-[var(--on-navy-muted)]">
+            <Link href={previa ? "#" : "/aluno/perfil"} className="barra-texto text-sm hover:text-white">
               Meu perfil
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="barra-topo flex items-center gap-3">
               {!previa && <NotificationBell novidades={novidades} />}
               <ThemeToggle />
             </div>
           </div>
-          <div className="px-2 [&_button]:!text-[var(--on-navy-muted)]">
+          <div className="barra-texto px-2 [&_button]:!text-[var(--on-navy-muted)]">
             {!previa && <SignOutButton />}
           </div>
         </div>
@@ -187,7 +196,7 @@ export default function AlunoNav({ nome, novidades = [], idioma: idiomaBase, bas
 
       {/* ===== Celular: barra do topo ===== */}
       <header className="sm:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-[var(--navy)] text-[var(--on-navy)]">
-        <Logo className="text-xl" />
+        <Logo className="h-6" />
         <div className="flex items-center gap-2">
           {!previa && <NotificationBell novidades={novidades} />}
           <button

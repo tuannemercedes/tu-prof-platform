@@ -122,7 +122,7 @@ export default async function RelatorioEmpresa({
 
       <article className="max-w-[820px] mx-auto my-6 print:my-0 bg-white rounded-2xl print:rounded-none shadow-[0_8px_24px_rgba(14,27,51,0.08)] print:shadow-none overflow-hidden">
         <header className="bg-[#0e1b33] text-white px-10 py-8 flex flex-col gap-4 print:[-webkit-print-color-adjust:exact] print:[print-color-adjust:exact]">
-          <Logo className="text-[28px]" />
+          <Logo className="h-8" fundo="claro" />
           <div className="flex flex-col gap-1">
             <span className="text-xs tracking-[0.14em] uppercase text-[#e3c77d] font-semibold">Relatório de acompanhamento</span>
             <h1 className="m-0 font-serif font-semibold text-[38px] leading-tight">{empresa.nome}</h1>

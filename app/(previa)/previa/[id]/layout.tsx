@@ -45,7 +45,7 @@ export default async function PreviaLayout({ children, params }: LayoutProps<"/p
           />
         </Suspense>
         <main className="flex-1 min-w-0 px-4 sm:px-10 pt-6 sm:pt-10 pb-28 sm:pb-12">
-          <div className="max-w-4xl mx-auto">{children}</div>
+          <div className="max-w-5xl mx-auto">{children}</div>
         </main>
       </div>
     </>
