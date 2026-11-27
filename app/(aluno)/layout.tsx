@@ -1,14 +1,12 @@
+import { Suspense } from "react";
 import { requireAluno, getUser } from "@/lib/dal";
 import AlunoNav from "@/components/aluno-nav";
+import BarraVoltar from "@/components/barra-voltar";
 import { createClient } from "@/lib/supabase/server";
 import { getNovidadesParaAluno } from "@/lib/notificacoes";
 import { getIdiomaDoAluno } from "@/lib/idioma";
 
-export default async function AlunoLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AlunoLayout({ children }: { children: React.ReactNode }) {
   const profile = await requireAluno();
   const user = await getUser();
 
@@ -34,6 +32,9 @@ export default async function AlunoLayout({
         contatoLabel={valor("contato_label")}
       />
       <main className="flex-1 min-w-0 px-4 sm:px-10 pt-6 sm:pt-10 pb-28 sm:pb-12">
+        <Suspense>
+          <BarraVoltar base={"/aluno"} />
+        </Suspense>
         <div className="max-w-5xl mx-auto">{children}</div>
       </main>
     </div>

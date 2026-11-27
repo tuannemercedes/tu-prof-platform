@@ -5,6 +5,7 @@ import { requireStaff } from "@/lib/dal";
 import { createClient } from "@/lib/supabase/server";
 import { visaoPrevia } from "@/lib/visao";
 import AlunoNav from "@/components/aluno-nav";
+import BarraVoltar from "@/components/barra-voltar";
 
 // Prévia "ver como o aluno vê": a mesma tela do aluno, montada para a equipe.
 // Nada do que se clica aqui é salvo para o aluno.
@@ -12,10 +13,7 @@ export default async function PreviaLayout({ children, params }: LayoutProps<"/p
   await requireStaff();
   const { id } = await params;
   const supabase = await createClient();
-  const [v, { data: config }] = await Promise.all([
-    visaoPrevia(supabase, id),
-    supabase.from("configuracoes").select("chave, valor"),
-  ]);
+  const [v, { data: config }] = await Promise.all([visaoPrevia(supabase, id), supabase.from("configuracoes").select("chave, valor")]);
   if (!v) notFound();
 
   const valor = (chave: string) => config?.find((c) => c.chave === chave)?.valor;
@@ -45,6 +43,9 @@ export default async function PreviaLayout({ children, params }: LayoutProps<"/p
           />
         </Suspense>
         <main className="flex-1 min-w-0 px-4 sm:px-10 pt-6 sm:pt-10 pb-28 sm:pb-12">
+          <Suspense>
+            <BarraVoltar base={v.base} />
+          </Suspense>
           <div className="max-w-5xl mx-auto">{children}</div>
         </main>
       </div>

@@ -130,6 +130,21 @@ export default function MaterialCard({ material, readOnly = false }: { material:
             <p className="text-sm font-medium truncate">{material.titulo}</p>
             <p className="text-xs text-[var(--text-faint)]">{TIPO_LABELS[material.tipo] ?? material.tipo}</p>
           </div>
+          <span className="ml-auto shrink-0 inline-flex items-center gap-1 h-8 px-3 rounded-full border border-[var(--border-strong)] text-xs font-semibold">
+            Fechar
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </span>
         </div>
       )}
 
