@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { getEmbedUrl } from "@/lib/embed";
 import ProgressCheckbox from "./progress-checkbox";
 import AccessTracker from "./access-tracker";
+import IconeTipo from "./icone-tipo";
 
 const TIPO_LABELS: Record<string, string> = {
   html: "Página interativa",
@@ -14,14 +15,6 @@ const TIPO_LABELS: Record<string, string> = {
   link_externo: "Link",
 };
 
-const TIPO_ICONS: Record<string, string> = {
-  html: "🧩",
-  pdf: "📄",
-  video: "🎥",
-  playlist: "🎵",
-  podcast: "🎙️",
-  link_externo: "🔗",
-};
 
 export type MaterialCardData = {
   id: string;
@@ -104,13 +97,9 @@ export default function MaterialCard({
               <img src={material.capaUrl} alt="" className="w-full h-full object-cover" />
             ) : (
               <div
-                className="w-full h-full flex items-center justify-center text-4xl"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%)",
-                }}
+                className="capa-padrao w-full h-full flex items-center justify-center text-[#e9cf8a]"
               >
-                {TIPO_ICONS[material.tipo] ?? "📎"}
+                <IconeTipo tipo={material.tipo} size={44} />
               </div>
             )}
           </div>
@@ -128,18 +117,15 @@ export default function MaterialCard({
           className="cursor-pointer flex items-center gap-3 p-3"
         >
           <div
-            className="shrink-0 w-10 h-10 rounded-md overflow-hidden flex items-center justify-center text-lg bg-[var(--surface-2)]"
-            style={
-              !material.capaUrl
-                ? { background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%)" }
-                : undefined
-            }
+            className={`shrink-0 w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center text-[#e9cf8a] bg-[var(--surface-2)] ${
+              material.capaUrl ? "" : "capa-padrao"
+            }`}
           >
             {material.capaUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={material.capaUrl} alt="" className="w-full h-full object-cover" />
             ) : (
-              TIPO_ICONS[material.tipo] ?? "📎"
+              <IconeTipo tipo={material.tipo} size={20} />
             )}
           </div>
           <div className="min-w-0">

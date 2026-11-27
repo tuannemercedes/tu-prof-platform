@@ -40,11 +40,14 @@ export default function NotificationBell({ novidades }: { novidades: Novidade[] 
         type="button"
         onClick={toggle}
         aria-label="Notificações"
-        className="relative text-lg leading-none px-1.5 py-1 rounded-md hover:bg-[var(--surface-3)]"
+        className="relative w-8 h-8 flex items-center justify-center rounded-full opacity-85 hover:opacity-100"
       >
-        🔔
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z" />
+          <path d="M10 20a2 2 0 0 0 4 0" />
+        </svg>
         {totalNaoVisto > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-[var(--accent)] text-[var(--accent-contrast)] text-[10px] leading-4 text-center font-medium">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-[#d9b866] text-[#0e1b33] text-[10px] leading-4 text-center font-medium">
             {totalNaoVisto > 9 ? "9+" : totalNaoVisto}
           </span>
         )}

@@ -39,11 +39,27 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/relatorio") ||
     request.nextUrl.pathname.startsWith("/aluno");
 
+  // Já entrou: a tela de login leva direto para a plataforma (atualizar a página
+  // ou abrir o endereço salvo não pede a senha de novo).
+  if (user && request.nextUrl.pathname === "/login") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    url.search = "";
+    return comCookies(NextResponse.redirect(url), response);
+  }
+
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
+    return comCookies(NextResponse.redirect(url), response);
   }
 
   return response;
+}
+
+// Um redirecionamento precisa levar junto os cookies da sessão renovada,
+// senão o navegador fica com o token velho e a pessoa "cai" do login.
+function comCookies(destino: NextResponse, origem: NextResponse) {
+  origem.cookies.getAll().forEach((c) => destino.cookies.set(c));
+  return destino;
 }
