@@ -6,7 +6,7 @@ import ProgressCheckbox from "./progress-checkbox";
 import AccessTracker from "./access-tracker";
 import IconeTipo from "./icone-tipo";
 
-const TIPO_LABELS: Record<string, string> = {
+export const TIPO_LABELS: Record<string, string> = {
   html: "Página interativa",
   pdf: "PDF",
   video: "Vídeo",
@@ -26,25 +26,45 @@ export type MaterialCardData = {
   capaUrl?: string | null;
 };
 
-function HtmlFrame({ conteudoHtml, titulo }: { conteudoHtml: string; titulo: string }) {
+export function HtmlFrame({ conteudoHtml, titulo }: { conteudoHtml: string; titulo: string }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [height, setHeight] = useState(240);
+  const [height, setHeight] = useState(320);
 
-  function handleLoad() {
-    const doc = iframeRef.current?.contentDocument;
-    if (!doc) return;
-    const contentHeight = doc.documentElement.scrollHeight;
-    setHeight(Math.min(Math.max(contentHeight + 8, 160), 900));
-  }
+  // Ajusta a altura ao conteúdo e continua ajustando (fontes carregando, exercício respondido…).
+  // O "load" do iframe pode acontecer antes de o React ligar o evento, então medimos também ao montar.
+  useEffect(() => {
+    const f = iframeRef.current;
+    if (!f) return;
+    let ro: ResizeObserver | null = null;
+    let raf = 0;
+    const ligar = () => {
+      const doc = f.contentDocument;
+      if (!doc?.body) return;
+      const medir = () => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => setHeight(Math.min(Math.max(doc.body.scrollHeight + 8, 200), 4000)));
+      };
+      ro?.disconnect();
+      ro = new ResizeObserver(medir);
+      ro.observe(doc.body);
+      medir();
+    };
+    ligar();
+    f.addEventListener("load", ligar);
+    return () => {
+      f.removeEventListener("load", ligar);
+      ro?.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [conteudoHtml]);
 
   return (
     <iframe
       ref={iframeRef}
       sandbox="allow-scripts allow-same-origin"
       srcDoc={conteudoHtml}
-      onLoad={handleLoad}
       style={{ height }}
-      className="w-full rounded-md border border-[var(--border-soft)] transition-[height] duration-200"
+      className="w-full block border-0 transition-[height] duration-200"
       title={titulo}
     />
   );
