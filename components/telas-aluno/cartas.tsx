@@ -19,14 +19,11 @@ function audioDaCarta(supabase: Awaited<ReturnType<typeof createClient>>, idioma
 export default async function TelaCartas({ v }: { v: Visao }) {
   const supabase = await createClient();
   const idiomas: Idioma[] = v.opcoes.length ? v.opcoes : [v.idioma];
+  // Na prévia a equipe vê também os rascunhos, para revisar as cartas no contexto do jogo.
+  let consulta = supabase.from("cartas").select("id, idioma, categoria, incorreta, correta, explicacao, tipo, audio_path").in("idioma", idiomas);
+  if (!v.previa) consulta = consulta.eq("publicada", true);
   const [{ data: rows }, { data: prog }, { data: dias }] = await Promise.all([
-    supabase
-      .from("cartas")
-      .select("id, idioma, categoria, incorreta, correta, explicacao, tipo, audio_path")
-      .in("idioma", idiomas)
-      .eq("publicada", true)
-      .order("categoria")
-      .order("ordem"),
+    consulta.order("categoria").order("ordem"),
     supabase.from("cartas_progresso").select("carta_id, nivel, acertos, erros, proxima_em").eq("aluno_id", v.alunoId),
     supabase.from("cartas_dias").select("dia").eq("aluno_id", v.alunoId).order("dia", { ascending: false }).limit(400),
   ]);

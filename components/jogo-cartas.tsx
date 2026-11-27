@@ -197,7 +197,7 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
       <div className="flex flex-col gap-[18px]">
         {previa && (
           <p className="text-sm rounded-xl px-4 py-3 bg-[var(--info-bg)] text-[var(--info-text)]">
-            Prévia: você está vendo as cartas como o aluno vê. As respostas não são salvas.
+            Prévia: aqui aparecem também as cartas em rascunho (o aluno só vê as publicadas). As respostas não são salvas.
           </p>
         )}
 
