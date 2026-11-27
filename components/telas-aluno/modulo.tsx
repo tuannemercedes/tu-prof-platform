@@ -2,70 +2,66 @@ import { urlCapa } from "@/lib/capas";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getLiberados, liberado, type Visao } from "@/lib/visao";
-import MaterialCard, { type MaterialCardData } from "@/components/material-card";
+import { type MaterialCardData } from "@/components/material-card";
+import PlayerModulo from "@/components/player-modulo";
 import { TrilhaProgressProvider } from "@/components/trilha-progress-context";
 
 export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
   const supabase = await createClient();
   const lib = await getLiberados(supabase, v);
 
-  const [{ data: materia }, { data: materiais }, { data: progresso }, { data: fases }] =
-    await Promise.all([
-      supabase.from("materias").select("id, titulo, capa_path, descricao").eq("id", id).single(),
-      supabase
-        .from("materiais")
-        .select("id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, fase_id")
-        .eq("materia_id", id)
-        .order("ordem")
-        .order("created_at"),
-      supabase.from("progresso").select("material_id, concluido").eq("aluno_id", v.alunoId),
-      supabase.from("fases").select("id, titulo, ordem").eq("materia_id", id).order("ordem"),
-    ]);
+  const [{ data: materia }, { data: materiais }, { data: progresso }, { data: fases }] = await Promise.all([
+    supabase.from("materias").select("id, titulo, capa_path, descricao").eq("id", id).single(),
+    supabase
+      .from("materiais")
+      .select("id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, fase_id")
+      .eq("materia_id", id)
+      .order("ordem")
+      .order("created_at"),
+    supabase.from("progresso").select("material_id, concluido").eq("aluno_id", v.alunoId),
+    supabase.from("fases").select("id, titulo, ordem").eq("materia_id", id).order("ordem"),
+  ]);
 
   if (!materia) notFound();
 
   const progressoMap = new Map((progresso ?? []).map((p) => [p.material_id, p.concluido]));
 
   const materiaisComUrl: (MaterialCardData & { fase_id: string | null })[] = await Promise.all(
-    (materiais ?? []).filter((m) => liberado(lib, m.id)).map(async (m) => {
-      let signedUrl: string | null = null;
-      if (m.tipo === "pdf" && m.arquivo_path) {
-        const { data } = await supabase.storage
-          .from("materiais")
-          .createSignedUrl(m.arquivo_path, 3600);
-        signedUrl = data?.signedUrl ?? null;
-      }
-      const capaUrl = urlCapa(supabase, m.capa_path);
-      return {
-        id: m.id,
-        titulo: m.titulo,
-        tipo: m.tipo,
-        conteudo_html: m.conteudo_html,
-        url: m.url,
-        signedUrl,
-        capaUrl,
-        concluido: progressoMap.get(m.id) ?? false,
-        fase_id: m.fase_id,
-      };
-    })
+    (materiais ?? [])
+      .filter((m) => liberado(lib, m.id))
+      .map(async (m) => {
+        let signedUrl: string | null = null;
+        if (m.tipo === "pdf" && m.arquivo_path) {
+          const { data } = await supabase.storage.from("materiais").createSignedUrl(m.arquivo_path, 3600);
+          signedUrl = data?.signedUrl ?? null;
+        }
+        const capaUrl = urlCapa(supabase, m.capa_path);
+        return {
+          id: m.id,
+          titulo: m.titulo,
+          tipo: m.tipo,
+          conteudo_html: m.conteudo_html,
+          url: m.url,
+          signedUrl,
+          capaUrl,
+          concluido: progressoMap.get(m.id) ?? false,
+          fase_id: m.fase_id,
+        };
+      }),
   );
 
   const semFase = materiaisComUrl.filter((m) => !m.fase_id);
   const totalConcluidos = materiaisComUrl.filter((m) => m.concluido).length;
 
   return (
-    <TrilhaProgressProvider
-      titulo={materia.titulo}
-      total={materiaisComUrl.length}
-      concluidosIniciais={totalConcluidos}
-    >
+    <TrilhaProgressProvider titulo={materia.titulo} total={materiaisComUrl.length} concluidosIniciais={totalConcluidos}>
       <div className="space-y-8">
         {(() => {
           const capa = urlCapa(supabase, materia.capa_path);
           const proximo = materiaisComUrl.find((m) => !m.concluido);
           const p = materiaisComUrl.length ? Math.round((totalConcluidos / materiaisComUrl.length) * 100) : 0;
           return (
-            <header className="modulo-hero relative -mx-4 sm:mx-0 sm:rounded-[24px] overflow-hidden min-h-[260px] flex items-end">
+            <header className="modulo-hero relative -mx-4 sm:mx-0 sm:rounded-[24px] overflow-hidden min-h-[220px] flex items-end">
               {capa ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={capa} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -84,7 +80,10 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
                   <span className="text-xs text-white/80">{p}%</span>
                 </div>
                 {proximo && (
-                  <a href={`#material-${proximo.id}`} className="botao-ouro self-start inline-flex items-center gap-2 h-11 px-5 rounded-xl text-sm font-semibold">
+                  <a
+                    href={`#material-${proximo.id}`}
+                    className="botao-ouro self-start inline-flex items-center gap-2 h-11 px-5 rounded-xl text-sm font-semibold"
+                  >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                       <path d="M8 5v14l11-7z" />
                     </svg>
@@ -96,39 +95,13 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
           );
         })()}
 
-        {(fases?.length ?? 0) === 0 && semFase.length === 0 && (
-          <p className="text-sm text-[var(--text-secondary)]">Nenhum material liberado aqui ainda.</p>
-        )}
-
-        {fases?.map((fase) => {
-          const materiaisDaFase = materiaisComUrl.filter((m) => m.fase_id === fase.id);
-          if (!materiaisDaFase.length) return null;
-          return (
-            <section key={fase.id} className="space-y-3">
-              <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
-                {fase.titulo}
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {materiaisDaFase.map((m) => (
-                  <MaterialCard key={m.id} material={m} readOnly={v.previa} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
-
-        {semFase.length > 0 && (
-          <section className="space-y-3">
-            {(fases?.length ?? 0) > 0 && (
-              <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Outros</h2>
-            )}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {semFase.map((m) => (
-                <MaterialCard key={m.id} material={m} readOnly={v.previa} />
-              ))}
-            </div>
-          </section>
-        )}
+        <PlayerModulo
+          readOnly={v.previa}
+          grupos={[
+            ...(fases ?? []).map((f) => ({ titulo: f.titulo as string | null, itens: materiaisComUrl.filter((m) => m.fase_id === f.id) })),
+            { titulo: (fases?.length ?? 0) > 0 ? "Outros" : null, itens: semFase },
+          ].filter((g) => g.itens.length)}
+        />
       </div>
     </TrilhaProgressProvider>
   );
