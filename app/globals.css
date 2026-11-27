@@ -488,3 +488,104 @@ nav[class*="sm:hidden"][class*="fixed"][class*="bottom-0"] {
 .modulo-hero {
   box-shadow: 0 24px 60px -30px rgba(6, 13, 24, 0.8);
 }
+
+/* ===== Jogo de Cartas ===== */
+.carta-cena { perspective: 1600px; }
+.carta-giro {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+.carta-giro.virada { transform: rotateY(180deg); }
+.carta-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 26px;
+  overflow: hidden;
+}
+/* Frente: azul profundo, luz dourada e borda metálica */
+.carta-frente {
+  color: #f4efe2;
+  background:
+    radial-gradient(110% 80% at 90% -10%, rgba(217, 184, 102, 0.32), transparent 55%),
+    radial-gradient(90% 70% at -10% 110%, rgba(42, 90, 147, 0.45), transparent 60%),
+    linear-gradient(155deg, #1d3766 0%, #0e1b33 58%, #08111f 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(217, 184, 102, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 30px 60px -30px rgba(8, 17, 31, 0.75);
+}
+.carta-frente::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(217, 184, 102, 0.22);
+  pointer-events: none;
+}
+/* Verso: papel claro com filete dourado */
+.carta-verso {
+  transform: rotateY(180deg);
+  color: #0e1b33;
+  background:
+    radial-gradient(100% 70% at 100% 0%, rgba(217, 184, 102, 0.18), transparent 60%),
+    linear-gradient(180deg, #fffdf8 0%, #f6f1e6 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 162, 77, 0.55),
+    0 30px 60px -30px rgba(14, 27, 51, 0.45);
+}
+[data-theme="dark"] .carta-verso {
+  color: #f4efe2;
+  background:
+    radial-gradient(100% 70% at 100% 0%, rgba(217, 184, 102, 0.2), transparent 60%),
+    linear-gradient(180deg, #22396a 0%, #152a50 100%);
+}
+.carta-errada {
+  text-decoration: line-through;
+  text-decoration-color: rgba(232, 120, 104, 0.85);
+  text-decoration-thickness: 2px;
+}
+/* Baralho na escolha: pilha de cartas com profundidade */
+.baralho {
+  position: relative;
+  isolation: isolate;
+}
+.baralho::before,
+.baralho::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  z-index: -1;
+  background: linear-gradient(155deg, #1d3766, #0b1528);
+  box-shadow: inset 0 0 0 1px rgba(217, 184, 102, 0.25);
+  transition: transform 0.3s ease;
+}
+.baralho::before { transform: translate(6px, 6px) rotate(1.5deg); opacity: 0.55; }
+.baralho::after { transform: translate(12px, 12px) rotate(3deg); opacity: 0.3; }
+.baralho:hover::before { transform: translate(8px, 4px) rotate(3deg); }
+.baralho:hover::after { transform: translate(16px, 6px) rotate(6deg); }
+.baralho-face {
+  border-radius: 20px;
+  color: #f4efe2;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(217, 184, 102, 0.3), transparent 55%),
+    linear-gradient(155deg, #1d3766 0%, #0e1b33 60%, #08111f 100%);
+  box-shadow: inset 0 0 0 1px rgba(217, 184, 102, 0.4), 0 18px 36px -22px rgba(8, 17, 31, 0.8);
+  transition: transform 0.3s ease;
+}
+.baralho:hover .baralho-face { transform: translateY(-3px); }
+@keyframes carta-entra {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+.carta-entra { animation: carta-entra 0.45s cubic-bezier(0.2, 0.75, 0.25, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .carta-giro { transition: none; }
+  .carta-entra { animation: none; }
+  .baralho::before, .baralho::after, .baralho-face { transition: none; }
+}

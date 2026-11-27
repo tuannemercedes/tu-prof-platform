@@ -100,9 +100,14 @@ export default async function AcervoEquipePage({
         </div>
 
         {area === "biblioteca" && (
-          <Link href="/admin/glossario" className="text-sm font-semibold text-[var(--gold-text)]">
-            Glossário ({termos ?? 0} termos), também aparece na Biblioteca →
-          </Link>
+          <div className="flex flex-wrap gap-x-6 gap-y-1">
+            <Link href="/admin/glossario" className="text-sm font-semibold text-[var(--gold-text)]">
+              Glossário ({termos ?? 0} termos), também aparece na Biblioteca →
+            </Link>
+            <Link href="/admin/cartas" className="text-sm font-semibold text-[var(--gold-text)]">
+              Cartas (jogo dos alunos) →
+            </Link>
+          </div>
         )}
 
         {lista.length ? (
