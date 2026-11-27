@@ -9,7 +9,7 @@ export default async function TelaCartas({ v }: { v: Visao }) {
   const [{ data: rows }, { data: prog }, { data: dias }] = await Promise.all([
     supabase
       .from("cartas")
-      .select("id, categoria, incorreta, correta, explicacao, audio_path")
+      .select("id, categoria, incorreta, correta, explicacao, tipo, audio_path")
       .eq("idioma", v.idioma)
       .eq("publicada", true)
       .order("categoria")
@@ -24,6 +24,7 @@ export default async function TelaCartas({ v }: { v: Visao }) {
     incorreta: r.incorreta,
     correta: r.correta,
     explicacao: r.explicacao,
+    tipo: r.tipo === "natural" ? "natural" : "erro",
     audio: r.audio_path ? supabase.storage.from("cartas-audio").getPublicUrl(r.audio_path).data.publicUrl : null,
   }));
   const progresso: Record<string, ProgressoCarta> = {};
@@ -38,7 +39,7 @@ export default async function TelaCartas({ v }: { v: Visao }) {
       <CabecalhoPagina
         sobretitulo={`Cartas · ${v.idioma === "ingles" ? "inglês" : "espanhol"}`}
         titulo="Cartas"
-        descricao="Frases que muita gente fala do jeito errado. Pense em como seria o certo, vire a carta e ouça a pronúncia."
+        descricao="Frases que muita gente fala errado ou de um jeito pouco natural. Pense em como diria, vire a carta e ouça a pronúncia."
       />
       <JogoCartas
         cartas={cartas}

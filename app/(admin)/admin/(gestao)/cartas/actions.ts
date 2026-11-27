@@ -18,6 +18,7 @@ export async function salvarCarta(formData: FormData) {
   const correta = String(formData.get("correta") || "").trim();
   const explicacao = String(formData.get("explicacao") || "").trim() || null;
   const publicada = formData.get("publicada") === "on";
+  const tipo = formData.get("tipo") === "natural" ? "natural" : "erro";
   const removerAudio = formData.get("remover_audio") === "on";
   const audio = formData.get("audio");
   if (!IDIOMAS.includes(idioma) || !categoria || !incorreta || !correta) return;
@@ -25,12 +26,12 @@ export async function salvarCarta(formData: FormData) {
   const supabase = await createClient();
   let cartaId = id;
   if (id) {
-    await supabase.from("cartas").update({ categoria, incorreta, correta, explicacao, publicada }).eq("id", id);
+    await supabase.from("cartas").update({ categoria, incorreta, correta, explicacao, publicada, tipo }).eq("id", id);
   } else {
     const { count } = await supabase.from("cartas").select("*", { count: "exact", head: true }).eq("idioma", idioma).eq("categoria", categoria);
     const { data } = await supabase
       .from("cartas")
-      .insert({ idioma, categoria, incorreta, correta, explicacao, publicada, ordem: count ?? 0 })
+      .insert({ idioma, categoria, incorreta, correta, explicacao, publicada, tipo, ordem: count ?? 0 })
       .select("id")
       .single();
     cartaId = data?.id ?? "";

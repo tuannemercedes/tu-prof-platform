@@ -7,6 +7,7 @@ export type Carta = {
   incorreta: string;
   correta: string;
   explicacao: string | null;
+  tipo: "erro" | "natural"; // erro de fato, ou correto mas pouco natural
   audio: string | null; // endereço público do áudio gravado (se houver)
 };
 

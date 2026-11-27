@@ -312,7 +312,7 @@ export default function JogoCartas({ cartas, progresso: progressoInicial, sequen
               {erradas.map(({ carta: c }) => (
                 <li key={c.id} className="py-3 flex items-start justify-between gap-3">
                   <div className="space-y-0.5">
-                    <p className="text-sm text-[var(--text-faint)] carta-errada">{c.incorreta}</p>
+                    <p className={`text-sm text-[var(--text-faint)] ${c.tipo === "natural" ? "" : "carta-errada"}`}>{c.incorreta}</p>
                     <p className="text-[15px] font-semibold">{c.correta}</p>
                   </div>
                   <button
@@ -373,9 +373,16 @@ export default function JogoCartas({ cartas, progresso: progressoInicial, sequen
                 <Nivel n={nivel} claro />
               </div>
               <div className="relative flex-1 flex flex-col justify-center gap-4 text-center">
+                <span
+                  className={`mx-auto text-[11px] font-semibold uppercase tracking-[0.12em] px-2.5 py-1 rounded-full ${
+                    carta.tipo === "natural" ? "bg-white/10 text-[#c9d2e3]" : "bg-[#e87868]/15 text-[#f1a597]"
+                  }`}
+                >
+                  {carta.tipo === "natural" ? "Não está errado, mas…" : "Erro comum"}
+                </span>
                 <p className="text-sm text-[#aab6cc]">{repetidas.has(carta.id) ? "Mais uma vez:" : "Muita gente fala assim:"}</p>
                 <p className="font-serif text-[27px] sm:text-[31px] leading-[1.2] font-semibold text-white">“{carta.incorreta}”</p>
-                <p className="text-sm text-[#aab6cc]">Como seria o certo?</p>
+                <p className="text-sm text-[#aab6cc]">{carta.tipo === "natural" ? "Como soaria mais natural?" : "Como seria o certo?"}</p>
               </div>
               <p className="relative text-center text-xs text-[#8f9cb5]">Pense na resposta e toque para virar</p>
             </div>
@@ -383,11 +390,13 @@ export default function JogoCartas({ cartas, progresso: progressoInicial, sequen
             {/* Verso */}
             <div className="carta-face carta-verso p-7 sm:p-9 flex flex-col cursor-pointer">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold uppercase tracking-[0.14em] text-[var(--gold-text)]">Forma correta</span>
+                <span className="font-semibold uppercase tracking-[0.14em] text-[var(--gold-text)]">
+                  {carta.tipo === "natural" ? "Mais natural" : "Forma correta"}
+                </span>
                 <Nivel n={nivel} />
               </div>
               <div className="flex-1 flex flex-col justify-center items-center gap-4 text-center">
-                <p className="text-sm opacity-60 carta-errada">{carta.incorreta}</p>
+                <p className={`text-sm opacity-60 ${carta.tipo === "natural" ? "" : "carta-errada"}`}>{carta.incorreta}</p>
                 <p className="font-serif text-[28px] sm:text-[32px] leading-[1.2] font-semibold">{carta.correta}</p>
                 <button
                   type="button"
@@ -415,10 +424,10 @@ export default function JogoCartas({ cartas, progresso: progressoInicial, sequen
               onClick={() => responder(false)}
               className="h-[52px] rounded-xl border border-[var(--border-strong)] bg-[var(--surface)] text-[15px] font-semibold hover:border-[var(--danger-text)]"
             >
-              Ainda erro
+              {carta?.tipo === "natural" ? "Ainda não" : "Ainda erro"}
             </button>
             <button type="button" onClick={() => responder(true)} className="botao-ouro h-[52px] rounded-xl text-[15px] font-semibold">
-              Eu teria acertado
+              {carta?.tipo === "natural" ? "Eu diria assim" : "Eu teria acertado"}
             </button>
           </>
         ) : (
@@ -427,7 +436,7 @@ export default function JogoCartas({ cartas, progresso: progressoInicial, sequen
           </button>
         )}
       </div>
-      <p className="hidden sm:block text-center text-xs text-[var(--text-faint)]">Atalhos: espaço vira · 1 ainda erro · 2 acertei</p>
+      <p className="hidden sm:block text-center text-xs text-[var(--text-faint)]">Atalhos: espaço vira · 1 ainda não · 2 acertei</p>
     </div>
   );
 }
