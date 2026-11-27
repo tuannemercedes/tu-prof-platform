@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { responderCarta } from "@/app/(aluno)/aluno/cartas/actions";
 import { CATEGORIAS, hojeISO, INTERVALOS, NIVEL_MAX, proximoNivel, somarDias, type Carta, type ProgressoCarta } from "@/lib/cartas";
 
@@ -24,6 +24,32 @@ const MODOS: { v: Modo; l: string }[] = [
   { v: "expressao", l: "Frases e expressões" },
   { v: "erros", l: "Erros comuns" },
 ];
+
+// Velocidade do áudio escolhida pelo aluno (fica guardada neste aparelho).
+const VELOCIDADES = [
+  { v: 1, l: "Normal" },
+  { v: 0.85, l: "Devagar" },
+  { v: 0.7, l: "Bem devagar" },
+];
+const CHAVE_VEL = "cartas-velocidade";
+function lerVelocidade() {
+  try {
+    const n = Number(localStorage.getItem(CHAVE_VEL));
+    return VELOCIDADES.some((x) => x.v === n) ? n : 1;
+  } catch {
+    return 1;
+  }
+}
+function assinarVelocidade(cb: () => void) {
+  window.addEventListener("cartas-velocidade", cb);
+  return () => window.removeEventListener("cartas-velocidade", cb);
+}
+function salvarVelocidade(v: number) {
+  try {
+    localStorage.setItem(CHAVE_VEL, String(v));
+  } catch {}
+  window.dispatchEvent(new Event("cartas-velocidade"));
+}
 
 function embaralhar<T>(lista: T[]) {
   const a = [...lista];
@@ -58,7 +84,7 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
   const [livre, setLivre] = useState(false);
   const [virada, setVirada] = useState(false);
   const [respostas, setRespostas] = useState<Resposta[]>([]);
-  const [repetidas, setRepetidas] = useState<Set<string>>(new Set());
+  const velocidade = useSyncExternalStore(assinarVelocidade, lerVelocidade, () => 1);
   const [tocando, setTocando] = useState<string | null>(null);
   const [jogou, setJogou] = useState(jogouHoje);
   const [, startTransition] = useTransition();
@@ -87,6 +113,8 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
     if (!c.audio) return;
     audioRef.current?.pause();
     const a = new Audio(c.audio);
+    a.playbackRate = lerVelocidade();
+    a.preservesPitch = true;
     audioRef.current = a;
     setTocando(c.id);
     a.onended = a.onerror = () => setTocando(null);
@@ -113,7 +141,6 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
     setTotal(r.cartas.length);
     setLivre(r.livre);
     setRespostas([]);
-    setRepetidas(new Set());
     setVirada(false);
     setTela("jogo");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -130,8 +157,7 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
   const responder = (acertou: boolean) => {
     if (!carta || !virada) return;
     audioRef.current?.pause();
-    const primeira = !repetidas.has(carta.id);
-    if (primeira) {
+    {
       setRespostas((r) => [...r, { carta, acertou }]);
       const atual = progresso[carta.id];
       const nivel = proximoNivel(atual?.nivel ?? 0, acertou);
@@ -151,15 +177,11 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
         });
       }
     }
+    // Cada carta aparece uma vez por rodada; as erradas podem ser treinadas no fim.
     const resto = fila.slice(1);
-    if (!acertou && primeira) {
-      setRepetidas((s) => new Set(s).add(carta.id));
-      setFila([...resto, carta]);
-    } else {
-      setFila(resto);
-    }
+    setFila(resto);
     setVirada(false);
-    if (resto.length === 0 && (acertou || !primeira)) setTela("fim");
+    if (resto.length === 0) setTela("fim");
   };
 
   // Teclado: espaço/enter vira; 1 = ainda não; 2 = acertei. As ações mais recentes ficam numa ref.
@@ -319,7 +341,10 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
                 {todasMarcadas ? "Limpar seleção" : "Selecionar todas"}
               </button>
             </div>
-            <p className="text-[13px] text-[var(--text-secondary)] -mt-1">Marque as que você quer treinar agora, ou jogue o tema inteiro.</p>
+            <div className="flex flex-wrap items-center justify-between gap-2 -mt-1">
+              <p className="text-[13px] text-[var(--text-secondary)]">Marque as que você quer treinar agora, ou jogue o tema inteiro.</p>
+              <SeletorVelocidade atual={velocidade} />
+            </div>
             <ul className="flex flex-col divide-y divide-[var(--border)]">
               {visiveis.map((c) => {
                 const marcada = selecionadas.has(c.id);
@@ -388,7 +413,7 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
           </p>
           <p className="relative mt-3 font-serif text-[56px] leading-none font-semibold text-white">{pct}%</p>
           <p className="relative mt-3 text-[15px] text-[#c9d2e3]">
-            {acertos} de {respostas.length} de primeira.{" "}
+            {acertos} de {respostas.length} certas.{" "}
             {pct >= 80
               ? "Muito bem!"
               : pct >= 50
@@ -402,7 +427,7 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
                 onClick={() => comecar(erradas.map((r) => r.carta))}
                 className="botao-ouro h-11 px-6 rounded-xl text-sm font-semibold"
               >
-                Treinar as {erradas.length} que errei
+                {erradas.length === 1 ? "Treinar a que errei" : `Treinar as ${erradas.length} que errei`}
               </button>
             )}
             <button
@@ -445,7 +470,7 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
   }
 
   // ===== Jogo =====
-  const feitas = total - fila.filter((c) => !repetidas.has(c.id)).length;
+  const feitas = total - fila.length;
   const nivel = carta ? (progresso[carta.id]?.nivel ?? 0) : 0;
   const frente =
     carta?.tipo === "expressao"
@@ -470,7 +495,7 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
       </div>
 
       {carta && (
-        <div key={carta.id + (repetidas.has(carta.id) ? "-b" : "")} className="carta-cena carta-entra h-[400px] sm:h-[430px]">
+        <div key={carta.id} className="carta-cena carta-entra h-[400px] sm:h-[430px]">
           <div
             className={`carta-giro ${virada ? "virada" : ""}`}
             role="button"
@@ -498,7 +523,7 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
                 >
                   {frente.selo}
                 </span>
-                <p className="text-sm text-[#aab6cc]">{repetidas.has(carta.id) ? "Mais uma vez:" : frente.topo}</p>
+                <p className="text-sm text-[#aab6cc]">{frente.topo}</p>
                 <p className="font-serif text-[27px] sm:text-[31px] leading-[1.2] font-semibold text-white">“{carta.incorreta}”</p>
                 <p className="text-sm text-[#aab6cc]">{frente.pergunta}</p>
               </div>
@@ -552,7 +577,30 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
           </button>
         )}
       </div>
+      {fila.length === 1 && <p className="text-center text-sm font-semibold text-[var(--gold-text)]">Última carta da rodada</p>}
+      <SeletorVelocidade atual={velocidade} />
       <p className="hidden sm:block text-center text-xs text-[var(--text-faint)]">Atalhos: espaço vira · 1 ainda não · 2 acertei</p>
+    </div>
+  );
+}
+
+function SeletorVelocidade({ atual }: { atual: number }) {
+  return (
+    <div className="flex items-center justify-center gap-2 text-xs" role="group" aria-label="Velocidade do áudio">
+      <span className="text-[var(--text-secondary)]">Velocidade do áudio:</span>
+      <div className="flex rounded-full border border-[var(--border-strong)] bg-[var(--surface)] p-0.5">
+        {VELOCIDADES.map((x) => (
+          <button
+            key={x.v}
+            type="button"
+            aria-pressed={atual === x.v}
+            onClick={() => salvarVelocidade(x.v)}
+            className={`h-7 px-3 rounded-full font-medium ${atual === x.v ? "bg-[var(--navy)] text-[var(--on-navy)]" : "text-[var(--text-secondary)]"}`}
+          >
+            {x.l}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
