@@ -63,9 +63,16 @@ export default function MaterialCard({
   const embedUrl = material.url ? getEmbedUrl(material.url) : null;
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash === `#material-${material.id}`) {
-      setExpanded(true);
-    }
+    // Abre o material quando o endereço aponta para ele (link "Continuar" ou vindo da Trilha).
+    const abrir = () => {
+      if (window.location.hash === `#material-${material.id}`) {
+        setExpanded(true);
+        setAccessed(true);
+      }
+    };
+    abrir();
+    window.addEventListener("hashchange", abrir);
+    return () => window.removeEventListener("hashchange", abrir);
   }, [material.id]);
 
   function toggle() {
@@ -179,8 +186,9 @@ export default function MaterialCard({
             (embedUrl ? (
               <iframe
                 src={embedUrl}
-                className="w-full h-[220px] rounded-md border border-[var(--border-soft)]"
-                allow="encrypted-media; autoplay"
+                className="w-full aspect-video rounded-xl border border-[var(--border-soft)] bg-black"
+                allow="encrypted-media; autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
                 title={material.titulo}
               />
             ) : (

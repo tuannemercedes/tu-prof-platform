@@ -5,7 +5,7 @@ import MaterialForm from "@/components/material-form";
 import MaterialRow from "@/components/material-row";
 import SubmitButton from "@/components/submit-button";
 import { createFase, deleteFase, deleteMaterial, moverMaterial, moverParaFase } from "./actions";
-import { updateMateriaTitulo } from "@/app/(admin)/admin/(gestao)/materias/actions";
+import { salvarCapaMateria, updateMateriaTitulo } from "@/app/(admin)/admin/(gestao)/materias/actions";
 
 export default async function MateriaDetailPage({
   params,
@@ -17,7 +17,7 @@ export default async function MateriaDetailPage({
 
   const [{ data: materia }, { data: materiais }, { data: turmas }, { data: alunos }, { data: fases }] =
     await Promise.all([
-      supabase.from("materias").select("id, titulo").eq("id", id).single(),
+      supabase.from("materias").select("id, titulo, capa_path, descricao").eq("id", id).single(),
       supabase
         .from("materiais")
         .select(
@@ -102,6 +102,42 @@ export default async function MateriaDetailPage({
           </SubmitButton>
         </form>
       </div>
+
+      <form action={salvarCapaMateria} className="space-y-3 rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5">
+        <input type="hidden" name="id" value={id} />
+        <h2 className="m-0 text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Capa do módulo</h2>
+        <p className="m-0 text-xs text-[var(--text-secondary)]">
+          Aparece na Trilha do aluno e no topo do módulo. Use uma imagem horizontal (ex.: 1600 × 900). Sem imagem, o módulo usa a capa azul da marca.
+        </p>
+        <div className="flex flex-wrap gap-4 items-start">
+          <div className="relative w-56 aspect-video rounded-xl overflow-hidden shrink-0">
+            {materia.capa_path ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={supabase.storage.from("capas").getPublicUrl(materia.capa_path).data.publicUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="capa-padrao w-full h-full flex items-end p-3 text-[#e9cf8a] font-serif font-semibold">{materia.titulo}</div>
+            )}
+          </div>
+          <div className="flex-1 min-w-[220px] space-y-2">
+            <input type="file" name="capa" accept="image/*" className="block text-sm" />
+            {materia.capa_path && (
+              <label className="flex items-center gap-2 text-xs">
+                <input type="checkbox" name="remover_capa" value="1" /> Remover a imagem atual
+              </label>
+            )}
+            <textarea
+              name="descricao"
+              rows={2}
+              defaultValue={materia.descricao ?? ""}
+              placeholder="Uma frase sobre o módulo (opcional). Ex.: Reuniões, apresentações e negociação com clientes."
+              className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
+            />
+            <SubmitButton className="rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-sm font-medium px-4 py-2" pendingText="Salvando..." savedText="✓ Salvo">
+              Salvar capa
+            </SubmitButton>
+          </div>
+        </div>
+      </form>
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide">

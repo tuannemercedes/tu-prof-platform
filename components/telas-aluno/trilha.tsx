@@ -1,39 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getTrilhasDoAluno, pct, type MaterialStatus } from "@/lib/trilhas";
+import { getTrilhasDoAluno, pct } from "@/lib/trilhas";
 import CabecalhoPagina from "@/components/cabecalho-pagina";
 import { doIdioma } from "@/lib/idioma";
 import { getLiberados, rota, type Visao } from "@/lib/visao";
-
-function Bolinha({ feito }: { feito: boolean }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`w-2.5 h-2.5 shrink-0 rounded-full ${
-        feito ? "bg-[var(--gold)]" : "bg-[var(--surface-3)] border border-[var(--border-strong)]"
-      }`}
-    />
-  );
-}
-
-function ListaMateriais({ v, trilhaId, materiais }: { v: Visao; trilhaId: string; materiais: MaterialStatus[] }) {
-  return (
-    <ul className="divide-y divide-[var(--border-soft)]">
-      {materiais.map((m) => (
-        <li key={m.id}>
-          <Link
-            href={rota(v, `/materias/${trilhaId}`, `#material-${m.id}`)}
-            className="flex items-center gap-3 min-h-12 py-2 text-sm hover:text-[var(--gold-text)]"
-          >
-            <Bolinha feito={m.concluido} />
-            <span className="flex-1">{m.titulo}</span>
-            <span className="sr-only">{m.concluido ? "concluído" : "a fazer"}</span>
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 export default async function TelaTrilha({ v }: { v: Visao }) {
   const supabase = await createClient();
@@ -87,61 +57,48 @@ export default async function TelaTrilha({ v }: { v: Visao }) {
             </div>
           </div>
 
-          {trilhas.map((t, i) => {
-            const p = pct(t.concluidos, t.total);
-            return (
-              <details
-                key={t.id}
-                open={i === 0}
-                className="group rounded-2xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden"
-              >
-                <summary className="flex items-center gap-4 p-4 cursor-pointer list-none min-h-[72px]">
-                  <span className="w-9 h-9 shrink-0 rounded-full bg-[var(--navy)] text-[var(--gold-light)] font-serif text-lg font-semibold flex items-center justify-center">
-                    {i + 1}
-                  </span>
-                  <span className="flex-1 min-w-0">
-                    <span className="block text-[15px] font-semibold">{t.titulo}</span>
-                    <span className="block text-xs text-[var(--text-secondary)]">
-                      {t.concluidos} de {t.total} · {p}%
-                    </span>
-                  </span>
-                  <svg
-                    className="transition-transform group-open:rotate-180 text-[var(--text-secondary)]"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    aria-hidden="true"
-                  >
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
-                </summary>
-                <div className="border-t border-[var(--border-soft)] px-4 pb-4 space-y-4">
-                  {t.fases.map((fase) => (
-                    <div key={fase.id} className="pt-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
-                        {fase.titulo}
-                      </p>
-                      <ListaMateriais v={v} trilhaId={t.id} materiais={fase.materiais} />
-                    </div>
-                  ))}
-                  {t.materiaisSemFase.length > 0 && (
-                    <div className="pt-1">
-                      <ListaMateriais v={v} trilhaId={t.id} materiais={t.materiaisSemFase} />
-                    </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {trilhas.map((t, i) => {
+              const p = pct(t.concluidos, t.total);
+              const capa = t.capa_path ? supabase.storage.from("capas").getPublicUrl(t.capa_path).data.publicUrl : null;
+              const atual = i === trilhas.findIndex((x) => x.concluidos < x.total);
+              return (
+                <Link
+                  key={t.id}
+                  href={rota(v, `/materias/${t.id}`)}
+                  className="modulo-card group relative block rounded-[20px] overflow-hidden aspect-[4/5] sm:aspect-[3/4]"
+                >
+                  {capa ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={capa} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  ) : (
+                    <div className="capa-padrao absolute inset-0" />
                   )}
-                  <Link
-                    href={rota(v, `/materias/${t.id}`)}
-                    className="inline-block text-sm font-semibold text-[var(--gold-text)]"
-                  >
-                    Abrir o módulo completo →
-                  </Link>
-                </div>
-              </details>
-            );
-          })}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#060d18] via-[#060d18]/55 to-transparent" />
+                  <div className="absolute top-3 left-3 flex gap-1.5">
+                    <span className="rounded-full bg-black/45 backdrop-blur px-2.5 py-1 text-[11px] font-semibold text-white tracking-wide">
+                      Módulo {i + 1}
+                    </span>
+                    {atual && (
+                      <span className="botao-ouro rounded-full px-2.5 py-1 text-[11px] font-semibold">Continue aqui</span>
+                    )}
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col gap-2 text-white">
+                    <span className="font-serif font-semibold text-[22px] leading-tight">{t.titulo}</span>
+                    {t.descricao && <span className="text-[13px] text-white/75 line-clamp-2">{t.descricao}</span>}
+                    <div className="flex items-center gap-2.5 pt-1">
+                      <div className="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden">
+                        <div className="h-full rounded-full bg-[linear-gradient(90deg,#e9cf8a,#c9a24d)]" style={{ width: `${p}%` }} />
+                      </div>
+                      <span className="text-xs text-white/80 whitespace-nowrap">
+                        {p === 100 ? "Concluído" : `${t.concluidos} de ${t.total}`}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

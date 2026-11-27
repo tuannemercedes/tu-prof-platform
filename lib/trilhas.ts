@@ -8,6 +8,8 @@ export type Trilha = {
   titulo: string;
   categoria: string;
   ordem: number;
+  capa_path: string | null;
+  descricao: string | null;
   fases: Fase[];
   materiaisSemFase: MaterialStatus[];
   total: number;
@@ -21,7 +23,7 @@ type MaterialRow = {
   fase_id: string | null;
   ordem: number;
   idioma: string;
-  materias: { id: string; titulo: string; categoria: string; ordem: number } | null;
+  materias: { id: string; titulo: string; categoria: string; ordem: number; capa_path: string | null; descricao: string | null } | null;
 };
 
 // Monta as trilhas (matérias) que o aluno logado enxerga, com o progresso dele.
@@ -35,7 +37,7 @@ export async function getTrilhasDoAluno(
   const [{ data: materiaisRows }, { data: fasesRows }, { data: progresso }] = await Promise.all([
     supabase
       .from("materiais")
-      .select("id, titulo, materia_id, fase_id, ordem, idioma, materias(id, titulo, categoria, ordem)")
+      .select("id, titulo, materia_id, fase_id, ordem, idioma, materias(id, titulo, categoria, ordem, capa_path, descricao)")
       .order("ordem")
       .order("created_at"),
     supabase.from("fases").select("id, materia_id, titulo, ordem").order("ordem"),
@@ -58,6 +60,8 @@ export async function getTrilhasDoAluno(
         titulo: row.materias.titulo,
         categoria: row.materias.categoria,
         ordem: row.materias.ordem,
+        capa_path: row.materias.capa_path,
+        descricao: row.materias.descricao,
         fasesMap: new Map(),
         materiaisSemFase: [],
         total: 0,
