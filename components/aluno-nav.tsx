@@ -45,6 +45,12 @@ const ICONES: Record<string, React.ReactNode> = {
     </>
   ),
   evolucao: <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />,
+  cartas: (
+    <>
+      <rect x="7.5" y="3" width="12" height="16" rx="2" transform="rotate(10 13.5 11)" />
+      <rect x="4" y="5" width="12" height="16" rx="2" />
+    </>
+  ),
 };
 
 // Caminhos relativos à base ("/aluno" para o aluno, "/previa/<id>" na prévia da equipe).
@@ -68,6 +74,7 @@ const ITENS = [
     label: "Acervo",
     ativo: (p: string) => ["/acervo", "/biblioteca", "/busca", "/glossario"].some((r) => p.startsWith(r)),
   },
+  { chave: "cartas", caminho: "/cartas", label: "Cartas", ativo: (p: string) => p.startsWith("/cartas") },
   {
     chave: "evolucao",
     caminho: "/evolucao",
@@ -253,7 +260,7 @@ export default function AlunoNav({ nome, novidades = [], idioma: idiomaBase, bas
       {/* ===== Celular: abas de baixo ===== */}
       <nav
         aria-label="Menu principal"
-        className="sm:hidden fixed bottom-0 inset-x-0 z-30 grid grid-cols-5 bg-[var(--surface)] border-t border-[var(--border)] pb-[env(safe-area-inset-bottom)]"
+        className="sm:hidden fixed bottom-0 inset-x-0 z-30 grid grid-cols-6 bg-[var(--surface)] border-t border-[var(--border)] pb-[env(safe-area-inset-bottom)]"
       >
         {ITENS.map((item) => {
           const ativo = item.ativo(relativo);
@@ -262,7 +269,7 @@ export default function AlunoNav({ nome, novidades = [], idioma: idiomaBase, bas
               key={item.chave}
               href={href(item.caminho)}
               aria-current={ativo ? "page" : undefined}
-              className={`flex flex-col items-center justify-center gap-1 h-16 text-[11px] ${
+              className={`flex flex-col items-center justify-center gap-1 h-16 text-[10.5px] ${
                 ativo ? "text-[var(--text-primary)] font-semibold" : "text-[var(--text-secondary)]"
               }`}
             >

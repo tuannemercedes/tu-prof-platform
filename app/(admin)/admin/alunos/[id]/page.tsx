@@ -1,3 +1,4 @@
+import CartasFicha from "@/components/cartas-ficha";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -664,6 +665,7 @@ export default async function FichaAlunoPage({
               <p className="m-0 text-sm text-[var(--text-secondary)]">Nenhum checkpoint ainda. O primeiro funciona como diagnóstico.</p>
             )}
           </section>
+          <CartasFicha alunoId={id} idioma={idioma} primeiroNome={primeiroNome} />
           <CertificadosAluno
             alunoId={id}
             nome={aluno.nome || aluno.email}
