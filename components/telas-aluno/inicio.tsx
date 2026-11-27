@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getTarefasDoAluno, formatarPrazo } from "@/lib/tarefas";
 import { diaISO, diaDoMes, diaSemanaCurto, hojePorExtenso, hora, quandoCompleto, segundaDaSemana, somarDias } from "@/lib/datas";
 import { rotuloIdioma } from "@/lib/programas";
-import { doIdioma } from "@/lib/idioma";
+import { doIdioma, TEXTOS_IDIOMA } from "@/lib/idioma";
 import { lerPrevia, liberaEm, previaLiberada } from "@/lib/previa";
 import { getLiberados, liberado, nomeDoProfessor, rota, type Visao, filtroAulas } from "@/lib/visao";
 import TarefaItem from "@/components/tarefa-item";
@@ -33,13 +33,12 @@ export default async function TelaInicio({ v }: { v: Visao }) {
     getTarefasDoAluno(supabase, v.alunoId, lib),
     supabase
       .from("aulas")
-      .select("id, data, tema, aluno_id, previa")
+      .select("id, data, tema, aluno_id, previa, idioma")
       .or(filtroAulas(v))
       .eq("status", "agendada")
       .gte("data", agora)
-      .or(`idioma.is.null,idioma.eq.${idioma}`)
       .order("data")
-      .limit(1),
+      .limit(20),
     supabase.from("materiais").select("id, titulo, materia_id, idioma, materias(id, titulo, categoria)").order("ordem"),
     supabase.from("progresso").select("material_id, concluido, acessado_em").eq("aluno_id", v.alunoId),
     supabase.from("configuracoes").select("chave, valor").eq("chave", "recado_mentora"),
@@ -84,7 +83,8 @@ export default async function TelaInicio({ v }: { v: Visao }) {
   let clube: { id: string; tema: string; quando: string; vou: boolean } | null = null;
   const tema = clubeTemas?.[0];
   const temClube = !v.previa || (await getClubeAcessoParaAluno(supabase, v.alunoId));
-  if (tema && temClube) {
+  // O Club Hispano é do espanhol: no modo inglês ele não aparece.
+  if (tema && temClube && TEXTOS_IDIOMA[idioma].temClube) {
     const [{ data: cfg }, { data: rsvp }] = await Promise.all([
       supabase.from("clube_config").select("dia_horario").eq("id", 1).maybeSingle(),
       supabase.from("clube_rsvps").select("confirmado").eq("tema_id", tema.id).eq("aluno_id", v.alunoId).maybeSingle(),
@@ -105,13 +105,15 @@ export default async function TelaInicio({ v }: { v: Visao }) {
     .map((p) => p.turmas as unknown as { nome: string; idioma: string } | null)
     .filter((p): p is { nome: string; idioma: string } => !!p);
   const prog = progs.find((p) => doIdioma(p.idioma, idioma)) ?? progs[0];
-  const proxima = proximas?.[0];
+  // Só a aula do idioma em que a pessoa está agora (espanhol ou inglês).
+  const proxima = (proximas ?? []).find((a) => doIdioma(a.idioma, idioma));
 
   return (
     <div className="-mx-4 sm:-mx-10 -mt-6 sm:-mt-10">
       <header className="bg-[var(--navy)] text-[var(--on-navy)] px-6 sm:px-10 pt-7 pb-14 flex flex-col gap-1">
         <p className="m-0 text-[13px] text-[var(--on-navy-muted)]">{hojePorExtenso()}</p>
-        <h1 className="m-0 font-serif font-semibold text-[36px] leading-[1.05]">¡Hola{nome ? `, ${nome}` : ""}!</h1>
+        <h1 className="m-0 font-serif font-semibold text-[36px] leading-[1.05]">{TEXTOS_IDIOMA[idioma].ola}
+          {nome ? `, ${nome}` : ""}!</h1>
         {prog && (
           <p className="mt-1 text-sm text-[var(--on-navy-muted)]">
             {prog.nome} · {rotuloIdioma(prog.idioma)}
