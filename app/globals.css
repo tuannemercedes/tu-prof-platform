@@ -475,3 +475,16 @@ nav[class*="sm:hidden"][class*="fixed"][class*="bottom-0"] {
     linear-gradient(150deg, #3a3222 0%, #2a2518 55%, #1c1a14 100%);
   color: #f1deb5;
 }
+
+/* Cartões de módulo (Trilha): sombra profunda e leve elevação */
+.modulo-card {
+  box-shadow: 0 1px 2px rgba(14, 27, 51, 0.1), 0 18px 40px -22px rgba(14, 27, 51, 0.55);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.modulo-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 2px 4px rgba(14, 27, 51, 0.12), 0 26px 50px -24px rgba(14, 27, 51, 0.65), 0 0 0 1px rgba(217, 184, 102, 0.35);
+}
+.modulo-hero {
+  box-shadow: 0 24px 60px -30px rgba(6, 13, 24, 0.8);
+}

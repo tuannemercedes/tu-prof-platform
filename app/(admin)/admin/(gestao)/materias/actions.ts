@@ -70,3 +70,24 @@ export async function moverMateria(id: string, categoria: string, direcao: "up" 
   revalidatePath("/admin/materias");
   revalidatePath("/admin/fia");
 }
+
+// Capa (imagem) e descrição curta do módulo, vistas pelo aluno na Trilha.
+export async function salvarCapaMateria(formData: FormData) {
+  const id = String(formData.get("id"));
+  const supabase = await createClient();
+  const updates: { capa_path?: string | null; descricao?: string | null } = {
+    descricao: String(formData.get("descricao") ?? "").trim() || null,
+  };
+  if (formData.get("remover_capa") === "1") updates.capa_path = null;
+  const capa = formData.get("capa") as File | null;
+  if (capa && capa.size > 0) {
+    const ext = capa.name.includes(".") ? capa.name.split(".").pop()!.toLowerCase().slice(0, 10) : "jpg";
+    const caminho = `modulos/${id}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("capas").upload(caminho, capa, { contentType: capa.type || undefined });
+    if (error) throw new Error("Não foi possível enviar a imagem.");
+    updates.capa_path = caminho;
+  }
+  await supabase.from("materias").update(updates).eq("id", id);
+  revalidatePath(`/admin/materias/${id}`);
+  revalidatePath("/aluno", "layout");
+}
