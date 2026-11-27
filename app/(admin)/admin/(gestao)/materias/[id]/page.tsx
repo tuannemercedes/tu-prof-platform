@@ -1,3 +1,4 @@
+import { urlCapa } from "@/lib/capas";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -113,7 +114,7 @@ export default async function MateriaDetailPage({
           <div className="relative w-56 aspect-video rounded-xl overflow-hidden shrink-0">
             {materia.capa_path ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={supabase.storage.from("capas").getPublicUrl(materia.capa_path).data.publicUrl} alt="" className="w-full h-full object-cover" />
+              <img src={urlCapa(supabase, materia.capa_path) ?? ""} alt="" className="w-full h-full object-cover" />
             ) : (
               <div className="capa-padrao w-full h-full flex items-end p-3 text-[#e9cf8a] font-serif font-semibold">{materia.titulo}</div>
             )}

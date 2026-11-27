@@ -24,11 +24,11 @@ function FormCarta({ idioma, carta, categorias }: { idioma: string; carta?: Row;
       {carta && <input type="hidden" name="id" value={carta.id} />}
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-semibold">Frente: como muita gente fala</span>
+          <span className="font-semibold">Frente: como muita gente fala (ou, em expressões, a frase em português)</span>
           <input name="incorreta" required defaultValue={carta?.incorreta} className={campo} />
         </label>
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-semibold">Verso: forma correta / mais natural</span>
+          <span className="font-semibold">Verso: forma correta, mais natural ou como se diz</span>
           <input name="correta" required defaultValue={carta?.correta} className={campo} />
         </label>
       </div>
@@ -40,6 +40,9 @@ function FormCarta({ idioma, carta, categorias }: { idioma: string; carta?: Row;
         <label className="flex items-center gap-2">
           <input type="radio" name="tipo" value="natural" defaultChecked={carta?.tipo === "natural"} /> Não está errado, mas soa mais natural de outro
           jeito
+        </label>
+        <label className="flex items-center gap-2">
+          <input type="radio" name="tipo" value="expressao" defaultChecked={carta?.tipo === "expressao"} /> Frase ou expressão (frente em português)
         </label>
       </fieldset>
       <label className="flex flex-col gap-1 text-sm">
@@ -173,7 +176,7 @@ export default async function CartasAdminPage({ searchParams }: { searchParams: 
                       />
                       <span className="flex-1 min-w-0">
                         <span
-                          className={`block text-sm text-[var(--text-faint)] ${c.tipo === "natural" ? "" : "line-through decoration-[var(--danger-text)]/60"}`}
+                          className={`block text-sm text-[var(--text-faint)] ${c.tipo === "erro" ? "line-through decoration-[var(--danger-text)]/60" : ""}`}
                         >
                           {c.incorreta}
                         </span>
@@ -181,10 +184,14 @@ export default async function CartasAdminPage({ searchParams }: { searchParams: 
                       </span>
                       <span
                         className={`text-[11px] font-semibold px-2 py-1 rounded-lg ${
-                          c.tipo === "natural" ? "bg-[var(--info-bg)] text-[var(--info-text)]" : "bg-[var(--danger-bg)] text-[var(--danger-text)]"
+                          c.tipo === "expressao"
+                            ? "bg-[var(--surface-2)] text-[var(--gold-text)]"
+                            : c.tipo === "natural"
+                              ? "bg-[var(--info-bg)] text-[var(--info-text)]"
+                              : "bg-[var(--danger-bg)] text-[var(--danger-text)]"
                         }`}
                       >
-                        {c.tipo === "natural" ? "mais natural" : "erro"}
+                        {c.tipo === "expressao" ? "expressão" : c.tipo === "natural" ? "mais natural" : "erro"}
                       </span>
                       {c.audio_path && (
                         <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-[var(--surface-2)] text-[var(--gold-text)]">áudio</span>

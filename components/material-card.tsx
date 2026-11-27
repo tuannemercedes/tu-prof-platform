@@ -15,7 +15,6 @@ const TIPO_LABELS: Record<string, string> = {
   link_externo: "Link",
 };
 
-
 export type MaterialCardData = {
   id: string;
   titulo: string;
@@ -51,13 +50,7 @@ function HtmlFrame({ conteudoHtml, titulo }: { conteudoHtml: string; titulo: str
   );
 }
 
-export default function MaterialCard({
-  material,
-  readOnly = false,
-}: {
-  material: MaterialCardData;
-  readOnly?: boolean;
-}) {
+export default function MaterialCard({ material, readOnly = false }: { material: MaterialCardData; readOnly?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [accessed, setAccessed] = useState(false);
   const embedUrl = material.url ? getEmbedUrl(material.url) : null;
@@ -103,9 +96,7 @@ export default function MaterialCard({
               // eslint-disable-next-line @next/next/no-img-element
               <img src={material.capaUrl} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div
-                className="capa-padrao w-full h-full flex items-center justify-center text-[#e9cf8a]"
-              >
+              <div className="capa-padrao w-full h-full flex items-center justify-center text-[#e9cf8a]">
                 <IconeTipo tipo={material.tipo} size={44} />
               </div>
             )}
@@ -151,29 +142,18 @@ export default function MaterialCard({
         ) : (
           <ProgressCheckbox materialId={material.id} defaultChecked={material.concluido} />
         )}
-        <button
-          type="button"
-          onClick={toggle}
-          className="text-xs text-[var(--accent)] hover:underline whitespace-nowrap"
-        >
+        <button type="button" onClick={toggle} className="text-xs text-[var(--accent)] hover:underline whitespace-nowrap">
           {expanded ? "Fechar ▲" : "Abrir ▼"}
         </button>
       </div>
 
       {expanded && (
         <div className="px-3 pb-3">
-          {material.tipo === "html" && material.conteudo_html && (
-            <HtmlFrame conteudoHtml={material.conteudo_html} titulo={material.titulo} />
-          )}
+          {material.tipo === "html" && material.conteudo_html && <HtmlFrame conteudoHtml={material.conteudo_html} titulo={material.titulo} />}
 
           {material.tipo === "pdf" &&
             (material.signedUrl ? (
-              <a
-                href={material.signedUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-[var(--accent)] hover:underline"
-              >
+              <a href={material.signedUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--accent)] hover:underline">
                 Abrir PDF →
               </a>
             ) : (
@@ -183,7 +163,15 @@ export default function MaterialCard({
           {material.tipo !== "html" &&
             material.tipo !== "pdf" &&
             material.url &&
-            (embedUrl ? (
+            (/\.(mp4|webm|m4v)(\?|$)/i.test(material.url) ? (
+              <video
+                src={material.url}
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full aspect-video rounded-xl border border-[var(--border-soft)] bg-black"
+              />
+            ) : embedUrl ? (
               <iframe
                 src={embedUrl}
                 className="w-full aspect-video rounded-xl border border-[var(--border-soft)] bg-black"
@@ -192,12 +180,7 @@ export default function MaterialCard({
                 title={material.titulo}
               />
             ) : (
-              <a
-                href={material.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-[var(--accent)] hover:underline"
-              >
+              <a href={material.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--accent)] hover:underline">
                 Abrir →
               </a>
             ))}

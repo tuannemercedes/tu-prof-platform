@@ -15,11 +15,7 @@ export function idYoutube(url: string | null | undefined) {
   return null;
 }
 
-export function capaDoItem(item: {
-  url?: string | null;
-  capa_url?: string | null;
-  capa_publica?: string | null;
-}) {
+export function capaDoItem(item: { url?: string | null; capa_url?: string | null; capa_publica?: string | null }) {
   if (item.capa_publica) return item.capa_publica;
   if (item.capa_url) return item.capa_url;
   const yt = idYoutube(item.url);
@@ -54,4 +50,15 @@ export const TIPO_ROTULO: Record<string, string> = {
 // Para onde um link deve ir por padrão: praticar (FIA) ou estudar (Biblioteca)
 export function destinoSugerido(tipo: string): "fia" | "biblioteca" {
   return ["video", "podcast", "playlist"].includes(tipo) ? "fia" : "biblioteca";
+}
+
+// Endereço público de uma capa guardada: no Storage (bucket "capas") ou um arquivo
+// estático do próprio site (caminho começando com "/"), como as capas de exemplo.
+export function urlCapa(
+  supabase: { storage: { from: (b: string) => { getPublicUrl: (p: string) => { data: { publicUrl: string } } } } },
+  path: string | null | undefined,
+) {
+  if (!path) return null;
+  if (path.startsWith("/") || path.startsWith("http")) return path;
+  return supabase.storage.from("capas").getPublicUrl(path).data.publicUrl;
 }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { rotuloIdioma } from "@/lib/programas";
-import { capaDoItem, TIPO_ROTULO } from "@/lib/capas";
+import { capaDoItem, TIPO_ROTULO, urlCapa } from "@/lib/capas";
 import BibliotecaAdicionar from "@/components/biblioteca-adicionar";
 import { excluirItemBiblioteca } from "./actions";
 
@@ -116,7 +116,7 @@ export default async function AcervoEquipePage({
               const capa = capaDoItem({
                 url: r.url,
                 capa_url: r.capa_url,
-                capa_publica: r.capa_path ? supabase.storage.from("capas").getPublicUrl(r.capa_path).data.publicUrl : null,
+                capa_publica: urlCapa(supabase, r.capa_path),
               });
               return (
                 <div key={r.id} className="flex flex-col gap-2">

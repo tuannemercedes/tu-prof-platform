@@ -7,7 +7,7 @@ export type Carta = {
   incorreta: string;
   correta: string;
   explicacao: string | null;
-  tipo: "erro" | "natural"; // erro de fato, ou correto mas pouco natural
+  tipo: "erro" | "natural" | "expressao"; // erro de fato, correto mas pouco natural, ou frase/expressão útil
   audio: string | null; // endereço público do áudio gravado (se houver)
 };
 
@@ -17,17 +17,41 @@ export type ProgressoCarta = { nivel: number; acertos: number; erros: number; pr
 export const INTERVALOS = [0, 1, 3, 7, 14, 30];
 export const NIVEL_MAX = INTERVALOS.length - 1;
 
-export const ORDEM_CATEGORIAS = [
-  "Cotidiano",
-  "Trabalho e negócios",
-  "Reuniões",
-  "Negociação",
-  "Tecnologia",
-  "Marketing",
-  "RH",
-  "Turismo",
-  "Finanças e contabilidade",
+// Temas das Cartas: situações do dia a dia e profissões.
+export const CATEGORIAS: { nome: string; sub: string; descricao: string }[] = [
+  { nome: "Cotidiano", sub: "Vida adulta", descricao: "O dia a dia fora do trabalho: encontros, compras, imprevistos e conversas rápidas." },
+  {
+    nome: "Trabalho e negócios",
+    sub: "Rotina de escritório",
+    descricao: "E-mails, prazos, pedidos de ajuda e o vocabulário de quem trabalha com outras equipes.",
+  },
+  {
+    nome: "Reuniões",
+    sub: "Abrir, participar, fechar",
+    descricao: "Começar, pedir a palavra, lidar com a conexão ruim e combinar os próximos passos.",
+  },
+  {
+    nome: "Negociação",
+    sub: "Propostas e acordos",
+    descricao: "Propor, colocar condições, responder a objeções e fechar o acordo sem perder a cordialidade.",
+  },
+  {
+    nome: "Gestão de contas",
+    sub: "Relacionamento com cliente",
+    descricao: "Para gerentes de contas: acompanhar, resolver problemas, renovar contratos e manter o cliente por perto.",
+  },
+  { nome: "Tecnologia", sub: "TI e produto", descricao: "Deploy, bugs, testes, chamados e o jeito como times de tecnologia falam." },
+  { nome: "Marketing", sub: "Campanhas e marca", descricao: "Público, campanhas, métricas e mídia paga, com os termos que o mercado usa." },
+  {
+    nome: "RH",
+    sub: "Pessoas e carreira",
+    descricao: "Vagas, seleção, avaliação, feedback e as palavras que mais confundem (demitir, pedir demissão).",
+  },
+  { nome: "Turismo", sub: "Viagens e hotelaria", descricao: "Aeroporto, hotel, restaurante e deslocamentos, com as variações entre países." },
+  { nome: "Finanças e contabilidade", sub: "Números e fechamento", descricao: "Fluxo de caixa, fechamento do mês, DRE, impostos e inadimplência." },
 ];
+
+export const ORDEM_CATEGORIAS = CATEGORIAS.map((c) => c.nome);
 
 export function ordenarCategorias(cats: string[]) {
   const pos = (c: string) => {

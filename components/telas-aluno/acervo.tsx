@@ -3,7 +3,7 @@ import { doIdioma, TEXTOS_IDIOMA } from "@/lib/idioma";
 import { getLiberados, liberado, rota, type Visao } from "@/lib/visao";
 import { getGlossarioAcessoParaAluno } from "@/lib/glossario";
 import { pastasDoGlossario } from "@/lib/glossario-pastas";
-import { capaDoItem, TIPO_ROTULO } from "@/lib/capas";
+import { capaDoItem, TIPO_ROTULO, urlCapa } from "@/lib/capas";
 import AcervoGaleria, { type ItemAcervo } from "@/components/acervo-galeria";
 
 type Row = {
@@ -47,7 +47,7 @@ export default async function TelaAcervo({ v, aba }: { v: Visao; aba?: string })
       capa: capaDoItem({
         url: m.url,
         capa_url: m.capa_url,
-        capa_publica: m.capa_path ? supabase.storage.from("capas").getPublicUrl(m.capa_path).data.publicUrl : null,
+        capa_publica: urlCapa(supabase, m.capa_path),
       }),
       href: rota(v, `/materias/${m.materia_id}`, `#material-${m.id}`),
     });

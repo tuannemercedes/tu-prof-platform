@@ -18,7 +18,8 @@ export async function salvarCarta(formData: FormData) {
   const correta = String(formData.get("correta") || "").trim();
   const explicacao = String(formData.get("explicacao") || "").trim() || null;
   const publicada = formData.get("publicada") === "on";
-  const tipo = formData.get("tipo") === "natural" ? "natural" : "erro";
+  const t = formData.get("tipo");
+  const tipo = t === "natural" || t === "expressao" ? t : "erro";
   const removerAudio = formData.get("remover_audio") === "on";
   const audio = formData.get("audio");
   if (!IDIOMAS.includes(idioma) || !categoria || !incorreta || !correta) return;

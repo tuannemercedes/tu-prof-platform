@@ -1,3 +1,4 @@
+import { urlCapa } from "@/lib/capas";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getLiberados, liberado, type Visao } from "@/lib/visao";
@@ -34,9 +35,7 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
           .createSignedUrl(m.arquivo_path, 3600);
         signedUrl = data?.signedUrl ?? null;
       }
-      const capaUrl = m.capa_path
-        ? supabase.storage.from("capas").getPublicUrl(m.capa_path).data.publicUrl
-        : null;
+      const capaUrl = urlCapa(supabase, m.capa_path);
       return {
         id: m.id,
         titulo: m.titulo,
@@ -62,7 +61,7 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
     >
       <div className="space-y-8">
         {(() => {
-          const capa = materia.capa_path ? supabase.storage.from("capas").getPublicUrl(materia.capa_path).data.publicUrl : null;
+          const capa = urlCapa(supabase, materia.capa_path);
           const proximo = materiaisComUrl.find((m) => !m.concluido);
           const p = materiaisComUrl.length ? Math.round((totalConcluidos / materiaisComUrl.length) * 100) : 0;
           return (
