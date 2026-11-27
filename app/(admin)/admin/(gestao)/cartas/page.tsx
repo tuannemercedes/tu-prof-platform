@@ -9,6 +9,7 @@ type Row = {
   incorreta: string;
   correta: string;
   explicacao: string | null;
+  tipo: string;
   audio_path: string | null;
   publicada: boolean;
 };
@@ -23,14 +24,27 @@ function FormCarta({ idioma, carta, categorias }: { idioma: string; carta?: Row;
       {carta && <input type="hidden" name="id" value={carta.id} />}
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-semibold">Frente: como falam (incorreto)</span>
+          <span className="font-semibold">Frente: como muita gente fala (ou, em expressões, a frase em português)</span>
           <input name="incorreta" required defaultValue={carta?.incorreta} className={campo} />
         </label>
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-semibold">Verso: forma correta</span>
+          <span className="font-semibold">Verso: forma correta, mais natural ou como se diz</span>
           <input name="correta" required defaultValue={carta?.correta} className={campo} />
         </label>
       </div>
+      <fieldset className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+        <legend className="font-semibold mb-1">Tipo</legend>
+        <label className="flex items-center gap-2">
+          <input type="radio" name="tipo" value="erro" defaultChecked={(carta?.tipo ?? "erro") === "erro"} /> Erro (está errado de fato)
+        </label>
+        <label className="flex items-center gap-2">
+          <input type="radio" name="tipo" value="natural" defaultChecked={carta?.tipo === "natural"} /> Não está errado, mas soa mais natural de outro
+          jeito
+        </label>
+        <label className="flex items-center gap-2">
+          <input type="radio" name="tipo" value="expressao" defaultChecked={carta?.tipo === "expressao"} /> Frase ou expressão (frente em português)
+        </label>
+      </fieldset>
       <label className="flex flex-col gap-1 text-sm">
         <span className="font-semibold">Explicação curta (em português)</span>
         <textarea name="explicacao" rows={2} defaultValue={carta?.explicacao ?? ""} className={campo} />
@@ -75,7 +89,7 @@ export default async function CartasAdminPage({ searchParams }: { searchParams: 
   const supabase = await createClient();
   const { data } = await supabase
     .from("cartas")
-    .select("id, categoria, incorreta, correta, explicacao, audio_path, publicada")
+    .select("id, categoria, incorreta, correta, explicacao, tipo, audio_path, publicada")
     .eq("idioma", idioma)
     .order("ordem")
     .order("created_at");
@@ -97,8 +111,9 @@ export default async function CartasAdminPage({ searchParams }: { searchParams: 
         </Link>
         <h1 className="m-0 font-serif font-semibold text-[40px] leading-[1.05]">Cartas</h1>
         <p className="m-0 text-[15px] text-[var(--text-secondary)] max-w-2xl">
-          O jogo dos alunos: na frente, a frase como muita gente fala; no verso, a forma correta, a explicação e o áudio. Só as cartas publicadas
-          aparecem para os alunos. Sem áudio gravado, o jogo usa a voz do aparelho.
+          O jogo dos alunos: na frente, a frase como muita gente fala; no verso, a forma correta (ou mais natural), a explicação e o áudio. Cada carta
+          é marcada como <strong>erro</strong> (está errado de fato) ou <strong>mais natural</strong> (não está errado, mas o nativo diria de outro
+          jeito). Só as cartas publicadas aparecem para os alunos. Sem áudio gravado, o jogo usa a voz do aparelho.
         </p>
       </div>
 
@@ -160,8 +175,23 @@ export default async function CartasAdminPage({ searchParams }: { searchParams: 
                         title={c.publicada ? "Publicada" : "Rascunho"}
                       />
                       <span className="flex-1 min-w-0">
-                        <span className="block text-sm text-[var(--text-faint)] line-through decoration-[var(--danger-text)]/60">{c.incorreta}</span>
+                        <span
+                          className={`block text-sm text-[var(--text-faint)] ${c.tipo === "erro" ? "line-through decoration-[var(--danger-text)]/60" : ""}`}
+                        >
+                          {c.incorreta}
+                        </span>
                         <span className="block text-[15px] font-semibold">{c.correta}</span>
+                      </span>
+                      <span
+                        className={`text-[11px] font-semibold px-2 py-1 rounded-lg ${
+                          c.tipo === "expressao"
+                            ? "bg-[var(--surface-2)] text-[var(--gold-text)]"
+                            : c.tipo === "natural"
+                              ? "bg-[var(--info-bg)] text-[var(--info-text)]"
+                              : "bg-[var(--danger-bg)] text-[var(--danger-text)]"
+                        }`}
+                      >
+                        {c.tipo === "expressao" ? "expressão" : c.tipo === "natural" ? "mais natural" : "erro"}
                       </span>
                       {c.audio_path && (
                         <span className="text-[11px] font-semibold px-2 py-1 rounded-lg bg-[var(--surface-2)] text-[var(--gold-text)]">áudio</span>

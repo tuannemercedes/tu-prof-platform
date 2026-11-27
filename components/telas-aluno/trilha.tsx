@@ -1,3 +1,4 @@
+import { urlCapa } from "@/lib/capas";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getTrilhasDoAluno, pct } from "@/lib/trilhas";
@@ -60,7 +61,7 @@ export default async function TelaTrilha({ v }: { v: Visao }) {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {trilhas.map((t, i) => {
               const p = pct(t.concluidos, t.total);
-              const capa = t.capa_path ? supabase.storage.from("capas").getPublicUrl(t.capa_path).data.publicUrl : null;
+              const capa = urlCapa(supabase, t.capa_path);
               const atual = i === trilhas.findIndex((x) => x.concluidos < x.total);
               return (
                 <Link
