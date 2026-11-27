@@ -482,8 +482,15 @@ export default function JogoCartas({ porIdioma, idiomaInicial, progresso: progre
   return (
     <div className="flex flex-col gap-5 max-w-xl mx-auto w-full">
       <div className="flex items-center justify-between gap-3">
-        <button type="button" onClick={() => setTela(respostas.length ? "fim" : "escolha")} className="text-sm font-semibold text-[var(--gold-text)]">
-          ← {respostas.length ? "Encerrar" : "Temas"}
+        <button
+          type="button"
+          onClick={() => setTela(respostas.length ? "fim" : "escolha")}
+          className="inline-flex items-center gap-1.5 h-9 pl-3 pr-3.5 rounded-full border border-[var(--border-strong)] bg-[var(--surface)] text-sm font-semibold hover:border-[var(--gold)]"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+          {respostas.length ? "Encerrar rodada" : "Sair"}
         </button>
         <span className="text-sm text-[var(--text-secondary)]">
           {categoria}
