@@ -8,12 +8,16 @@ import type { Visao } from "@/lib/visao";
 import audiosGerados from "@/lib/cartas-audio.json";
 
 const GERADOS = new Set(audiosGerados as string[]);
+// Vozes atuais: espanhol = Claude (México, nativa), inglês = Heart.
+const VOZ_ES = "mx1";
+const VOZ_EN = "1";
 
 // Áudio da forma correta: o gravado pela professora (Storage) ou o gerado com voz neural.
 function audioDaCarta(supabase: Awaited<ReturnType<typeof createClient>>, idioma: string, correta: string, audioPath: string | null) {
   if (audioPath) return supabase.storage.from("cartas-audio").getPublicUrl(audioPath).data.publicUrl;
   const h = createHash("sha1").update(`${idioma}|${correta}`).digest("hex").slice(0, 16);
-  return GERADOS.has(h) ? `/audio/cartas/${h}.mp3` : null;
+  // A versão no endereço força o navegador a baixar de novo quando a voz muda.
+  return GERADOS.has(h) ? `/audio/cartas/${h}.mp3?v=${idioma === "espanhol" ? VOZ_ES : VOZ_EN}` : null;
 }
 
 export default async function TelaCartas({ v }: { v: Visao }) {
