@@ -102,7 +102,7 @@ function LinksExtras({ appUrl, appLabel, contatoUrl, contatoLabel }: Omit<Props,
           href={appUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="block text-center rounded-xl bg-[var(--gold)] text-[var(--navy)] text-sm font-semibold px-3 py-2.5 hover:bg-[var(--gold-light)] transition-colors"
+          className="botao-ouro block text-center rounded-xl text-sm font-semibold px-3 py-2.5"
         >
           {appLabel || "UZUS · seu simulador"} ↗
         </a>

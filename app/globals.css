@@ -278,3 +278,187 @@ body {
   [data-barra="recolhida"] .barra-topo { flex-direction: column; align-items: center; margin-left: 0 !important; }
   [data-barra="recolhida"] .barra-seta { transform: rotate(180deg); transform-origin: 14.5px 12px; }
 }
+
+/* ===== Visual premium (nov/2026): luz, profundidade e metal ===============
+   Aplicado por cima dos componentes existentes, sem mudar o HTML deles. */
+
+:root {
+  --metal-ouro: linear-gradient(135deg, #f6e7b8 0%, #d9b866 22%, #b8893a 48%, #e9cf8a 70%, #a77a2c 100%);
+  --metal-navy: linear-gradient(160deg, #24406f 0%, #15284b 45%, #0e1b33 100%);
+  --vidro-borda: linear-gradient(140deg, rgba(217, 184, 102, 0.55), rgba(217, 184, 102, 0.05) 40%, rgba(255, 255, 255, 0.08) 70%, rgba(217, 184, 102, 0.35));
+}
+
+/* Fundo com iluminação suave (fica parado enquanto a página rola) */
+body {
+  background:
+    radial-gradient(900px 520px at 100% -10%, rgba(201, 162, 77, 0.14), transparent 60%),
+    radial-gradient(800px 600px at -10% 110%, rgba(36, 64, 111, 0.1), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+[data-theme="dark"] body {
+  background:
+    radial-gradient(1000px 600px at 105% -15%, rgba(201, 162, 77, 0.16), transparent 60%),
+    radial-gradient(900px 700px at -15% 115%, rgba(42, 90, 147, 0.22), transparent 60%),
+    linear-gradient(180deg, #0a1528 0%, #081120 100%);
+  background-attachment: fixed;
+}
+
+/* Cartões: degradê sutil, brilho na borda de cima e sombra em camadas (efeito de profundidade) */
+main [class*="bg-[var(--surface)]"][class*="border-[var(--border)]"][class*="rounded-[18px]"],
+main [class*="bg-[var(--surface)]"][class*="border-[var(--border)]"][class*="rounded-2xl"],
+main [class*="bg-[var(--surface)]"][class*="border-[var(--border)]"][class*="rounded-[20px]"],
+main [class*="bg-[var(--surface)]"][class*="border-[var(--border)]"][class*="rounded-3xl"] {
+  background: linear-gradient(180deg, #ffffff 0%, #fbf9f4 100%);
+  border-color: rgba(207, 199, 182, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(14, 27, 51, 0.05),
+    0 12px 32px -18px rgba(14, 27, 51, 0.22);
+}
+[data-theme="dark"] main [class*="bg-[var(--surface)]"][class*="border-[var(--border)]"][class*="rounded-[18px]"],
+[data-theme="dark"] main [class*="bg-[var(--surface)]"][class*="border-[var(--border)]"][class*="rounded-2xl"],
+[data-theme="dark"] main [class*="bg-[var(--surface)]"][class*="border-[var(--border)]"][class*="rounded-[20px]"],
+[data-theme="dark"] main [class*="bg-[var(--surface)]"][class*="border-[var(--border)]"][class*="rounded-3xl"] {
+  background: linear-gradient(180deg, rgba(27, 46, 82, 0.78) 0%, rgba(16, 30, 56, 0.78) 100%);
+  border-color: rgba(120, 150, 200, 0.16);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 18px 40px -20px rgba(0, 0, 0, 0.7);
+}
+
+/* Botões principais: metal (azul no tema claro, ouro no escuro) com reflexo ao passar o mouse */
+main [class*="bg-[var(--accent)]"]:not([class*="bg-[var(--accent)]/"]),
+.botao-metal {
+  background-image: var(--metal-navy);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 16px -8px rgba(14, 27, 51, 0.55);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+[data-theme="dark"] main [class*="bg-[var(--accent)]"]:not([class*="bg-[var(--accent)]/"]),
+.botao-ouro {
+  background-image: var(--metal-ouro);
+  color: #0e1b33;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 8px 22px -10px rgba(201, 162, 77, 0.7);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+main [class*="bg-[var(--accent)]"]:not([class*="bg-[var(--accent)]/"])::after,
+.botao-metal::after,
+.botao-ouro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+main [class*="bg-[var(--accent)]"]:not([class*="bg-[var(--accent)]/"]):hover::after,
+.botao-metal:hover::after,
+.botao-ouro:hover::after {
+  transform: translateX(120%);
+}
+
+/* Barras laterais azul-marinho: degradê, luz dourada no topo e monograma em marca d'água */
+.barra-lateral {
+  background:
+    radial-gradient(260px 200px at 20% -40px, rgba(201, 162, 77, 0.22), transparent 70%),
+    linear-gradient(180deg, #13244a 0%, #0c1830 55%, #091326 100%) !important;
+  box-shadow: inset -1px 0 0 rgba(217, 184, 102, 0.18);
+  position: relative;
+}
+.barra-lateral::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  bottom: -30px;
+  width: 220px;
+  height: 220px;
+  background: url("/monograma-tp.png") center / contain no-repeat;
+  opacity: 0.06;
+  pointer-events: none;
+}
+[data-barra="recolhida"] .barra-lateral::after { display: none; }
+.barra-lateral nav > * { position: relative; z-index: 1; }
+.barra-lateral [aria-current="page"] {
+  background: linear-gradient(90deg, rgba(217, 184, 102, 0.22), rgba(217, 184, 102, 0.04)) !important;
+  box-shadow: inset 2px 0 0 #d9b866;
+}
+
+/* Títulos grandes das páginas: leve brilho metálico no tema escuro */
+[data-theme="dark"] main h1.font-serif {
+  background: linear-gradient(180deg, #ffffff 0%, #dfe3ea 55%, #aeb6c4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Campos: foco com anel dourado */
+main input:focus-visible,
+main select:focus-visible,
+main textarea:focus-visible {
+  outline: none;
+  border-color: #c9a24d !important;
+  box-shadow: 0 0 0 3px rgba(201, 162, 77, 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main [class*="bg-[var(--accent)]"]:not([class*="bg-[var(--accent)]/"])::after,
+  .botao-metal::after,
+  .botao-ouro::after { display: none; }
+}
+
+/* Cartão do login: borda de vidro com brilho dourado */
+.login-cartao {
+  background: var(--vidro-borda);
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+/* Capa padrão dos materiais sem imagem: azul profundo com luz dourada e monograma */
+.capa-padrao {
+  background:
+    radial-gradient(120% 90% at 85% 0%, rgba(217, 184, 102, 0.35), transparent 55%),
+    linear-gradient(150deg, #1d3766 0%, #0e1b33 60%, #08111f 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Faixas azul-marinho dentro das páginas (topo do Início etc.): luz e monograma */
+main header[class*="bg-[var(--navy)]"] {
+  background:
+    radial-gradient(520px 260px at 90% -20%, rgba(217, 184, 102, 0.28), transparent 65%),
+    radial-gradient(400px 300px at 0% 120%, rgba(42, 90, 147, 0.35), transparent 70%),
+    linear-gradient(160deg, #1a3260 0%, #0e1b33 55%, #0a1426 100%);
+  position: relative;
+  overflow: hidden;
+}
+main header[class*="bg-[var(--navy)]"]::after {
+  content: "";
+  position: absolute;
+  right: 4%;
+  top: 50%;
+  width: 150px;
+  height: 150px;
+  transform: translateY(-50%);
+  background: url("/monograma-tp.png") center / contain no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
+}
+/* Blocos pequenos azul-marinho (datas, selos): toque metálico */
+main div[class*="bg-[var(--navy)]"] {
+  background-image: var(--metal-navy);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 6px 14px -8px rgba(14, 27, 51, 0.6);
+}
+/* Cartão "Próxima aula" e similares sem borda */
+main section[class*="bg-[var(--surface)]"][class*="rounded-[18px]"]:not([class*="border"]) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 18px 40px -20px rgba(14, 27, 51, 0.35);
+}
+[data-theme="dark"] main section[class*="bg-[var(--surface)]"][class*="rounded-[18px]"]:not([class*="border"]) {
+  background: linear-gradient(180deg, #1d3460 0%, #13264a 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 20px 44px -20px rgba(0, 0, 0, 0.7);
+}
