@@ -143,6 +143,8 @@ export default function AlunoNav({ nome, novidades = [], idioma: idiomaBase, bas
             <span className="barra-texto">
               <Logo className="h-7" />
             </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/monograma-tp.png" alt="Tu Prof" className="barra-mono w-9 h-9" />
             <BotaoBarra />
           </div>
           <p className="barra-texto text-xs text-[var(--on-navy-muted)] truncate">Olá, {nome}</p>

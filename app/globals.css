@@ -365,7 +365,7 @@ main [class*="bg-[var(--accent)]"]:not([class*="bg-[var(--accent)]/"]):hover::af
   transform: translateX(120%);
 }
 
-/* Barras laterais azul-marinho: degradê, luz dourada no topo e monograma em marca d'água */
+/* Barras laterais azul-marinho: degradê e luz dourada no topo */
 .barra-lateral {
   background:
     radial-gradient(260px 200px at 20% -40px, rgba(201, 162, 77, 0.22), transparent 70%),
@@ -373,18 +373,6 @@ main [class*="bg-[var(--accent)]"]:not([class*="bg-[var(--accent)]/"]):hover::af
   box-shadow: inset -1px 0 0 rgba(217, 184, 102, 0.18);
   position: relative;
 }
-.barra-lateral::after {
-  content: "";
-  position: absolute;
-  right: -40px;
-  bottom: -30px;
-  width: 220px;
-  height: 220px;
-  background: url("/monograma-tp.png") center / contain no-repeat;
-  opacity: 0.06;
-  pointer-events: none;
-}
-[data-barra="recolhida"] .barra-lateral::after { display: none; }
 .barra-lateral nav > * { position: relative; z-index: 1; }
 .barra-lateral [aria-current="page"] {
   background: linear-gradient(90deg, rgba(217, 184, 102, 0.22), rgba(217, 184, 102, 0.04)) !important;
@@ -420,7 +408,7 @@ main textarea:focus-visible {
   box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
-/* Capa padrão dos materiais sem imagem: azul profundo com luz dourada e monograma */
+/* Capa padrão dos materiais sem imagem: azul profundo com luz dourada */
 .capa-padrao {
   background:
     radial-gradient(120% 90% at 85% 0%, rgba(217, 184, 102, 0.35), transparent 55%),
@@ -428,7 +416,7 @@ main textarea:focus-visible {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* Faixas azul-marinho dentro das páginas (topo do Início etc.): luz e monograma */
+/* Faixas azul-marinho dentro das páginas (topo do Início etc.): luz */
 main header[class*="bg-[var(--navy)]"] {
   background:
     radial-gradient(520px 260px at 90% -20%, rgba(217, 184, 102, 0.28), transparent 65%),
@@ -436,18 +424,6 @@ main header[class*="bg-[var(--navy)]"] {
     linear-gradient(160deg, #1a3260 0%, #0e1b33 55%, #0a1426 100%);
   position: relative;
   overflow: hidden;
-}
-main header[class*="bg-[var(--navy)]"]::after {
-  content: "";
-  position: absolute;
-  right: 4%;
-  top: 50%;
-  width: 150px;
-  height: 150px;
-  transform: translateY(-50%);
-  background: url("/monograma-tp.png") center / contain no-repeat;
-  opacity: 0.12;
-  pointer-events: none;
 }
 /* Blocos pequenos azul-marinho (datas, selos): toque metálico */
 main div[class*="bg-[var(--navy)]"] {
@@ -461,4 +437,41 @@ main section[class*="bg-[var(--surface)]"][class*="rounded-[18px]"]:not([class*=
 [data-theme="dark"] main section[class*="bg-[var(--surface)]"][class*="rounded-[18px]"]:not([class*="border"]) {
   background: linear-gradient(180deg, #1d3460 0%, #13264a 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 20px 44px -20px rgba(0, 0, 0, 0.7);
+}
+
+/* Monograma TP: só aparece na barra recolhida, no lugar da logo */
+.barra-mono { display: none; }
+@media (min-width: 640px) {
+  [data-barra="recolhida"] .barra-mono { display: block; }
+}
+
+/* Celular: barra de cima em degradê e menu de baixo em vidro */
+header[class*="sm:hidden"][class*="bg-[var(--navy)]"] {
+  background: linear-gradient(180deg, #13244a 0%, #0e1b33 100%);
+  box-shadow: 0 1px 0 rgba(217, 184, 102, 0.18);
+}
+nav[class*="sm:hidden"][class*="fixed"][class*="bottom-0"] {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+}
+[data-theme="dark"] nav[class*="sm:hidden"][class*="fixed"][class*="bottom-0"] {
+  background: rgba(10, 21, 40, 0.82) !important;
+  border-top-color: rgba(217, 184, 102, 0.15) !important;
+}
+
+/* Capa "areia acetinada" (pastas do glossário), da paleta oficial */
+.capa-areia {
+  background:
+    linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.45) 48%, transparent 60%),
+    linear-gradient(150deg, #f6eee1 0%, #ede3d2 55%, #dcc9ac 100%);
+  color: #0d1b2a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.capa-areia svg { color: #a8834a; }
+[data-theme="dark"] .capa-areia {
+  background:
+    linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.12) 48%, transparent 60%),
+    linear-gradient(150deg, #3a3222 0%, #2a2518 55%, #1c1a14 100%);
+  color: #f1deb5;
 }

@@ -78,7 +78,12 @@ export default async function TelaEvolucao({ v }: { v: Visao }) {
               rel="noopener noreferrer"
               className="bg-[var(--navy)] text-[var(--on-navy)] rounded-[18px] p-5 flex items-center gap-4 border border-[var(--gold)]/40"
             >
-              <span aria-hidden="true" className="text-[30px]">🎓</span>
+              <span aria-hidden="true" className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center botao-ouro">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="9" r="5" />
+                  <path d="M8.5 13l-1.5 8 5-2.5 5 2.5-1.5-8" />
+                </svg>
+              </span>
               <span className="flex-1 flex flex-col gap-0.5">
                 <span className="text-xs tracking-[0.1em] uppercase text-[var(--gold-light)] font-semibold">{tituloDoTipo(c.tipo)}</span>
                 <span className="font-serif text-[22px] font-semibold leading-tight">{c.titulo}</span>

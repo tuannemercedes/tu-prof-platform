@@ -205,7 +205,7 @@ export default async function FichaAlunoPage({
           <span className="text-sm text-[var(--text-secondary)]">{linha}</span>
           {parceira && (
             <span className="text-sm">
-              👭 Em dupla com{" "}
+              Em dupla com{" "}
               <Link href={`/admin/alunos/${parceira.id}`} className="font-semibold text-[var(--gold-text)]">
                 {parceira.nome || parceira.email}
               </Link>

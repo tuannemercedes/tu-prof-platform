@@ -100,6 +100,8 @@ export default function EquipeSidebar({ nome, papel }: { nome: string; papel: st
         <span className="barra-texto">
           <Logo className="h-[26px] sm:h-[30px]" />
         </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/monograma-tp.png" alt="Tu Prof" className="barra-mono w-9 h-9" />
         <BotaoBarra />
         {/* Celular: o menu abre e fecha por este botão */}
         <button

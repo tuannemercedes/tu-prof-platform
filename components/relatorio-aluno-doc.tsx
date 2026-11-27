@@ -127,7 +127,7 @@ export default function RelatorioAlunoDoc({ r, comentario }: { r: RelatorioAluno
           <section className="rounded-xl bg-[#0e1b33] text-white p-5 flex flex-col gap-1 [-webkit-print-color-adjust:exact] [print-color-adjust:exact]">
             <span className="text-xs tracking-[0.12em] uppercase text-[#e3c77d] font-semibold">Conquista do mês</span>
             {r.certificados.map((c) => (
-              <span key={c.codigo} className="font-serif text-[20px] font-semibold">🎓 {c.titulo}</span>
+              <span key={c.codigo} className="font-serif text-[20px] font-semibold">{c.titulo}</span>
             ))}
           </section>
         )}

@@ -36,14 +36,12 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(8,17,32,0.25),rgba(8,17,32,0.75))]" />
 
       <div className="login-cartao relative z-10 w-full max-w-[400px] rounded-[28px] p-[1px]">
-        <div className="relative rounded-[27px] bg-[rgba(10,20,40,0.62)] backdrop-blur-2xl px-8 pt-9 pb-8 space-y-7 overflow-hidden">
+        <div className="relative rounded-[27px] bg-[rgba(9,19,38,0.72)] backdrop-blur-2xl px-8 pt-9 pb-8 space-y-7 overflow-hidden">
           {/* luz dourada no canto */}
-          <div className="pointer-events-none absolute -top-24 -right-20 w-64 h-64 rounded-full bg-[#c9a24d]/25 blur-3xl" />
-          <div className="relative text-center space-y-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/monograma-tp.png" alt="" aria-hidden="true" className="w-14 h-14 mx-auto drop-shadow-[0_6px_18px_rgba(201,162,77,0.45)]" />
+          <div className="pointer-events-none absolute -top-24 -right-20 w-64 h-64 rounded-full bg-[#c9a24d]/12 blur-3xl" />
+          <div className="relative text-center space-y-5">
             <h1 className="m-0">
-              <Logo className="h-8 mx-auto block" />
+              <Logo className="h-10 mx-auto block" />
             </h1>
             <p className="m-0 text-sm text-white/65">Entre para acessar suas aulas, materiais e sua evolução.</p>
           </div>

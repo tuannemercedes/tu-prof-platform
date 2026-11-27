@@ -54,7 +54,7 @@ function CapaPadrao({ item }: { item: ItemAcervo }) {
   if (item.tipo === "glossario") {
     // Pasta de um tema do glossário
     return (
-      <div className="absolute inset-0 flex flex-col justify-end gap-1 p-3.5 bg-[var(--warning-bg)] text-[var(--warning-text)]">
+      <div className="capa-areia absolute inset-0 flex flex-col justify-end gap-1 p-3.5">
         <IconePasta className="absolute top-3 right-3 opacity-70" />
         <span className="font-serif font-semibold text-[22px] leading-tight line-clamp-3">{item.titulo}</span>
         {item.quantidade != null && (
@@ -66,7 +66,7 @@ function CapaPadrao({ item }: { item: ItemAcervo }) {
     );
   }
   return (
-    <div className="absolute inset-0 flex flex-col justify-end p-3.5 bg-[var(--navy)] text-[var(--gold-light)]">
+    <div className="capa-padrao absolute inset-0 flex flex-col justify-end p-3.5 text-[#e9cf8a]">
       <span className="font-serif font-semibold leading-tight line-clamp-3 text-[19px]">{item.titulo}</span>
     </div>
   );
