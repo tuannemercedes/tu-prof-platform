@@ -84,7 +84,7 @@ export default async function TurmaConteudosPage({
         <p className="text-sm text-[var(--text-secondary)]">
           {totalLiberados} de {totalMateriais} materiais liberados para toda a turma. Acessos
           individuais de cada aluno não entram aqui — veja em{" "}
-          <span className="font-mono">Alunos → 📦 Conteúdos</span>.
+          <span className="font-mono">Alunos → Conteúdos</span>.
         </p>
       </div>
 

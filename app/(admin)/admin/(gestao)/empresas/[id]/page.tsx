@@ -267,7 +267,7 @@ export default async function EmpresaPage({
                   return (
                     <details className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)]">
                       <summary className="list-none cursor-pointer px-3.5 min-h-11 py-2 flex flex-wrap items-center gap-x-2 text-sm font-semibold">
-                        🎓 Certificados do grupo
+                        Certificados do grupo
                         <span className="text-xs font-normal text-[var(--text-secondary)]">
                           {comCert.size} de {g.participantes.length} emitidos
                         </span>
@@ -332,7 +332,7 @@ export default async function EmpresaPage({
                                 <span className="text-sm font-semibold truncate">
                                   {p.nome}
                                   {(certs ?? []).some((x) => x.turma_id === g.id && x.aluno_id === p.id) && (
-                                    <span title="Certificado emitido" className="ml-1.5">🎓</span>
+                                    <span title="Certificado emitido" className="ml-1.5 text-[11px] font-semibold text-[var(--gold-text)]">certificado</span>
                                   )}
                                 </span>
                                 <span className="text-xs text-[var(--text-secondary)] truncate">{p.email}</span>
