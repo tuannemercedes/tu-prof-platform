@@ -32,3 +32,9 @@ export async function getIdiomaDoAluno(
 export function doIdioma(item: string | null | undefined, atual: Idioma) {
   return !item || item === atual || item === "espanhol_ingles";
 }
+
+// Textos do aluno que mudam com o idioma em estudo.
+export const TEXTOS_IDIOMA: Record<Idioma, { ola: string; foraDaAula: string; temClube: boolean }> = {
+  espanhol: { ola: "¡Hola", foraDaAula: "Seu espanhol fora da aula", temClube: true },
+  ingles: { ola: "Hello", foraDaAula: "Seu inglês fora da aula", temClube: false },
+};

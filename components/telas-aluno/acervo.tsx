@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { doIdioma } from "@/lib/idioma";
+import { doIdioma, TEXTOS_IDIOMA } from "@/lib/idioma";
 import { getLiberados, liberado, rota, type Visao } from "@/lib/visao";
 import { getGlossarioAcessoParaAluno } from "@/lib/glossario";
 import { pastasDoGlossario } from "@/lib/glossario-pastas";
@@ -78,7 +78,7 @@ export default async function TelaAcervo({ v, aba }: { v: Visao; aba?: string })
       <div className="space-y-1.5 mb-5">
         <p className="m-0 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--gold-text)]">Acervo</p>
         <h1 className="m-0 font-serif font-semibold text-[34px] leading-[1.05]">
-          {idioma === "ingles" ? "Seu inglês fora da aula" : "Seu espanhol fora da aula"}
+          {TEXTOS_IDIOMA[idioma].foraDaAula}
         </h1>
       </div>
       <AcervoGaleria itens={itens} abaInicial={aba === "biblioteca" ? "biblioteca" : "fia"} />
