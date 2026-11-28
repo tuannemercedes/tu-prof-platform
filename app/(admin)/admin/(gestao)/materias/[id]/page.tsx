@@ -38,7 +38,7 @@ export default async function MateriaDetailPage({
     supabase
       .from("materiais")
       .select(
-        "id, titulo, tipo, ordem, fase_id, conteudo_html, url, visivel_todos, idioma, material_turmas(turma_id, turmas(nome)), material_alunos(aluno_id, profiles(nome, email))",
+        "id, titulo, tipo, ordem, fase_id, conteudo_html, url, entrega, visivel_todos, idioma, material_turmas(turma_id, turmas(nome)), material_alunos(aluno_id, profiles(nome, email))",
       )
       .eq("materia_id", id)
       .order("ordem")

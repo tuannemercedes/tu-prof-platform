@@ -31,6 +31,13 @@ const PATHS: Record<string, React.ReactNode> = {
       <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M9 21h6" />
     </>
   ),
+  missao: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4.5" />
+      <path d="M12 12l6-6M15.5 4.5L18 6l1.5 2.5" />
+    </>
+  ),
   link_externo: (
     <>
       <path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1" />

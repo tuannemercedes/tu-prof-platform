@@ -1,5 +1,6 @@
 """Espanhol Chave · Comece aqui (roteiro de 27/11/2026)."""
 from gerar import pagina_livre, tabela
+from base import missao
 
 R = "Espanhol Chave · Comece aqui"
 
@@ -17,7 +18,7 @@ def gerar():
         """
 <div class="missao"><p class="k">Para todos · 1 a 3 min</p><h3>A gravação de partida: <span class="es">¿Quién eres?</span></h3>
 <p>Grave um áudio de até um minuto respondendo <b>¿Quién eres?</b> (quem é você?). Fale como conseguir, sem preparar. Pode misturar português, pode travar.</p>
-<p style="margin:0">Ninguém vai avaliar este áudio. Ele fica guardado e volta para você no fim de cada etapa, para você ouvir o quanto mudou. Envie pela aba <b>Plano → Tarefas</b>.</p></div>
+<p style="margin:0">Ninguém vai avaliar este áudio. Ele fica guardado e volta para você no fim de cada etapa, para você ouvir o quanto mudou. Grave e envie no item seguinte, <b>«Gravação de partida»</b>.</p></div>
 <div class="grid2">
 <div class="card"><p class="k">Se você já estudou espanhol</p><h3>Teste de Ponto de Partida</h3><p style="margin:0">Três blocos de 12 questões, um por etapa, e uma gravação curta. Com 80% ou mais num bloco, os módulos daquela etapa ficam como revisão opcional. O monitor ouve a gravação e confirma o seu ponto de início em até um dia útil.</p></div>
 <div class="card dark"><p class="k">O que não muda</p><h3>Certificado e Club</h3><p style="margin:0">Para o certificado continuam valendo todos os Checkpoints e os três Desafios Finais. Quem começa na Ampliação faz o Desafio da Base para liberar o Club Hispano.</p></div>
@@ -78,6 +79,7 @@ def gerar():
             ]},
             {"titulo": "Antes da primeira aula", "itens": [
                 {"tipo": "html", "titulo": "Ponto de partida: ¿Quién eres?", "url": partida},
+                missao("Gravação de partida · ¿Quién eres?", "Grave um áudio de até um minuto respondendo: ¿Quién eres? (quem é você?). Fale como conseguir, sem preparar. Pode misturar português, pode travar.\n\nNinguém vai avaliar este áudio. Ele fica guardado e volta para você no fim de cada etapa, para você ouvir o quanto mudou.", None, "audio"),
                 {"tipo": "html", "titulo": "Monte sua semana", "url": semana},
                 {"tipo": "html", "titulo": "Combinados", "url": combinados},
             ]},

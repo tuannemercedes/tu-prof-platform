@@ -7,12 +7,13 @@ import { HtmlFrame, paginaEstatica, TIPO_LABELS, type MaterialCardData } from ".
 import { useTrilhaProgress } from "./trilha-progress-context";
 import AccessTracker from "./access-tracker";
 import IconeTipo from "./icone-tipo";
+import MissaoEntrega from "./missao-entrega";
 
 export type GrupoModulo = { titulo: string | null; itens: MaterialCardData[] };
 
 // Tela do módulo no formato de "player": o conteúdo aberto à esquerda e a lista de aulas
 // ao lado (no celular, logo abaixo), com anterior/próxima e "marcar como concluída".
-export default function PlayerModulo({ grupos, readOnly }: { grupos: GrupoModulo[]; readOnly: boolean }) {
+export default function PlayerModulo({ grupos, readOnly, alunoId }: { grupos: GrupoModulo[]; readOnly: boolean; alunoId: string }) {
   const todos = useMemo(() => grupos.flatMap((g) => g.itens), [grupos]);
   const [feitos, setFeitos] = useState<Record<string, boolean>>(() => Object.fromEntries(todos.map((m) => [m.id, m.concluido])));
   const [atualId, setAtualId] = useState<string>(() => (todos.find((m) => !m.concluido) ?? todos[0])?.id ?? "");
@@ -85,7 +86,18 @@ export default function PlayerModulo({ grupos, readOnly }: { grupos: GrupoModulo
         </div>
 
         <div key={atual.id} className="rounded-[20px] overflow-hidden border border-[var(--border)] bg-[var(--surface)] carta-entra">
-          {atual.tipo === "html" && (atual.conteudo_html || paginaEstatica(atual.url)) ? (
+          {atual.tipo === "missao" ? (
+            <MissaoEntrega
+              key={atual.id}
+              materialId={atual.id}
+              enunciado={atual.conteudo_html ?? ""}
+              entrega={atual.entrega ?? "audio"}
+              entregas={atual.entregas ?? []}
+              alunoId={alunoId}
+              readOnly={readOnly}
+              onEnviada={() => marcar(true, atual.id)}
+            />
+          ) : atual.tipo === "html" && (atual.conteudo_html || paginaEstatica(atual.url)) ? (
             <HtmlFrame conteudoHtml={atual.conteudo_html} src={atual.url} titulo={atual.titulo} />
           ) : atual.tipo === "pdf" ? (
             <div className="p-8 flex flex-col items-center gap-3 text-center">

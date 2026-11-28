@@ -15,7 +15,7 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
     supabase.from("materias").select("id, titulo, capa_path, descricao").eq("id", id).single(),
     supabase
       .from("materiais")
-      .select("id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, fase_id, idioma")
+      .select("id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, fase_id, idioma, entrega")
       .eq("materia_id", id)
       .order("ordem")
       .order("created_at"),
@@ -24,6 +24,23 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
   ]);
 
   if (!materia) notFound();
+
+  // Entregas das Missões deste módulo (áudio com link temporário).
+  const idsMissao = (materiais ?? []).filter((m) => m.tipo === "missao").map((m) => m.id);
+  const { data: entregasBrutas } = idsMissao.length
+    ? await supabase
+        .from("missao_entregas")
+        .select("id, material_id, created_at, texto, audio_path, comentario, comentario_em, comentario_nome")
+        .eq("aluno_id", v.alunoId)
+        .in("material_id", idsMissao)
+        .order("created_at")
+    : { data: [] };
+  const entregas = await Promise.all(
+    (entregasBrutas ?? []).map(async (e) => ({
+      ...e,
+      audioUrl: e.audio_path ? ((await supabase.storage.from("entregas").createSignedUrl(e.audio_path, 3600)).data?.signedUrl ?? null) : null,
+    })),
+  );
 
   const progressoMap = new Map((progresso ?? []).map((p) => [p.material_id, p.concluido]));
 
@@ -47,6 +64,8 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
           capaUrl,
           concluido: progressoMap.get(m.id) ?? false,
           fase_id: m.fase_id,
+          entrega: m.entrega,
+          entregas: m.tipo === "missao" ? entregas.filter((e) => e.material_id === m.id) : undefined,
         };
       }),
   );
@@ -116,6 +135,7 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
 
         <PlayerModulo
           readOnly={v.previa}
+          alunoId={v.alunoId}
           grupos={[
             ...(fases ?? []).map((f) => ({ titulo: f.titulo as string | null, itens: materiaisComUrl.filter((m) => m.fase_id === f.id) })),
             { titulo: (fases?.length ?? 0) > 0 ? "Outros" : null, itens: semFase },

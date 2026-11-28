@@ -33,6 +33,13 @@
       "url": "/chave/comece/ponto-de-partida.html"
      },
      {
+      "tipo": "missao",
+      "titulo": "Gravação de partida · ¿Quién eres?",
+      "url": null,
+      "enunciado": "Grave um áudio de até um minuto respondendo: ¿Quién eres? (quem é você?). Fale como conseguir, sem preparar. Pode misturar português, pode travar.\n\nNinguém vai avaliar este áudio. Ele fica guardado e volta para você no fim de cada etapa, para você ouvir o quanto mudou.",
+      "entrega": "audio"
+     },
+     {
       "tipo": "html",
       "titulo": "Monte sua semana",
       "url": "/chave/comece/monte-sua-semana.html"
@@ -79,6 +86,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m1/a01-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Caçada de palavras",
+      "url": null,
+      "enunciado": "Abra o site de um restaurante, uma loja ou um jornal em espanhol. Encontre cinco palavras transparentes e uma que pareça falso amigo. Escreva as seis com o que você acha que significam e envie aqui.\n\nVersão profissional: O site de um concorrente ou cliente. Faça a mesma caçada no site de uma empresa do seu setor no México, na Colômbia ou na Espanha: cinco palavras que você entendeu de cara e uma que te enganou. É um ótimo jeito de começar a montar o vocabulário da sua área.",
+      "entrega": "texto"
      }
     ]
    },
@@ -100,6 +114,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m1/a02-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Grave e compare",
+      "url": null,
+      "enunciado": "Grave as seis palavras da aula (hola, día, noche, jardín, mañana, me llamo) e a senha do wifi, «jardín de noche». Depois, ouça o Banco Chave e compare: qual som ainda está com sotaque de português?\n\nVersão profissional: O seu nome e o da sua empresa. Grave como você diz o seu nome completo, o nome da sua empresa e da sua cidade em espanhol. Repare em H, J, G e nas vogais finais. É a primeira coisa que os seus clientes vão ouvir de você.",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -121,6 +142,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m1/a03-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Os três cumprimentos do dia",
+      "url": null,
+      "enunciado": "Hoje, a cada mudança de período, diga o cumprimento em espanhol, em voz alta. No fim do dia, grave um áudio com os três e uma despedida.\n\nVersão profissional: A abertura das suas reuniões. Escreva a abertura e o fechamento de uma reunião real da sua semana em espanhol: o cumprimento certo para o horário de quem estará na call e a despedida até a próxima data («hasta el martes»).",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -157,6 +185,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m1/a04-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Tú ou usted na sua vida",
+      "url": null,
+      "enunciado": "Escreva o nome de cinco pessoas da sua vida: chefe, colega, vizinho, amigo, alguém da família. Ao lado de cada uma: tú ou usted, e por quê.\n\nVersão profissional: O mapa do seu trabalho. Liste os contatos hispânicos com quem você fala (ou vai falar) no trabalho: clientes, fornecedores, colegas de outras filiais. Para cada um: tú ou usted? E qual país? Guarde a lista: ela vai servir no Módulo 11, quando você estudar registro formal.",
+      "entrega": "texto"
      }
     ]
    },
@@ -178,6 +213,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m1/a05-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · 30 segundos sobre você",
+      "url": null,
+      "enunciado": "Grave um áudio de 30 segundos: cumprimento, nome, de onde é, onde mora e «mucho gusto». Envie aqui.\n\nVersão profissional: A sua linha de abertura. Escreva como você se apresentaria no início de uma call com um cliente novo: cumprimento, nome, cidade e «encantado/encantada». Depois, a versão com usted para perguntar o nome dele.",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -215,6 +257,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m1/a06-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Quatro pessoas",
+      "url": null,
+      "enunciado": "Escolha quatro pessoas (família, trabalho, famosas). Escreva uma frase para cada uma: «Ella es Ana. Es brasileña, de Salvador.» Se quiser, grave também.\n\nVersão profissional: A sua equipe internacional. Apresente por escrito quatro pessoas com quem você trabalha ou trabalharia num projeto internacional: nome, nacionalidade e cidade. Use «Les presento a…» na primeira.",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -236,6 +285,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m1/a07-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Três frases sobre o seu trabalho",
+      "url": null,
+      "enunciado": "Grave três frases: o que você é, onde trabalha e como trabalha. Se a sua profissão não apareceu na aula, mande para o monitor.\n\nVersão profissional: O seu cargo, como no crachá. Escreva como você diz o seu cargo e a sua área em espanhol, do jeito que diria a um cliente: «Soy… Trabajo en el área de… en…». Se o nome do cargo for em inglês (Key Account Manager, por exemplo), escreva como os hispânicos costumam dizer na sua empresa e confirme com o monitor.",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -257,6 +313,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m1/a08-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · ¿Cómo estoy?",
+      "url": null,
+      "enunciado": "Hoje, em três momentos do dia, pergunte a si mesmo «¿Cómo estoy?» e escreva a resposta em espanhol. Amanhã, leia as três em voz alta.\n\nVersão profissional: O check-in da reunião. Muitas equipes abrem a reunião perguntando como cada um está. Escreva a sua resposta curta para três dias diferentes: um dia tranquilo, um dia muito ocupado e um dia de entrega importante. Use estar e um adjetivo.",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -278,6 +341,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m1/a09-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Os seus contatos em espanhol",
+      "url": null,
+      "enunciado": "Grave um áudio soletrando o seu nome completo e ditando o seu telefone e o seu e-mail, como a Camila fez com a Lucía.\n\nVersão profissional: A sua assinatura de e-mail. Escreva a sua assinatura de e-mail em espanhol (nome, cargo, empresa, teléfono, correo) e grave-se ditando o telefone em pares e o e-mail com arroba, punto e guion.",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -299,6 +369,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m1/a10-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · ¿Qué significa…?",
+      "url": null,
+      "enunciado": "Assista a dois minutos de qualquer vídeo em espanhol. A cada palavra que não entender, pause e diga em voz alta «¿Qué significa…?». Anote três dessas palavras e mande para o monitor ou procure no Banco Chave.\n\nVersão profissional: O seu kit de sobrevivência para calls. Copie as seis frases da ficha num post-it ao lado do computador. Na próxima reunião em espanhol (ou num vídeo de uma reunião no YouTube), use pelo menos uma delas.",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -341,6 +418,13 @@
       "tipo": "html",
       "titulo": "Checkpoint: minha apresentação em seis frases",
       "url": "/chave/m1/checkpoint.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Entregar o Checkpoint do Módulo 1",
+      "url": null,
+      "enunciado": "Grave a sua apresentação em seis frases, de preferência sem ler: cumprimento, nome, nacionalidade e cidade, onde vive, o que faz e como está hoje. Até um minuto.\n\nAntes de enviar, confira a lista da página anterior e compare com a sua gravação de partida.\n\nVersão profissional: A abertura de uma reunião. Se quiser, grave também a versão com usted, como na abertura de uma reunião com um cliente novo.",
+      "entrega": "audio"
      }
     ]
    }
@@ -379,6 +463,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m2/a01-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Cinco frases sobre o trabalho",
+      "url": null,
+      "enunciado": "Escreva cinco frases sobre o seu trabalho ou estudos com verbos em -ar: onde trabalha, com quem fala, que língua usa, quando termina. Pelo menos uma com «nosotros».\n\nVersão profissional: A sua equipe em três frases. Descreva a sua equipe para alguém de outra filial: «Trabajamos en…», «Hablamos con…», «Terminamos el cierre del mes los…». Use nosotros.",
+      "entrega": "texto"
      }
     ]
    },
@@ -400,6 +491,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m2/a02-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · As refeições de hoje",
+      "url": null,
+      "enunciado": "Grave 40 segundos sobre as suas refeições de hoje: o que come no desayuno, na comida e na cena, e onde.\n\nVersão profissional: O almoço de negócios. Escreva como você descreveria a um cliente estrangeiro os horários de refeição no Brasil e na sua empresa: «En Brasil almorzamos a las…». Compare com o México.",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -421,6 +519,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m2/a03-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · A sua manhã em cinco frases",
+      "url": null,
+      "enunciado": "Amanhã de manhã, enquanto faz cada coisa, diga em voz alta: «me levanto», «me ducho», «desayuno». Depois, escreva a sua manhã em cinco frases, na ordem.\n\nVersão profissional: Antes da primeira reunião. Descreva o que você faz entre acordar e a primeira reunião do dia, em cinco frases, incluindo «me conecto» ou «llego a la oficina».",
+      "entrega": "texto"
      }
     ]
    },
@@ -442,6 +547,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m2/a04-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Mi lunes",
+      "url": null,
+      "enunciado": "Grave um áudio de um minuto contando como é a sua segunda-feira, com horários: a que horas se levanta, começa a trabalhar, come, termina e janta. É a Missão de destaque do módulo; ela volta no Checkpoint.\n\nVersão profissional: Marque uma reunião. Escreva uma mensagem curta propondo uma reunião a um cliente: dois dias e horários possíveis, com o fuso, e a pergunta «¿Qué día le queda mejor?».",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -479,6 +591,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m2/a05-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Seis níveis de frequência",
+      "url": null,
+      "enunciado": "Escreva seis frases sobre os seus hábitos, uma para cada nível: siempre, normalmente, a menudo, a veces, casi nunca, nunca. Uma delas sobre o seu estudo de espanhol.\n\nVersão profissional: As rotinas da sua equipe. Descreva as rotinas fixas da sua equipe: reuniões, relatórios, viagens, fechamento do mês. Use todos los…, una vez al…, a menudo e casi nunca.",
+      "entrega": "texto"
      }
     ]
    },
@@ -500,6 +619,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m2/a06-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · A manhã, versão 2",
+      "url": null,
+      "enunciado": "Reescreva a sua manhã da Aula 3 com três verbos novos: a que horas se desperta, quando começa a trabalhar e quando volta para casa. Grave lendo em voz alta.\n\nVersão profissional: Aceitar e recusar. Escreva duas respostas a um convite de reunião: uma aceitando («Sí, puedo…») e uma recusando com outra proposta («Me encantaría, pero… ¿Podemos…?»).",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -536,6 +662,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m2/a07-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · O seu fim de semana",
+      "url": null,
+      "enunciado": "Grave 45 segundos sobre o seu fim de semana típico: para onde vai, o que faz e com quem. Termine com uma sensação: «y el domingo por la noche, siempre tengo sueño».\n\nVersão profissional: A sua agenda da semana. Conte a sua semana de trabalho com os três verbos: «El lunes tengo…», «El miércoles voy a…», «Los viernes hago…».",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -557,6 +690,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m2/a08-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Gostos na comunidade",
+      "url": null,
+      "enunciado": "Escreva três coisas de que gosta, uma de que gosta muito (me encanta) e duas de que não gosta. Poste uma na comunidade e responda a um colega com «a mí también» ou «a mí tampoco».\n\nVersão profissional: Conversa de networking. Prepare três frases para uma conversa informal com um cliente ou colega estrangeiro: do que você gosta no seu trabalho, um hobby e uma comida. Use me gusta, me encanta e prefiero.",
+      "entrega": "texto"
      }
     ]
    },
@@ -578,6 +718,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m2/a09-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · Uma foto, várias pessoas",
+      "url": null,
+      "enunciado": "Escolha uma foto sua com pessoas próximas, da família ou amigos. Grave um áudio apresentando cada pessoa: quem é, onde vive, o que faz.\n\nVersão profissional: A sua equipe e os seus clientes. Apresente por escrito a sua equipe e dois clientes ou parceiros usando possessivos: «Mi jefa se llama…», «Nuestro cliente principal es…», «Sus oficinas están en…».",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -599,6 +746,13 @@
       "tipo": "html",
       "titulo": "Ficha, Banco Chave e Missão",
       "url": "/chave/m2/a10-ficha.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Missão Chave · A conversa com o Diego",
+      "url": null,
+      "enunciado": "Faça a conversa com o Diego da aplicação, gravando as suas respostas sem roteiro escrito. Se puder, faça com alguém de verdade.\n\nVersão profissional: Os dois minutos antes da reunião. Muitas reuniões começam com dois minutos de conversa. Escreva quatro perguntas que você pode fazer a um cliente ou colega estrangeiro (semana, cidade, fim de semana, projeto) e uma reação para cada resposta.",
+      "entrega": "audio_texto"
      }
     ]
    },
@@ -641,6 +795,13 @@
       "tipo": "html",
       "titulo": "Checkpoint: as perguntas da Valeria",
       "url": "/chave/m2/checkpoint.html"
+     },
+     {
+      "tipo": "missao",
+      "titulo": "Entregar o Checkpoint do Módulo 2",
+      "url": null,
+      "enunciado": "Responda em áudio às oito perguntas da Valeria, uma depois da outra, como numa conversa. Ouça cada pergunta na página anterior, pause e responda. Até três minutos no total.\n\nNa versão ampliada, depois de cada resposta, faça uma pergunta de volta («¿y tú?»).\n\nVersão profissional: A sua semana de trabalho. Nas perguntas 1, 2, 4 e 5, responda pensando no seu trabalho: cargo, horário, rotinas fixas da equipe.",
+      "entrega": "audio"
      }
     ]
    }

@@ -47,8 +47,13 @@ export async function createMaterial(formData: FormData) {
   let arquivo_path: string | null = null;
   let url: string | null = null;
   let capa_path: string | null = null;
+  let entrega: string | null = null;
 
-  if (tipo === "html") {
+  if (tipo === "missao") {
+    conteudo_html = String(formData.get("enunciado") || "").trim();
+    if (!conteudo_html) return { error: "Escreva o que o aluno deve fazer na missão." };
+    entrega = lerEntrega(formData.get("entrega"));
+  } else if (tipo === "html") {
     conteudo_html = String(formData.get("conteudo_html") || "");
     if (!conteudo_html.trim()) return { error: "Cole o código HTML do material." };
   } else if (tipo === "pdf") {
@@ -84,6 +89,7 @@ export async function createMaterial(formData: FormData) {
       capa_path,
       url,
       visivel_todos,
+      entrega,
       idioma: lerIdioma(formData.get("idioma")),
     })
     .select("id")
@@ -115,7 +121,12 @@ export async function updateMaterial(formData: FormData) {
   const supabase = await createClient();
   const updates: Record<string, unknown> = { titulo, visivel_todos, idioma: lerIdioma(formData.get("idioma")) };
 
-  if (tipo === "html") {
+  if (tipo === "missao") {
+    const enunciado = String(formData.get("enunciado") || "").trim();
+    if (!enunciado) return { error: "Escreva o que o aluno deve fazer na missão." };
+    updates.conteudo_html = enunciado;
+    updates.entrega = lerEntrega(formData.get("entrega"));
+  } else if (tipo === "html") {
     const conteudo_html = String(formData.get("conteudo_html") || "");
     // Páginas prontas da Tu Prof (exercícios guardados no site) continuam como estão se o campo ficar vazio.
     if (!conteudo_html.trim() && formData.get("estatico") !== "1") return { error: "Cole o código HTML do material." };
@@ -269,4 +280,9 @@ export async function salvarLinkVideo(formData: FormData) {
   const supabase = await createClient();
   await supabase.from("materiais").update({ url }).eq("id", id);
   revalidatePath(`/admin/materias/${materia_id}`);
+}
+
+function lerEntrega(v: FormDataEntryValue | null) {
+  const s = String(v || "");
+  return s === "audio" || s === "texto" ? s : "audio_texto";
 }

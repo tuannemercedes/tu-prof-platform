@@ -37,6 +37,12 @@ const ICONES: Record<string, React.ReactNode> = {
       <path d="M4 19a2 2 0 0 0 2 2h13" />
     </>
   ),
+  missoes: (
+    <>
+      <rect x="9" y="3" width="6" height="11" rx="3" />
+      <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" />
+    </>
+  ),
   financeiro: (
     <>
       <rect x="2.5" y="6" width="19" height="13" rx="2" />
@@ -62,6 +68,7 @@ const ITENS_ADMIN: Item[] = [
     label: "Programas",
     ativo: (p) => ["/admin/turmas", "/admin/aulas", "/admin/materias"].some((r) => p.startsWith(r)),
   },
+  { chave: "missoes", href: "/admin/missoes", label: "Missões", ativo: (p) => p.startsWith("/admin/missoes") },
   { chave: "empresas", href: "/admin/empresas", label: "Empresas", ativo: (p) => p.startsWith("/admin/empresas") },
   {
     chave: "biblioteca",
@@ -81,6 +88,7 @@ const ITENS_ADMIN: Item[] = [
 const ITENS_PROFESSOR: Item[] = [
   ITENS_ADMIN[0],
   { ...ITENS_ADMIN[1], label: "Meus alunos" },
+  ITENS_ADMIN[3],
 ];
 
 export default function EquipeSidebar({ nome, papel }: { nome: string; papel: string }) {
