@@ -117,8 +117,12 @@ export async function updateMaterial(formData: FormData) {
 
   if (tipo === "html") {
     const conteudo_html = String(formData.get("conteudo_html") || "");
-    if (!conteudo_html.trim()) return { error: "Cole o código HTML do material." };
-    updates.conteudo_html = conteudo_html;
+    // Páginas prontas da Tu Prof (exercícios guardados no site) continuam como estão se o campo ficar vazio.
+    if (!conteudo_html.trim() && formData.get("estatico") !== "1") return { error: "Cole o código HTML do material." };
+    if (conteudo_html.trim()) {
+      updates.conteudo_html = conteudo_html;
+      updates.url = null;
+    }
   } else if (tipo === "pdf") {
     const arquivo = formData.get("arquivo") as File | null;
     if (arquivo && arquivo.size > 0) {
@@ -253,5 +257,16 @@ export async function duplicarMaterial(formData: FormData) {
     if (material_alunos?.length)
       await supabase.from("material_alunos").insert(material_alunos.map((a) => ({ material_id: novo.id, aluno_id: a.aluno_id })));
   }
+  revalidatePath(`/admin/materias/${materia_id}`);
+}
+
+// Cola o link da videoaula direto na lista (aulas criadas com o espaço do vídeo vazio).
+export async function salvarLinkVideo(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const materia_id = String(formData.get("materia_id") || "");
+  const url = String(formData.get("url") || "").trim();
+  if (!id || !/^https?:\/\//i.test(url)) return;
+  const supabase = await createClient();
+  await supabase.from("materiais").update({ url }).eq("id", id);
   revalidatePath(`/admin/materias/${materia_id}`);
 }

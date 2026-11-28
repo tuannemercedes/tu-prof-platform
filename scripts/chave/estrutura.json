@@ -1,0 +1,649 @@
+[
+ {
+  "titulo": "Comece aqui",
+  "descricao": "O primeiro dia no Espanhol Chave: como a formação funciona, quem está com você, a gravação de partida e a sua semana marcada. Cerca de 20 minutos.",
+  "capa": "/capas-prontas/pronta-globo.jpg",
+  "fases": [
+   {
+    "titulo": "Os três vídeos",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo 1 · Boas-vindas ao Espanhol Chave",
+      "url": null
+     },
+     {
+      "tipo": "video",
+      "titulo": "Vídeo 2 · Como funciona a plataforma e a aula",
+      "url": null
+     },
+     {
+      "tipo": "video",
+      "titulo": "Vídeo 3 · Você não está só: monitor, comunidade e Club",
+      "url": null
+     }
+    ]
+   },
+   {
+    "titulo": "Antes da primeira aula",
+    "itens": [
+     {
+      "tipo": "html",
+      "titulo": "Ponto de partida: ¿Quién eres?",
+      "url": "/chave/comece/ponto-de-partida.html"
+     },
+     {
+      "tipo": "html",
+      "titulo": "Monte sua semana",
+      "url": "/chave/comece/monte-sua-semana.html"
+     },
+     {
+      "tipo": "html",
+      "titulo": "Combinados",
+      "url": "/chave/comece/combinados.html"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "titulo": "Módulo 1 · Primeiros contatos",
+  "descricao": "Do «eu entendo um pouco» à primeira apresentação: cumprimentar, escolher tú ou usted, dizer quem você é, o que faz e como está, ditar contatos e não travar.",
+  "capa": "/capas-prontas/pronta-constelacao.jpg",
+  "fases": [
+   {
+    "titulo": "Boas-vindas",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo 0 · A Camila chega",
+      "url": null
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 1 · O espanhol não é português com sotaque",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · O espanhol não é português com sotaque",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m1/a01-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m1/a01-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 2 · Os sons que mudam tudo",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Os sons que mudam tudo",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m1/a02-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m1/a02-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 3 · Hola, buenas: cumprimentar e se despedir",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Hola, buenas: cumprimentar e se despedir",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m1/a03-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m1/a03-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aprender a Aprender · A rotina mínima",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · A rotina mínima",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "A rotina mínima, na prática",
+      "url": "/chave/m1/aprender-a-aprender.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 4 · Tú ou usted: com quem você está falando",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Tú ou usted: com quem você está falando",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m1/a04-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m1/a04-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 5 · Me llamo, soy, vivo en: a primeira apresentação",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Me llamo, soy, vivo en: a primeira apresentação",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m1/a05-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m1/a05-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Pronúncia em Foco · Vogais limpas",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Vogais limpas: sem nasal, sem chiado",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios de escuta (10)",
+      "url": "/chave/m1/pronuncia-exercicios.html",
+      "exercicios": 10
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 6 · De onde você é: países e nacionalidades",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · De onde você é: países e nacionalidades",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m1/a06-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m1/a06-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 7 · ¿A qué te dedicas?: profissões e áreas",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · ¿A qué te dedicas?: profissões e áreas",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m1/a07-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m1/a07-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 8 · ¿Cómo estás?: ser e estar no primeiro contato",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · ¿Cómo estás?: ser e estar no primeiro contato",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m1/a08-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m1/a08-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 9 · Números e soletração: telefone, e-mail e nome",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Números e soletração: telefone, e-mail e nome",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m1/a09-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m1/a09-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 10 · Frases para não travar",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Frases para não travar",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m1/a10-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m1/a10-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Imersão Cultural · O mapa do espanhol",
+    "itens": [
+     {
+      "tipo": "html",
+      "titulo": "Sotaques e nacionalidades (10)",
+      "url": "/chave/m1/imersao.html",
+      "exercicios": 10
+     }
+    ]
+   },
+   {
+    "titulo": "Revisão Inteligente",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · O primeiro dia da Camila, do começo ao fim",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Quiz do módulo (12)",
+      "url": "/chave/m1/revisao-quiz.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Semáforo: o que rever",
+      "url": "/chave/m1/revisao-semaforo.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Checkpoint · Minha apresentação",
+    "itens": [
+     {
+      "tipo": "html",
+      "titulo": "Checkpoint: minha apresentação em seis frases",
+      "url": "/chave/m1/checkpoint.html"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "titulo": "Módulo 2 · Minha rotina, meu trabalho",
+  "descricao": "A primeira semana da Camila: presente dos verbos, rotina, horários e agenda, frequência, gostos, família e como sustentar uma conversa sobre você.",
+  "capa": "/capas-prontas/pronta-ondas.jpg",
+  "fases": [
+   {
+    "titulo": "Boas-vindas",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo 0 · A semana começa",
+      "url": null
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 1 · O presente que move a rotina: verbos em -ar",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · O presente que move a rotina: verbos em -ar",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m2/a01-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m2/a01-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 2 · -er e -ir: completando o presente",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · -er e -ir: completando o presente",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m2/a02-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m2/a02-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 3 · Me levanto, me ducho: a rotina da manhã",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Me levanto, me ducho: a rotina da manhã",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m2/a03-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m2/a03-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 4 · Horas, dias e agenda",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Horas, dias e agenda",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m2/a04-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m2/a04-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Pronúncia em Foco · R, RR e J",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · R, RR e J",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios de escuta (10)",
+      "url": "/chave/m2/pronuncia-exercicios.html",
+      "exercicios": 10
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 5 · Siempre, a veces, nunca: com que frequência",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Siempre, a veces, nunca: com que frequência",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m2/a05-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m2/a05-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 6 · Verbos que mudam: quiero, puedo, pido",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Verbos que mudam: quiero, puedo, pido",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m2/a06-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m2/a06-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aprender a Aprender · Revisar sem começar do zero",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Revisão espaçada e ativa",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Revisar sem começar do zero",
+      "url": "/chave/m2/aprender-a-aprender.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 7 · Ir, hacer, tener: os três que mais aparecem",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Ir, hacer, tener: os três que mais aparecem",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m2/a07-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m2/a07-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 8 · Me gusta, me encanta: gostos sem traduzir",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Me gusta, me encanta: gostos sem traduzir",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m2/a08-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m2/a08-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 9 · Família e pessoas próximas: mi, tu, su",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Família e pessoas próximas: mi, tu, su",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m2/a09-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m2/a09-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Aula 10 · Muy ou mucho? E como devolver a pergunta",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · Muy ou mucho? E como devolver a pergunta",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "Exercícios (12)",
+      "url": "/chave/m2/a10-exercicios.html",
+      "exercicios": 12
+     },
+     {
+      "tipo": "html",
+      "titulo": "Ficha, Banco Chave e Missão",
+      "url": "/chave/m2/a10-ficha.html"
+     }
+    ]
+   },
+   {
+    "titulo": "Imersão Cultural · México",
+    "itens": [
+     {
+      "tipo": "html",
+      "titulo": "Expressões mexicanas (8)",
+      "url": "/chave/m2/imersao.html",
+      "exercicios": 8
+     }
+    ]
+   },
+   {
+    "titulo": "Revisão Inteligente",
+    "itens": [
+     {
+      "tipo": "video",
+      "titulo": "Vídeo · O boletim publicado",
+      "url": null
+     },
+     {
+      "tipo": "html",
+      "titulo": "O boletim e o semáforo",
+      "url": "/chave/m2/revisao-boletim.html"
+     },
+     {
+      "tipo": "html",
+      "titulo": "Quiz do módulo (12)",
+      "url": "/chave/m2/revisao-quiz.html",
+      "exercicios": 12
+     }
+    ]
+   },
+   {
+    "titulo": "Checkpoint · Minha semana em espanhol",
+    "itens": [
+     {
+      "tipo": "html",
+      "titulo": "Checkpoint: as perguntas da Valeria",
+      "url": "/chave/m2/checkpoint.html"
+     }
+    ]
+   }
+  ]
+ }
+]

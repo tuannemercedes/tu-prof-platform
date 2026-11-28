@@ -2,8 +2,9 @@
 
 import { useRef, useState, useTransition } from "react";
 import CampoIdioma from "./campo-idioma";
-import { duplicarMaterial, updateMaterial } from "@/app/(admin)/admin/(gestao)/materias/[id]/actions";
+import { duplicarMaterial, salvarLinkVideo, updateMaterial } from "@/app/(admin)/admin/(gestao)/materias/[id]/actions";
 import BotaoConfirmar from "./botao-confirmar";
+import SubmitButton from "./submit-button";
 import LiberacaoFields from "./liberacao-fields";
 
 const TIPO_LABELS: Record<string, string> = {
@@ -161,6 +162,25 @@ export default function MaterialRow({
         </div>
       </div>
 
+      {material.tipo === "video" && !material.url && !editing && (
+        <form action={salvarLinkVideo} className="flex flex-wrap items-center gap-2 rounded-lg bg-[var(--warning-bg)] px-3 py-2">
+          <input type="hidden" name="id" value={material.id} />
+          <input type="hidden" name="materia_id" value={materiaId} />
+          <span className="text-xs font-semibold text-[var(--warning-text)]">Falta o vídeo</span>
+          <input
+            type="url"
+            name="url"
+            required
+            placeholder="Cole aqui o link do vídeo (YouTube, Vimeo, Drive…)"
+            aria-label={`Link do vídeo de ${material.titulo}`}
+            className="flex-1 min-w-[220px] h-9 rounded-md border border-[var(--border-strong)] bg-[var(--surface)] px-2.5 text-sm"
+          />
+          <SubmitButton className="h-9 px-3 rounded-md bg-[var(--accent)] text-[var(--accent-contrast)] text-xs font-semibold" pendingText="Salvando...">
+            Salvar link
+          </SubmitButton>
+        </form>
+      )}
+
       {editing && (
         <form ref={formRef} action={handleSubmit} className="space-y-3 border-t border-[var(--border-soft)] pt-3">
           <input type="hidden" name="id" value={material.id} />
@@ -176,11 +196,19 @@ export default function MaterialRow({
             className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
 
+          {material.tipo === "html" && !material.conteudo_html && material.url && (
+            <>
+              <input type="hidden" name="estatico" value="1" />
+              <p className="text-xs text-[var(--text-secondary)]">
+                Página pronta da Tu Prof (exercícios e fichas guardados no site). Deixe o campo abaixo vazio para manter; cole um HTML só se quiser substituir.
+              </p>
+            </>
+          )}
           {material.tipo === "html" && (
             <div className="grid sm:grid-cols-2 gap-3">
               <textarea
                 name="conteudo_html"
-                required
+                required={!!material.conteudo_html || !material.url}
                 rows={8}
                 defaultValue={material.conteudo_html ?? ""}
                 onChange={(e) => setHtmlPreview(e.target.value)}
