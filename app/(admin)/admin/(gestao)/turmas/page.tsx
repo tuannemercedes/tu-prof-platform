@@ -61,10 +61,30 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
     : [];
   const etapasAtual = atual ? (etapas ?? []).filter((e) => e.turma_id === atual.id) : [];
   const disponiveis = (materias ?? []).filter((m) => m.categoria === "trilha" && !modulosAtual.some((x) => x.id === m.id));
+  // Idioma de cada módulo = idioma dos programas em que ele já está.
+  const idiomaModulo = (id: string) => {
+    const set = new Set(
+      (modulos ?? []).filter((v) => v.materia_id === id).map((v) => (turmas ?? []).find((t) => t.id === v.turma_id)?.idioma ?? "espanhol"),
+    );
+    if (!set.size) return "sem";
+    if (set.size > 1 || set.has("espanhol_ingles")) return "espanhol_ingles";
+    return [...set][0];
+  };
+  const gruposDisponiveis = atual
+    ? [
+        { v: atual.idioma ?? "espanhol", l: `Módulos de ${rotuloIdioma(atual.idioma).toLowerCase()}` },
+        { v: "sem", l: "Ainda fora de programas" },
+        ...["espanhol", "ingles", "espanhol_ingles", "portugues"]
+          .filter((i) => i !== (atual.idioma ?? "espanhol"))
+          .map((i) => ({ v: i, l: `Outro idioma: ${rotuloIdioma(i)}` })),
+      ]
+        .map((g) => ({ ...g, itens: disponiveis.filter((m) => idiomaModulo(m.id) === g.v) }))
+        .filter((g) => g.itens.length)
+    : [];
 
   const recebe: string[] = [];
   if (atual) {
-    if (modulosAtual.length) recebe.push("Trilha do programa");
+    if (modulosAtual.length) recebe.push(`Trilha com ${modulosAtual.length} ${modulosAtual.length === 1 ? "módulo" : "módulos"}`);
     if (etapasAtual.length) recebe.push("Modelo de plano");
     if (clube && (clube.visivel_todos || (clubeTurmas ?? []).some((c) => c.turma_id === atual.id))) recebe.push("Club Hispano");
     recebe.push("Biblioteca e FIA");
@@ -219,11 +239,21 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
 
             <div className="flex flex-col gap-2.5">
               <div className="flex justify-between items-center flex-wrap gap-2">
-                <span className="text-sm font-semibold">Trilha</span>
-                <Link href={`/admin/aulas/nova?programa=${atual.id}`} className="text-sm font-semibold text-[var(--gold-text)]">
-                  Nova aula
+                <span className="text-sm font-semibold">
+                  Módulos deste programa <span className="font-normal text-[var(--text-secondary)]">· {modulosAtual.length}</span>
+                </span>
+                <Link href={`/admin/materias?programa=${atual.id}`} className="text-sm font-semibold text-[var(--gold-text)]">
+                  Ver em cartões ›
                 </Link>
               </div>
+              <p className="m-0 text-[13px] text-[var(--text-secondary)]">
+                É a sequência de módulos que o aluno vê na Trilha, nesta ordem. Use as setas para reordenar.
+              </p>
+              {!modulosAtual.length && (
+                <div className="rounded-xl border border-dashed border-[var(--border-strong)] px-4 py-3.5 text-sm text-[var(--text-secondary)]">
+                  Nenhum módulo ainda. Inclua um módulo que já existe ou crie um novo logo abaixo.
+                </div>
+              )}
               {modulosAtual.map((m, i) => (
                 <div key={m.id} className="flex items-center gap-2 border border-[var(--border)] rounded-xl px-3.5 py-2.5">
                   <span className="flex flex-col">
@@ -270,30 +300,34 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                 <input type="hidden" name="turma_id" value={atual.id} />
                 <select name="materia_id" aria-label="Módulo" className={`${campo} flex-1 min-w-[200px]`} defaultValue="">
                   <option value="" disabled>
-                    {disponiveis.length ? "Escolha um módulo para incluir" : "Todos os módulos já estão aqui"}
+                    {disponiveis.length ? "Incluir um módulo que já existe…" : "Todos os módulos já estão aqui"}
                   </option>
-                  {disponiveis.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.titulo}
-                    </option>
+                  {gruposDisponiveis.map((g) => (
+                    <optgroup key={g.v} label={g.l}>
+                      {g.itens.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.titulo}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
-                <SubmitButton className={botaoLinha}>Adicionar módulo</SubmitButton>
+                <SubmitButton className={botaoLinha}>Incluir</SubmitButton>
               </form>
               <form action={criarModuloNoPrograma} className="flex flex-wrap gap-2">
                 <input type="hidden" name="turma_id" value={atual.id} />
                 <input
                   name="titulo"
                   required
-                  placeholder="Ou crie um módulo novo direto aqui"
+                  placeholder="Ou crie um módulo novo neste programa"
                   aria-label="Nome do novo módulo"
                   className={`${campo} flex-1 min-w-[200px]`}
                 />
                 <SubmitButton className={botaoLinha} pendingText="Criando...">
                   Criar e abrir
                 </SubmitButton>
-                <Link href="/admin/materias" className={`${botaoLinha} flex items-center`}>
-                  Ver todos os módulos
+                <Link href={`/admin/aulas/nova?programa=${atual.id}`} className={`${botaoLinha} flex items-center`}>
+                  Nova aula
                 </Link>
               </form>
             </div>
