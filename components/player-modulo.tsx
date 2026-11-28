@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { getEmbedUrl } from "@/lib/embed";
 import { toggleProgresso } from "@/app/(aluno)/aluno/actions";
-import { HtmlFrame, TIPO_LABELS, type MaterialCardData } from "./material-card";
+import { HtmlFrame, paginaEstatica, TIPO_LABELS, type MaterialCardData } from "./material-card";
 import { useTrilhaProgress } from "./trilha-progress-context";
 import AccessTracker from "./access-tracker";
 import IconeTipo from "./icone-tipo";
@@ -85,8 +85,8 @@ export default function PlayerModulo({ grupos, readOnly }: { grupos: GrupoModulo
         </div>
 
         <div key={atual.id} className="rounded-[20px] overflow-hidden border border-[var(--border)] bg-[var(--surface)] carta-entra">
-          {atual.tipo === "html" && atual.conteudo_html ? (
-            <HtmlFrame conteudoHtml={atual.conteudo_html} titulo={atual.titulo} />
+          {atual.tipo === "html" && (atual.conteudo_html || paginaEstatica(atual.url)) ? (
+            <HtmlFrame conteudoHtml={atual.conteudo_html} src={atual.url} titulo={atual.titulo} />
           ) : atual.tipo === "pdf" ? (
             <div className="p-8 flex flex-col items-center gap-3 text-center">
               <IconeTipo tipo="pdf" size={40} />
@@ -123,6 +123,18 @@ export default function PlayerModulo({ grupos, readOnly }: { grupos: GrupoModulo
               >
                 Abrir o conteúdo
               </a>
+            </div>
+          ) : atual.tipo === "video" ? (
+            <div className="aspect-video flex flex-col items-center justify-center gap-3 text-center px-6 bg-[radial-gradient(120%_120%_at_80%_0%,#1d3766,#0b1424_70%)] text-white">
+              <span className="w-14 h-14 rounded-full border border-[#e9cf8a]/60 flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="#e9cf8a" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e9cf8a]">Vídeo em produção</span>
+              <span className="text-sm text-white/75 max-w-sm">
+                Esta videoaula chega em breve. Enquanto isso, os exercícios e a missão desta aula já estão liberados.
+              </span>
             </div>
           ) : (
             <p className="p-6 text-sm text-[var(--text-secondary)]">Conteúdo indisponível.</p>

@@ -26,7 +26,12 @@ export type MaterialCardData = {
   capaUrl?: string | null;
 };
 
-export function HtmlFrame({ conteudoHtml, titulo }: { conteudoHtml: string; titulo: string }) {
+// Página pronta guardada no site (ex.: /chave/m1/a01-exercicios.html).
+export function paginaEstatica(url: string | null | undefined) {
+  return !!url && url.startsWith("/") && /\.html?(\?|#|$)/i.test(url);
+}
+
+export function HtmlFrame({ conteudoHtml, src, titulo }: { conteudoHtml?: string | null; src?: string | null; titulo: string }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState(320);
 
@@ -42,7 +47,7 @@ export function HtmlFrame({ conteudoHtml, titulo }: { conteudoHtml: string; titu
       if (!doc?.body) return;
       const medir = () => {
         cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(() => setHeight(Math.min(Math.max(doc.body.scrollHeight + 8, 200), 4000)));
+        raf = requestAnimationFrame(() => setHeight(Math.min(Math.max(doc.body.scrollHeight + 8, 200), 9000)));
       };
       ro?.disconnect();
       ro = new ResizeObserver(medir);
@@ -56,13 +61,13 @@ export function HtmlFrame({ conteudoHtml, titulo }: { conteudoHtml: string; titu
       ro?.disconnect();
       cancelAnimationFrame(raf);
     };
-  }, [conteudoHtml]);
+  }, [conteudoHtml, src]);
 
   return (
     <iframe
       ref={iframeRef}
       sandbox="allow-scripts allow-same-origin"
-      srcDoc={conteudoHtml}
+      {...(conteudoHtml ? { srcDoc: conteudoHtml } : { src: src ?? undefined })}
       style={{ height }}
       className="w-full block border-0 transition-[height] duration-200"
       title={titulo}
@@ -184,7 +189,9 @@ export default function MaterialCard({ material, readOnly = false }: { material:
 
       {expanded && (
         <div className="px-3 pb-3">
-          {material.tipo === "html" && material.conteudo_html && <HtmlFrame conteudoHtml={material.conteudo_html} titulo={material.titulo} />}
+          {material.tipo === "html" && (material.conteudo_html || paginaEstatica(material.url)) && (
+            <HtmlFrame conteudoHtml={material.conteudo_html} src={material.url} titulo={material.titulo} />
+          )}
 
           {material.tipo === "pdf" &&
             (material.signedUrl ? (
