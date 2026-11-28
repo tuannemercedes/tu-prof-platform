@@ -65,15 +65,21 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
           const proximo = materiaisComUrl.find((m) => !m.concluido);
           const p = materiaisComUrl.length ? Math.round((totalConcluidos / materiaisComUrl.length) * 100) : 0;
           return (
-            <header className="modulo-hero relative -mx-4 sm:mx-0 sm:rounded-[24px] overflow-hidden min-h-[220px] flex items-end">
+            <header className="modulo-hero relative -mx-4 sm:mx-0 sm:rounded-[24px] overflow-hidden min-h-[220px] flex items-stretch gap-6 bg-[#060d18]">
               {capa ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={capa} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                <>
+                  {/* Fundo: a própria capa, desfocada, para qualquer formato de imagem caber bem. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={capa} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover scale-125 blur-2xl opacity-50" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#060d18]/95 via-[#060d18]/80 to-[#060d18]/40" />
+                </>
               ) : (
-                <div className="capa-padrao absolute inset-0" />
+                <>
+                  <div className="capa-padrao absolute inset-0" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#060d18]/95 via-[#060d18]/70 to-transparent" />
+                </>
               )}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#060d18]/95 via-[#060d18]/70 to-transparent" />
-              <div className="relative p-6 sm:p-8 flex flex-col gap-3 text-white max-w-xl">
+              <div className="relative flex-1 min-w-0 self-end p-6 sm:p-8 flex flex-col gap-3 text-white max-w-xl">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e9cf8a]">Módulo</span>
                 <h1 className="m-0 font-serif font-semibold text-[34px] sm:text-[40px] leading-[1.05] text-white">{materia.titulo}</h1>
                 {materia.descricao && <p className="m-0 text-[15px] text-white/80">{materia.descricao}</p>}
@@ -95,6 +101,15 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
                   </a>
                 )}
               </div>
+              {capa && (
+                // A capa inteira, sem cortes, do lado direito.
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={capa}
+                  alt=""
+                  className="relative hidden md:block self-center ml-auto mr-6 my-6 max-h-[300px] max-w-[42%] w-auto h-auto object-contain rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.45)] ring-1 ring-white/10"
+                />
+              )}
             </header>
           );
         })()}
