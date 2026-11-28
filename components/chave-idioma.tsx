@@ -7,15 +7,7 @@ import { trocarIdioma } from "@/app/(aluno)/aluno/idioma-actions";
 type Idioma = "espanhol" | "ingles";
 const ROTULO: Record<Idioma, string> = { espanhol: "Espanhol", ingles: "Inglês" };
 
-export default function ChaveIdioma({
-  atual,
-  opcoes,
-  previa = false,
-}: {
-  atual: Idioma;
-  opcoes: Idioma[];
-  previa?: boolean;
-}) {
+export default function ChaveIdioma({ atual, opcoes, previa = false }: { atual: Idioma; opcoes: Idioma[]; previa?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -33,13 +25,18 @@ export default function ChaveIdioma({
             disabled={isPending}
             onClick={() =>
               startTransition(async () => {
+                // Dentro de um módulo ou de uma aula (conteúdo de um idioma só), a troca leva à seção:
+                // módulo → Trilha, aula → Plano. Nas outras telas, fica na mesma tela.
+                const destino = pathname.replace(/\/materias\/[^/]+$/, "/trilha").replace(/\/aula\/[^/]+$/, "/plano");
+                const mesmaTela = destino === pathname;
                 // Na prévia o idioma vai no endereço (não mexe no cookie de ninguém).
                 if (previa) {
-                  router.push(`${pathname}?idioma=${i}${window.location.hash}`);
+                  router.push(`${destino}?idioma=${i}${mesmaTela ? window.location.hash : ""}`);
                   return;
                 }
                 await trocarIdioma(i);
-                router.refresh();
+                if (mesmaTela) router.refresh();
+                else router.push(destino);
               })
             }
             className={`h-9 px-3.5 rounded-full text-[13px] font-semibold transition-colors ${
