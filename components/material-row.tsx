@@ -2,7 +2,8 @@
 
 import { useRef, useState, useTransition } from "react";
 import CampoIdioma from "./campo-idioma";
-import { updateMaterial } from "@/app/(admin)/admin/(gestao)/materias/[id]/actions";
+import { duplicarMaterial, updateMaterial } from "@/app/(admin)/admin/(gestao)/materias/[id]/actions";
+import BotaoConfirmar from "./botao-confirmar";
 import LiberacaoFields from "./liberacao-fields";
 
 const TIPO_LABELS: Record<string, string> = {
@@ -126,7 +127,7 @@ export default function MaterialRow({
                 disabled={isMovingFase}
                 className="mt-1 text-xs bg-[var(--surface)] border border-[var(--border-strong)] rounded px-1.5 py-0.5 disabled:opacity-50"
               >
-                <option value="">Sem módulo</option>
+                <option value="">Sem etapa</option>
                 {fases.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.titulo}
@@ -137,29 +138,31 @@ export default function MaterialRow({
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0 text-xs">
-          <button
-            type="button"
-            onClick={() => setEditing((v) => !v)}
-            className="text-[var(--text-secondary)] hover:underline"
-          >
+          <button type="button" onClick={() => setEditing((v) => !v)} className="text-[var(--text-secondary)] hover:underline">
             {editing ? "Cancelar" : "Editar"}
           </button>
+          <form action={duplicarMaterial}>
+            <input type="hidden" name="id" value={material.id} />
+            <input type="hidden" name="materia_id" value={materiaId} />
+            <button type="submit" className="text-[var(--text-secondary)] hover:underline">
+              Duplicar
+            </button>
+          </form>
           <form action={deleteAction}>
             <input type="hidden" name="id" value={material.id} />
             <input type="hidden" name="materia_id" value={materiaId} />
-            <button type="submit" className="text-[var(--text-faint)] hover:text-[var(--danger-text)]">
+            <BotaoConfirmar
+              mensagem={`Excluir “${material.titulo}”? O progresso dos alunos e as tarefas ligadas a esta aula também são apagados.`}
+              className="text-[var(--text-faint)] hover:text-[var(--danger-text)]"
+            >
               Excluir
-            </button>
+            </BotaoConfirmar>
           </form>
         </div>
       </div>
 
       {editing && (
-        <form
-          ref={formRef}
-          action={handleSubmit}
-          className="space-y-3 border-t border-[var(--border-soft)] pt-3"
-        >
+        <form ref={formRef} action={handleSubmit} className="space-y-3 border-t border-[var(--border-soft)] pt-3">
           <input type="hidden" name="id" value={material.id} />
           <input type="hidden" name="materia_id" value={materiaId} />
           <input type="hidden" name="tipo" value={material.tipo} />
@@ -184,12 +187,7 @@ export default function MaterialRow({
                 className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-3 py-2 text-xs font-mono"
               />
               <div className="rounded-md border border-[var(--border-strong)] overflow-hidden">
-                <iframe
-                  sandbox="allow-scripts"
-                  srcDoc={htmlPreview}
-                  className="w-full h-full min-h-[160px]"
-                  title="Pré-visualização"
-                />
+                <iframe sandbox="allow-scripts" srcDoc={htmlPreview} className="w-full h-full min-h-[160px]" title="Pré-visualização" />
               </div>
             </div>
           )}
@@ -203,10 +201,7 @@ export default function MaterialRow({
             </div>
           )}
 
-          {(material.tipo === "video" ||
-            material.tipo === "playlist" ||
-            material.tipo === "podcast" ||
-            material.tipo === "link_externo") && (
+          {(material.tipo === "video" || material.tipo === "playlist" || material.tipo === "podcast" || material.tipo === "link_externo") && (
             <input
               type="url"
               name="url"
@@ -217,9 +212,7 @@ export default function MaterialRow({
           )}
 
           <div>
-            <label className="text-xs text-[var(--text-secondary)] block mb-1">
-              Trocar capa (opcional — deixe em branco pra manter a atual)
-            </label>
+            <label className="text-xs text-[var(--text-secondary)] block mb-1">Trocar capa (opcional — deixe em branco pra manter a atual)</label>
             <input type="file" name="capa" accept="image/*" className="bg-[var(--surface)] text-sm" />
           </div>
 

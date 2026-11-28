@@ -12,6 +12,8 @@ import {
   updateTurmaNome,
 } from "./actions";
 import SubmitButton from "@/components/submit-button";
+import BotaoConfirmar from "@/components/botao-confirmar";
+import { criarModuloNoPrograma } from "../materias/actions";
 import { IDIOMAS, rotuloIdioma } from "@/lib/programas";
 
 const campo = "h-[42px] rounded-[10px] border border-[var(--border-strong)] bg-[var(--surface)] px-3 text-[15px]";
@@ -22,25 +24,31 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
   const { p, idioma = "todos" } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: turmas }, { data: materias }, { data: modulos }, { data: etapas }, { data: clube }, { data: clubeTurmas }, { data: glossario }, { data: glossarioTurmas }] =
-    await Promise.all([
-      supabase
-        .from("turmas")
-        .select("id, nome, idioma, descricao, calendario_embed_url, turma_membros(count), empresas(nome)")
-        .order("ordem")
-        .order("nome"),
-      supabase.from("materias").select("id, titulo, categoria, materiais(count)").order("ordem"),
-      supabase.from("programa_materias").select("turma_id, materia_id, ordem").order("ordem"),
-      supabase.from("programa_etapas").select("id, turma_id, periodo, tema, entrega").order("ordem"),
-      supabase.from("clube_config").select("visivel_todos").eq("id", 1).maybeSingle(),
-      supabase.from("clube_turmas").select("turma_id"),
-      supabase.from("glossario_config").select("visivel_todos").eq("id", 1).maybeSingle(),
-      supabase.from("glossario_turmas").select("turma_id"),
-    ]);
+  const [
+    { data: turmas },
+    { data: materias },
+    { data: modulos },
+    { data: etapas },
+    { data: clube },
+    { data: clubeTurmas },
+    { data: glossario },
+    { data: glossarioTurmas },
+  ] = await Promise.all([
+    supabase
+      .from("turmas")
+      .select("id, nome, idioma, descricao, calendario_embed_url, turma_membros(count), empresas(nome)")
+      .order("ordem")
+      .order("nome"),
+    supabase.from("materias").select("id, titulo, categoria, materiais(count)").order("ordem"),
+    supabase.from("programa_materias").select("turma_id, materia_id, ordem").order("ordem"),
+    supabase.from("programa_etapas").select("id, turma_id, periodo, tema, entrega").order("ordem"),
+    supabase.from("clube_config").select("visivel_todos").eq("id", 1).maybeSingle(),
+    supabase.from("clube_turmas").select("turma_id"),
+    supabase.from("glossario_config").select("visivel_todos").eq("id", 1).maybeSingle(),
+    supabase.from("glossario_turmas").select("turma_id"),
+  ]);
 
-  const lista = (turmas ?? []).filter(
-    (t) => idioma === "todos" || t.idioma === idioma || t.idioma === "espanhol_ingles"
-  );
+  const lista = (turmas ?? []).filter((t) => idioma === "todos" || t.idioma === idioma || t.idioma === "espanhol_ingles");
   const atual = lista.find((t) => t.id === p) ?? lista[0];
   const qtd = (t: (typeof lista)[number]) => (t.turma_membros as unknown as { count: number }[])[0]?.count ?? 0;
   const nMateriais = (m: { materiais: unknown }) => (m.materiais as { count: number }[])[0]?.count ?? 0;
@@ -52,9 +60,7 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
         .filter((m): m is NonNullable<typeof m> => !!m)
     : [];
   const etapasAtual = atual ? (etapas ?? []).filter((e) => e.turma_id === atual.id) : [];
-  const disponiveis = (materias ?? []).filter(
-    (m) => m.categoria === "trilha" && !modulosAtual.some((x) => x.id === m.id)
-  );
+  const disponiveis = (materias ?? []).filter((m) => m.categoria === "trilha" && !modulosAtual.some((x) => x.id === m.id));
 
   const recebe: string[] = [];
   if (atual) {
@@ -71,9 +77,7 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
       <div className="flex flex-wrap gap-4 items-end justify-between">
         <div className="flex flex-col gap-1.5">
           <h1 className="m-0 font-serif font-semibold text-[40px] leading-[1.05]">Programas</h1>
-          <p className="m-0 text-[15px] text-[var(--text-secondary)]">
-            Monte uma vez. Cada aluno matriculado recebe tudo o que está aqui.
-          </p>
+          <p className="m-0 text-[15px] text-[var(--text-secondary)]">Monte uma vez. Cada aluno matriculado recebe tudo o que está aqui.</p>
         </div>
         <form action={createTurma} className="flex flex-wrap gap-2">
           <input name="nome" required placeholder="Nome do novo programa" aria-label="Nome do novo programa" className={campo} />
@@ -130,7 +134,11 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                     <span className="text-[15px] font-semibold">{t.nome}</span>
                     <span
                       className="text-[11px] font-semibold px-2 py-[3px] rounded-lg whitespace-nowrap"
-                      style={en ? { background: "var(--info-bg)", color: "var(--info-text)" } : { background: "var(--warning-bg)", color: "var(--warning-text)" }}
+                      style={
+                        en
+                          ? { background: "var(--info-bg)", color: "var(--info-text)" }
+                          : { background: "var(--warning-bg)", color: "var(--warning-text)" }
+                      }
                     >
                       {rotuloIdioma(t.idioma)}
                     </span>
@@ -158,7 +166,13 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                 Editando: {atual.nome} · {rotuloIdioma(atual.idioma)}
               </span>
               <div className="flex flex-wrap gap-2">
-                <input name="nome" defaultValue={atual.nome} required aria-label="Nome do programa" className={`${campo} flex-1 min-w-[200px] font-serif text-[22px] font-semibold`} />
+                <input
+                  name="nome"
+                  defaultValue={atual.nome}
+                  required
+                  aria-label="Nome do programa"
+                  className={`${campo} flex-1 min-w-[200px] font-serif text-[22px] font-semibold`}
+                />
                 <select name="idioma" defaultValue={atual.idioma ?? "espanhol"} aria-label="Idioma" className={campo}>
                   {IDIOMAS.map((i) => (
                     <option key={i.valor} value={i.valor}>
@@ -167,7 +181,13 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                   ))}
                 </select>
               </div>
-              <input name="descricao" defaultValue={atual.descricao ?? ""} placeholder="Descrição curta (ex.: planos trimestral, semestral e anual)" aria-label="Descrição" className={campo} />
+              <input
+                name="descricao"
+                defaultValue={atual.descricao ?? ""}
+                placeholder="Descrição curta (ex.: planos trimestral, semestral e anual)"
+                aria-label="Descrição"
+                className={campo}
+              />
               <div>
                 <SubmitButton className={botaoLinha}>Salvar</SubmitButton>
               </div>
@@ -178,7 +198,17 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
               <div className="grid gap-2.5 [grid-template-columns:repeat(auto-fit,minmax(170px,1fr))]">
                 {recebe.map((r) => (
                   <div key={r} className="border border-[var(--border)] rounded-xl p-3 flex gap-2.5 items-center bg-[var(--surface-2)]">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success-text)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--success-text)"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
                       <path d="M5 12l5 5L20 7" />
                     </svg>
                     <span className="text-sm">{r}</span>
@@ -205,7 +235,12 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                         <input type="hidden" name="turma_id" value={atual.id} />
                         <input type="hidden" name="materia_id" value={m.id} />
                         <input type="hidden" name="direcao" value={b.d} />
-                        <button type="submit" disabled={!b.ok} aria-label={b.l} className="w-6 h-5 flex items-center justify-center text-[var(--text-faint)] disabled:opacity-30">
+                        <button
+                          type="submit"
+                          disabled={!b.ok}
+                          aria-label={b.l}
+                          className="w-6 h-5 flex items-center justify-center text-[var(--text-faint)] disabled:opacity-30"
+                        >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                             <path d={b.path} />
                           </svg>
@@ -222,9 +257,12 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                   <form action={removerModulo}>
                     <input type="hidden" name="turma_id" value={atual.id} />
                     <input type="hidden" name="materia_id" value={m.id} />
-                    <button type="submit" className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)] ml-2">
+                    <BotaoConfirmar
+                      mensagem={`Tirar “${m.titulo}” deste programa? O módulo continua existindo, só some da Trilha destes alunos.`}
+                      className="text-xs text-[var(--text-faint)] hover:text-[var(--danger-text)] ml-2"
+                    >
                       Tirar
-                    </button>
+                    </BotaoConfirmar>
                   </form>
                 </div>
               ))}
@@ -241,8 +279,21 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                   ))}
                 </select>
                 <SubmitButton className={botaoLinha}>Adicionar módulo</SubmitButton>
+              </form>
+              <form action={criarModuloNoPrograma} className="flex flex-wrap gap-2">
+                <input type="hidden" name="turma_id" value={atual.id} />
+                <input
+                  name="titulo"
+                  required
+                  placeholder="Ou crie um módulo novo direto aqui"
+                  aria-label="Nome do novo módulo"
+                  className={`${campo} flex-1 min-w-[200px]`}
+                />
+                <SubmitButton className={botaoLinha} pendingText="Criando...">
+                  Criar e abrir
+                </SubmitButton>
                 <Link href="/admin/materias" className={`${botaoLinha} flex items-center`}>
-                  Criar módulo
+                  Ver todos os módulos
                 </Link>
               </form>
             </div>
@@ -253,7 +304,11 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                 Na ficha do aluno, &quot;Usar modelo&quot; copia estas etapas para o plano dele.
               </p>
               {etapasAtual.map((e) => (
-                <form key={e.id} action={salvarEtapaModelo} className="grid gap-2 items-center [grid-template-columns:minmax(100px,130px)_minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
+                <form
+                  key={e.id}
+                  action={salvarEtapaModelo}
+                  className="grid gap-2 items-center [grid-template-columns:minmax(100px,130px)_minmax(0,1fr)_minmax(0,1fr)_auto_auto]"
+                >
                   <input type="hidden" name="turma_id" value={atual.id} />
                   <input type="hidden" name="id" value={e.id} />
                   <input name="periodo" defaultValue={e.periodo} aria-label="Período" className={campo} />
@@ -265,7 +320,10 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                   </button>
                 </form>
               ))}
-              <form action={salvarEtapaModelo} className="grid gap-2 items-center [grid-template-columns:minmax(100px,130px)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+              <form
+                action={salvarEtapaModelo}
+                className="grid gap-2 items-center [grid-template-columns:minmax(100px,130px)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+              >
                 <input type="hidden" name="turma_id" value={atual.id} />
                 <input name="periodo" required placeholder="Ex.: Mês 1" aria-label="Período" className={campo} />
                 <input name="tema" required placeholder="Tema" aria-label="Tema" className={campo} />
@@ -290,9 +348,12 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
                 </form>
                 <form action={deleteTurma}>
                   <input type="hidden" name="id" value={atual.id} />
-                  <button type="submit" className="text-xs text-[var(--danger-text)]">
+                  <BotaoConfirmar
+                    mensagem={`Excluir o programa “${atual.nome}”? Os alunos saem dele e perdem o acesso ao que vinha do programa. Os módulos continuam existindo.`}
+                    className="text-xs text-[var(--danger-text)]"
+                  >
                     Excluir este programa
-                  </button>
+                  </BotaoConfirmar>
                 </form>
               </div>
             </details>
@@ -301,7 +362,10 @@ export default async function ProgramasPage({ searchParams }: { searchParams: Pr
               <span className="text-sm text-[var(--text-secondary)]">
                 {qtd(atual)} {qtd(atual) === 1 ? "aluno matriculado" : "alunos matriculados"}
               </span>
-              <Link href="/admin/alunos#adicionar" className="h-11 px-[18px] rounded-xl border border-[var(--accent)] font-semibold text-sm flex items-center">
+              <Link
+                href="/admin/alunos#adicionar"
+                className="h-11 px-[18px] rounded-xl border border-[var(--accent)] font-semibold text-sm flex items-center"
+              >
                 Matricular aluno neste programa
               </Link>
             </div>

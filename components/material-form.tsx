@@ -19,9 +19,11 @@ type Props = {
   turmas: { id: string; nome: string }[];
   alunos: { id: string; nome: string | null; email: string }[];
   fases: { id: string; titulo: string }[];
+  turmasPadrao?: string[]; // programas que já têm este módulo: vêm marcados
+  idiomaPadrao?: string;
 };
 
-export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props) {
+export default function MaterialForm({ materiaId, turmas, alunos, fases, turmasPadrao = [], idiomaPadrao }: Props) {
   const [tipo, setTipo] = useState("html");
   const [htmlPreview, setHtmlPreview] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -49,20 +51,16 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
   }
 
   return (
-    <form
-      ref={formRef}
-      action={handleSubmit}
-      className="space-y-3 border border-[var(--border)] rounded-lg p-4"
-    >
+    <form ref={formRef} action={handleSubmit} className="space-y-3 border border-[var(--border)] rounded-[18px] bg-[var(--surface)] p-5">
       <input type="hidden" name="materia_id" value={materiaId} />
-      <CampoIdioma rotulo="Este conteúdo é de qual idioma?" />
+      <CampoIdioma key={`idioma-${liberacaoKey}`} rotulo="Este conteúdo é de qual idioma?" defaultValue={idiomaPadrao} />
 
       <div className="grid sm:grid-cols-2 gap-3">
         <input
           type="text"
           name="titulo"
           required
-          placeholder="Título do material (aula)"
+          placeholder="Título da aula (ex.: Vídeo: como abrir uma reunião)"
           className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         />
         <select
@@ -85,7 +83,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
           defaultValue=""
           className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
         >
-          <option value="">Sem fase (fica direto na trilha)</option>
+          <option value="">Sem etapa</option>
           {fases.map((f) => (
             <option key={f.id} value={f.id}>
               {f.titulo}
@@ -106,12 +104,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
           />
           <div className="rounded-md border border-[var(--border-strong)] overflow-hidden">
             {htmlPreview ? (
-              <iframe
-                sandbox="allow-scripts"
-                srcDoc={htmlPreview}
-                className="w-full h-full min-h-[200px]"
-                title="Pré-visualização"
-              />
+              <iframe sandbox="allow-scripts" srcDoc={htmlPreview} className="w-full h-full min-h-[200px]" title="Pré-visualização" />
             ) : (
               <p className="text-xs text-[var(--text-faint)] p-3">A pré-visualização aparece aqui.</p>
             )}
@@ -119,15 +112,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
         </div>
       )}
 
-      {tipo === "pdf" && (
-        <input
-          type="file"
-          name="arquivo"
-          accept="application/pdf"
-          required
-          className="bg-[var(--surface)] text-sm"
-        />
-      )}
+      {tipo === "pdf" && <input type="file" name="arquivo" accept="application/pdf" required className="bg-[var(--surface)] text-sm" />}
 
       <div>
         <label className="text-xs text-[var(--text-secondary)] block mb-1">
@@ -146,7 +131,7 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases }: Props
         />
       )}
 
-      <LiberacaoFields key={liberacaoKey} turmas={turmas} alunos={alunos} />
+      <LiberacaoFields key={liberacaoKey} turmas={turmas} alunos={alunos} turmaIdsLiberadas={turmasPadrao} />
 
       {error && <p className="text-sm text-[var(--danger-text)]">{error}</p>}
 
