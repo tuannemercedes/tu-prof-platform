@@ -55,9 +55,7 @@ export async function createMaterial(formData: FormData) {
     const arquivo = formData.get("arquivo") as File | null;
     if (!arquivo || arquivo.size === 0) return { error: "Selecione um arquivo PDF." };
     const path = `${materia_id}/${Date.now()}-${arquivo.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from("materiais")
-      .upload(path, arquivo);
+    const { error: uploadError } = await supabase.storage.from("materiais").upload(path, arquivo);
     if (uploadError) return { error: uploadError.message };
     arquivo_path = path;
   } else {
@@ -69,31 +67,36 @@ export async function createMaterial(formData: FormData) {
   if (capa && capa.size > 0) {
     const ext = capa.name.includes(".") ? capa.name.split(".").pop()!.toLowerCase().slice(0, 10) : "jpg";
     const capaPath = `${materia_id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
-    const { error: capaUploadError } = await supabase.storage
-      .from("capas")
-      .upload(capaPath, capa, { contentType: capa.type || undefined });
+    const { error: capaUploadError } = await supabase.storage.from("capas").upload(capaPath, capa, { contentType: capa.type || undefined });
     if (capaUploadError) return { error: `Erro ao enviar a capa: ${capaUploadError.message}` };
     capa_path = capaPath;
   }
 
   const { data: material, error } = await supabase
     .from("materiais")
-    .insert({ materia_id, fase_id, tipo, titulo, conteudo_html, arquivo_path, capa_path, url, visivel_todos, idioma: lerIdioma(formData.get("idioma")) })
+    .insert({
+      materia_id,
+      fase_id,
+      tipo,
+      titulo,
+      conteudo_html,
+      arquivo_path,
+      capa_path,
+      url,
+      visivel_todos,
+      idioma: lerIdioma(formData.get("idioma")),
+    })
     .select("id")
     .single();
 
   if (error) return { error: error.message };
 
   if (turmaIds.length && material) {
-    await supabase
-      .from("material_turmas")
-      .insert(turmaIds.map((turma_id) => ({ material_id: material.id, turma_id })));
+    await supabase.from("material_turmas").insert(turmaIds.map((turma_id) => ({ material_id: material.id, turma_id })));
   }
 
   if (alunoIds.length && material) {
-    await supabase
-      .from("material_alunos")
-      .insert(alunoIds.map((aluno_id) => ({ material_id: material.id, aluno_id })));
+    await supabase.from("material_alunos").insert(alunoIds.map((aluno_id) => ({ material_id: material.id, aluno_id })));
   }
 
   revalidatePath(`/admin/materias/${materia_id}`);
@@ -134,9 +137,7 @@ export async function updateMaterial(formData: FormData) {
   if (capa && capa.size > 0) {
     const ext = capa.name.includes(".") ? capa.name.split(".").pop()!.toLowerCase().slice(0, 10) : "jpg";
     const capaPath = `${materia_id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
-    const { error: capaUploadError } = await supabase.storage
-      .from("capas")
-      .upload(capaPath, capa, { contentType: capa.type || undefined });
+    const { error: capaUploadError } = await supabase.storage.from("capas").upload(capaPath, capa, { contentType: capa.type || undefined });
     if (capaUploadError) return { error: `Erro ao enviar a capa: ${capaUploadError.message}` };
     updates.capa_path = capaPath;
   }
@@ -151,15 +152,11 @@ export async function updateMaterial(formData: FormData) {
   await supabase.from("material_alunos").delete().eq("material_id", id);
 
   if (turmaIds.length) {
-    await supabase
-      .from("material_turmas")
-      .insert(turmaIds.map((turma_id) => ({ material_id: id, turma_id })));
+    await supabase.from("material_turmas").insert(turmaIds.map((turma_id) => ({ material_id: id, turma_id })));
   }
 
   if (alunoIds.length) {
-    await supabase
-      .from("material_alunos")
-      .insert(alunoIds.map((aluno_id) => ({ material_id: id, aluno_id })));
+    await supabase.from("material_alunos").insert(alunoIds.map((aluno_id) => ({ material_id: id, aluno_id })));
   }
 
   revalidatePath(`/admin/materias/${materia_id}`);
@@ -182,17 +179,10 @@ export async function moverParaFase(id: string, materiaId: string, faseId: strin
   revalidatePath(`/admin/materias/${materiaId}`);
 }
 
-export async function moverMaterial(
-  id: string,
-  materiaId: string,
-  faseId: string | null,
-  direcao: "up" | "down"
-) {
+export async function moverMaterial(id: string, materiaId: string, faseId: string | null, direcao: "up" | "down") {
   const supabase = await createClient();
   const query = supabase.from("materiais").select("id").eq("materia_id", materiaId);
-  const { data: materiais } = await (faseId ? query.eq("fase_id", faseId) : query.is("fase_id", null))
-    .order("ordem")
-    .order("created_at");
+  const { data: materiais } = await (faseId ? query.eq("fase_id", faseId) : query.is("fase_id", null)).order("ordem").order("created_at");
 
   if (!materiais) return;
 
@@ -203,9 +193,65 @@ export async function moverMaterial(
   const reordenados = [...materiais];
   [reordenados[index], reordenados[alvo]] = [reordenados[alvo], reordenados[index]];
 
-  await Promise.all(
-    reordenados.map((m, i) => supabase.from("materiais").update({ ordem: i }).eq("id", m.id))
-  );
+  await Promise.all(reordenados.map((m, i) => supabase.from("materiais").update({ ordem: i }).eq("id", m.id)));
 
   revalidatePath(`/admin/materias/${materiaId}`);
+}
+
+// ===== Etapas e materiais: renomear, reordenar, duplicar =====
+
+export async function renomearFase(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const materia_id = String(formData.get("materia_id") || "");
+  const titulo = String(formData.get("titulo") || "").trim();
+  if (!id || !titulo) return;
+  const supabase = await createClient();
+  await supabase.from("fases").update({ titulo }).eq("id", id);
+  revalidatePath(`/admin/materias/${materia_id}`);
+}
+
+export async function moverFase(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const materia_id = String(formData.get("materia_id") || "");
+  const passo = String(formData.get("direcao")) === "cima" ? -1 : 1;
+  const supabase = await createClient();
+  const { data } = await supabase.from("fases").select("id").eq("materia_id", materia_id).order("ordem").order("created_at");
+  const lista = (data ?? []).map((f) => f.id);
+  const i = lista.indexOf(id);
+  const j = i + passo;
+  if (i < 0 || j < 0 || j >= lista.length) return;
+  [lista[i], lista[j]] = [lista[j], lista[i]];
+  await Promise.all(lista.map((fid, ordem) => supabase.from("fases").update({ ordem }).eq("id", fid)));
+  revalidatePath(`/admin/materias/${materia_id}`);
+}
+
+// Copia um material (mesmo lugar, mesmas liberações), logo abaixo do original.
+export async function duplicarMaterial(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const materia_id = String(formData.get("materia_id") || "");
+  const supabase = await createClient();
+  const { data: m } = await supabase
+    .from("materiais")
+    .select(
+      "materia_id, fase_id, tipo, titulo, conteudo_html, arquivo_path, url, ordem, capa_path, idioma, visivel_todos, material_turmas(turma_id), material_alunos(aluno_id)",
+    )
+    .eq("id", id)
+    .single();
+  if (!m) return;
+  const { material_turmas, material_alunos, ...dados } = m as typeof m & {
+    material_turmas: { turma_id: string }[];
+    material_alunos: { aluno_id: string }[];
+  };
+  const { data: novo } = await supabase
+    .from("materiais")
+    .insert({ ...dados, titulo: `${dados.titulo} (cópia)`, ordem: (dados.ordem ?? 0) + 1 })
+    .select("id")
+    .single();
+  if (novo) {
+    if (material_turmas?.length)
+      await supabase.from("material_turmas").insert(material_turmas.map((t) => ({ material_id: novo.id, turma_id: t.turma_id })));
+    if (material_alunos?.length)
+      await supabase.from("material_alunos").insert(material_alunos.map((a) => ({ material_id: novo.id, aluno_id: a.aluno_id })));
+  }
+  revalidatePath(`/admin/materias/${materia_id}`);
 }
