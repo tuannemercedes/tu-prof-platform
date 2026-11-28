@@ -16,12 +16,13 @@ function tempoRelativo(iso: string) {
   return `há ${d}d`;
 }
 
-export default function NotificationBell({ novidades }: { novidades: Novidade[] }) {
+export default function NotificationBell({ novidades, pendencias = [] }: { novidades: Novidade[]; pendencias?: Novidade[] }) {
   const [aberto, setAberto] = useState(false);
   const [visto, setVisto] = useState(false);
   const [, startTransition] = useTransition();
 
-  const totalNaoVisto = visto ? 0 : novidades.length;
+  // Pendências continuam contando até o aluno resolver; novidades zeram quando ele abre o sino.
+  const totalNaoVisto = (visto ? 0 : novidades.length) + pendencias.length;
 
   function toggle() {
     const next = !aberto;
@@ -57,6 +58,24 @@ export default function NotificationBell({ novidades }: { novidades: Novidade[] 
         <>
           <div className="fixed inset-0 z-40" onClick={() => setAberto(false)} />
           <div className="fixed inset-x-4 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-72 max-h-96 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-lg z-50">
+            {pendencias.length > 0 && (
+              <div>
+                <p className="px-3 pt-3 pb-1 m-0 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--gold-text)]">Para fazer</p>
+                <ul className="divide-y divide-[var(--border-soft)]">
+                  {pendencias.map((n) => (
+                    <li key={`p-${n.tipo}-${n.id}`}>
+                      <Link href={n.href} onClick={() => setAberto(false)} className="flex gap-2.5 items-start p-3 text-sm hover:bg-[var(--surface-3)]">
+                        <span className="mt-1.5 w-2 h-2 rounded-full shrink-0 bg-[#d9b866]" aria-hidden="true" />
+                        <span>{n.titulo}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {pendencias.length > 0 && (
+              <p className="px-3 pt-3 pb-1 m-0 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-faint)] border-t border-[var(--border-soft)]">Novidades</p>
+            )}
             {novidades.length ? (
               <ul className="divide-y divide-[var(--border-soft)]">
                 {novidades.map((n) => (
@@ -66,7 +85,7 @@ export default function NotificationBell({ novidades }: { novidades: Novidade[] 
                       onClick={() => setAberto(false)}
                       className="block p-3 text-sm hover:bg-[var(--surface-3)]"
                     >
-                      <p>{n.titulo}</p>
+                      <p className={n.tipo === "correcao" ? "font-semibold" : undefined}>{n.titulo}</p>
                       <p className="text-xs text-[var(--text-faint)] mt-0.5">{tempoRelativo(n.criadoEm)}</p>
                     </Link>
                   </li>

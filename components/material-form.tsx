@@ -12,6 +12,7 @@ const TIPOS = [
   { value: "playlist", label: "Playlist de música" },
   { value: "podcast", label: "Podcast" },
   { value: "link_externo", label: "Link externo" },
+  { value: "missao", label: "Missão (o aluno entrega áudio ou texto)" },
 ];
 
 type Props = {
@@ -112,6 +113,8 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases, turmasP
         </div>
       )}
 
+      {tipo === "missao" && <CamposMissao />}
+
       {tipo === "pdf" && <input type="file" name="arquivo" accept="application/pdf" required className="bg-[var(--surface)] text-sm" />}
 
       <div>
@@ -143,5 +146,29 @@ export default function MaterialForm({ materiaId, turmas, alunos, fases, turmasP
         {isPending ? "Salvando..." : saved ? "✓ Material adicionado!" : "Adicionar material"}
       </button>
     </form>
+  );
+}
+
+export function CamposMissao({ enunciado = "", entrega = "audio_texto" }: { enunciado?: string; entrega?: string }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <textarea
+        name="enunciado"
+        required
+        rows={6}
+        defaultValue={enunciado}
+        placeholder={"O que o aluno deve fazer. Separe parágrafos com uma linha em branco.\n\nVersão profissional: comece um parágrafo assim para ele aparecer em destaque."}
+        className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
+      />
+      <label className="text-xs text-[var(--text-secondary)] flex flex-wrap items-center gap-2">
+        O aluno entrega:
+        <select name="entrega" defaultValue={entrega} className="bg-[var(--surface)] rounded-md border border-[var(--border-strong)] px-2 py-1 text-sm">
+          <option value="audio_texto">Áudio (e texto opcional)</option>
+          <option value="audio">Só áudio</option>
+          <option value="texto">Só texto</option>
+          <option value="feito">Só marcar que fez (sem correção)</option>
+        </select>
+      </label>
+    </div>
   );
 }

@@ -105,6 +105,7 @@ const PREF: Record<string, string | null> = {
   aula_desmarcada: "aulas",
   pedido_remarcacao: null,
   comentario: "comentarios",
+  missao_comentada: "comentarios",
   semana: "semana",
   entrega: "entregas",
   diario: "diario",
@@ -337,6 +338,30 @@ async function montar(tipo: string, dados: Record<string, string>, p: Pessoa): P
     };
   }
 
+  if (tipo === "missao_comentada") {
+    const { data: e } = await db
+      .from("missao_entregas")
+      .select("comentario, comentario_nome, material_id, materiais(titulo, materia_id)")
+      .eq("id", dados.entrega_id)
+      .maybeSingle();
+    const m = (e as unknown as { materiais: { titulo: string; materia_id: string } | null } | null)?.materiais;
+    if (!e?.comentario || !m) return null;
+    const quem = e.comentario_nome || (await nomeProfessorDe(p));
+    return {
+      assunto: `${quem} comentou a sua Missão`,
+      html: modelo({
+        sobretitulo: "Retorno da Missão",
+        titulo: `${quem} comentou a sua Missão`,
+        blocos: [
+          { rotulo: "Missão", texto: esc(m.titulo.replace(/^Missão Chave · /, "")) },
+          { rotulo: "Comentário", texto: esc(e.comentario).replace(/\n/g, "<br>") },
+        ],
+        botao: { texto: "Ver na aula", url: `${APP}/aluno/materias/${m.materia_id}#material-${e.material_id}` },
+        rodape: rodapeAluno,
+      }),
+    };
+  }
+
   if (tipo === "entrega") {
     const [{ data: t }, { data: e }, { data: a }] = await Promise.all([
       db.from("tarefas").select("texto").eq("id", dados.tarefa_id).maybeSingle(),
@@ -460,10 +485,23 @@ async function montar(tipo: string, dados: Record<string, string>, p: Pessoa): P
     });
     const deHoje = minhas.filter((a) => diaLocal(new Date(a.data)) === hoje && a.status === "agendada");
     const semRegistro = minhas.filter((a) => diaLocal(new Date(a.data)) < hoje && a.status === "agendada");
-    if (!deHoje.length && !semRegistro.length) return null;
+    // Missões esperando comentário: a admin vê todas; o professor, as dos alunos dele.
+    const { data: missoes } = await db
+      .from("missao_entregas")
+      .select("created_at, profiles!missao_entregas_aluno_id_fkey(professor_id)")
+      .is("comentario_em", null)
+      .eq("precisa_correcao", true);
+    type M = { created_at: string; profiles: { professor_id: string | null } | null };
+    const minhasMissoes = ((missoes ?? []) as unknown as M[]).filter((m) => ehAdmin || m.profiles?.professor_id === p.id);
+    const atrasadas = minhasMissoes.filter((m) => diaLocal(new Date(m.created_at)) <= somarDias(hoje, -3)).length;
+    if (!deHoje.length && !semRegistro.length && !minhasMissoes.length) return null;
     const quem = (a: A) => (a.aluno_id ? a.profiles?.nome : a.turmas?.nome) ?? "";
     return {
-      assunto: deHoje.length ? `Hoje: ${deHoje.length} ${deHoje.length === 1 ? "aula" : "aulas"}` : "Aulas para registrar",
+      assunto: deHoje.length
+        ? `Hoje: ${deHoje.length} ${deHoje.length === 1 ? "aula" : "aulas"}${minhasMissoes.length ? ` e ${minhasMissoes.length} ${minhasMissoes.length === 1 ? "Missão" : "Missões"}` : ""}`
+        : semRegistro.length
+          ? "Aulas para registrar"
+          : `${minhasMissoes.length} ${minhasMissoes.length === 1 ? "Missão para comentar" : "Missões para comentar"}`,
       html: modelo({
         sobretitulo: "Seu dia na Tu Prof",
         titulo: `Bom dia${nome ? `, ${nome}` : ""}`,
@@ -471,6 +509,9 @@ async function montar(tipo: string, dados: Record<string, string>, p: Pessoa): P
           ...(deHoje.length ? [{ rotulo: "Aulas de hoje", texto: deHoje.map((a) => `<b>${esc(hora(a.data))}</b> · ${esc(quem(a))} · ${esc(a.tema)}`).join("<br>") }] : []),
           ...(semRegistro.length
             ? [{ rotulo: "Já passaram e faltam registrar", texto: semRegistro.map((a) => `${esc(fmt({ day: "2-digit", month: "2-digit" }).format(new Date(a.data)))} · ${esc(quem(a))} · ${esc(a.tema)}`).join("<br>") }]
+            : []),
+          ...(minhasMissoes.length
+            ? [{ rotulo: "Missões para comentar", texto: `<b>${minhasMissoes.length}</b> ${minhasMissoes.length === 1 ? "entrega espera" : "entregas esperam"} o seu comentário${atrasadas ? ` · ${atrasadas} há mais de 2 dias` : ""}. <a href="${APP}/admin/missoes">Abrir a fila</a>` }]
             : []),
         ],
         botao: { texto: "Abrir o painel", url: `${APP}/admin` },

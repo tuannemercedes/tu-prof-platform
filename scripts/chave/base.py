@@ -68,6 +68,7 @@ def montar_aula(mod, a, rodape):
             video(f"Vídeo · {a['titulo']}"),
             {"tipo": "html", "titulo": f"Exercícios ({total})", "url": url_ex, "exercicios": total},
             {"tipo": "html", "titulo": "Ficha, Banco Chave e Missão", "url": url_ficha},
+            missao(f"Missão Chave · {a['missao'][0]}", a["missao"][1], a["prof"], a.get("entrega", "audio_texto")),
         ],
     }
 
@@ -84,3 +85,11 @@ def semaforo(itens):
 
 def checklist(itens):
     return '<div class="check">' + "".join(f'<label><input type="checkbox"> {t}</label>' for t in itens) + "</div>"
+
+
+def missao(titulo, texto, prof=None, entrega="audio_texto"):
+    """Item de entrega: o aluno grava (ou escreve) e a equipe comenta."""
+    enunciado = texto
+    if prof:
+        enunciado += f"\n\nVersão profissional: {prof[0]}. {prof[1]}"
+    return {"tipo": "missao", "titulo": titulo, "url": None, "enunciado": enunciado, "entrega": entrega}

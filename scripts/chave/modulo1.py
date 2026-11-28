@@ -1,5 +1,5 @@
 """Espanhol Chave · Módulo 1 · Primeiros contatos (roteiro de 27/11/2026)."""
-from base import checklist, corr, fill, match, mc, montar_aula, multi, order, semaforo, vf, video
+from base import missao, checklist, corr, fill, match, mc, montar_aula, multi, order, semaforo, vf, video
 from gerar import audio, pagina_exercicios, pagina_livre, tabela
 
 R = "Espanhol Chave · Módulo 1"
@@ -8,6 +8,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 1
     {
         "n": 1,
+        "entrega": "texto",
         "titulo": "O espanhol não é português com sotaque",
         "lead": "Separe o que é transparente do que engana. Em reuniões e e-mails, os falsos amigos são os erros que mais confundem.",
         "historia": [
@@ -26,7 +27,7 @@ AULAS = [
             mc("Uma colega de Lima conta na reunião de equipe: «¡Estoy embarazada!». Ela está:", ["grávida", "envergonhada", "atrasada"], 0, "Embarazada é grávida. Envergonhada é <b>avergonzada</b>. Esse é um dos falsos amigos mais conhecidos."),
             mc("No e-mail: «Nuestra oficina de Monterrey abre a las ocho». A empresa tem em Monterrey:", ["um escritório", "uma oficina de carros", "um depósito"], 0, "Oficina continua sendo escritório, também no contexto corporativo."),
         ],
-        "missao": ("Caçada de palavras", "Abra o site de um restaurante, uma loja ou um jornal em espanhol. Encontre cinco palavras transparentes e uma que pareça falso amigo. Escreva as seis com o que você acha que significam e envie na tarefa da aula."),
+        "missao": ("Caçada de palavras", "Abra o site de um restaurante, uma loja ou um jornal em espanhol. Encontre cinco palavras transparentes e uma que pareça falso amigo. Escreva as seis com o que você acha que significam e envie aqui."),
         "prof": ("O site de um concorrente ou cliente", "Faça a mesma caçada no site de uma empresa do seu setor no México, na Colômbia ou na Espanha: cinco palavras que você entendeu de cara e uma que te enganou. É um ótimo jeito de começar a montar o vocabulário da sua área."),
         "ficha": tabela(["Espanhol", "Parece", "Significa"], [["apellido", "apelido", "sobrenome"], ["oficina", "oficina mecânica", "escritório"], ["un rato", "um rato", "um momento"], ["exquisito", "esquisito", "delicioso"], ["embarazada", "envergonhada", "grávida"]])
         + '<div class="card"><p class="k">Três tipos de palavras</p><ul class="lista"><li><b>Transparentes:</b> nacionalidad, teléfono, empresa.</li><li><b>Parecidas:</b> correo electrónico (e-mail), fecha (data).</li><li><b>Perigosas:</b> os falsos amigos. Desconfie do que parece igual.</li></ul></div>',
@@ -92,6 +93,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 4
     {
         "n": 4,
+        "entrega": "texto",
         "titulo": "Tú ou usted: com quem você está falando",
         "lead": "Escolher o tratamento certo é a primeira decisão de qualquer conversa profissional em espanhol.",
         "historia": [
@@ -138,7 +140,7 @@ AULAS = [
             mc("Para perguntar o nome de um cliente que você acaba de conhecer:", ["¿Cómo se llama?", "¿Cómo te llamas?", "¿Cuál es tu nombre?"], 0, "Com usted: ¿Cómo se llama? Também é comum ¿Me recuerda su nombre?"),
             order("Monte a sua primeira frase numa call:", "Hola, me llamo Paula y soy de São Paulo.", "Nome e origem numa frase só."),
         ],
-        "missao": ("30 segundos sobre você", "Grave um áudio de 30 segundos: cumprimento, nome, de onde é, onde mora e «mucho gusto». Entregue na tarefa da aula."),
+        "missao": ("30 segundos sobre você", "Grave um áudio de 30 segundos: cumprimento, nome, de onde é, onde mora e «mucho gusto». Envie aqui."),
         "prof": ("A sua linha de abertura", "Escreva como você se apresentaria no início de uma call com um cliente novo: cumprimento, nome, cidade e «encantado/encantada». Depois, a versão com usted para perguntar o nome dele."),
         "ficha": tabela(["", "llamarse", "ser", "vivir"], [["yo", "me llamo", "soy", "vivo"], ["tú", "te llamas", "eres", "vives"], ["usted, él, ella", "se llama", "es", "vive"]])
         + '<div class="card"><p class="k">Perguntas</p><table><tr><th>tú</th><th>usted</th></tr><tr><td>¿Cómo te llamas?</td><td>¿Cómo se llama?</td></tr><tr><td>¿De dónde eres?</td><td>¿De dónde es?</td></tr><tr><td>¿Dónde vives?</td><td>¿Dónde vive?</td></tr></table></div>',
@@ -204,6 +206,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 8
     {
         "n": 8,
+        "entrega": "feito",
         "titulo": "¿Cómo estás?: ser e estar no primeiro contato",
         "lead": "Ser para quem você é, estar para como você está. A distinção que mais aparece já nas primeiras conversas.",
         "historia": [
@@ -261,6 +264,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 10
     {
         "n": 10,
+        "entrega": "feito",
         "titulo": "Frases para não travar",
         "lead": "Pedir repetição, calma, significado e tradução. Saber pedir ajuda é o que mantém uma reunião andando.",
         "historia": [
@@ -361,13 +365,16 @@ def revisao():
 
 
 def checkpoint():
-    url = pagina_livre("m1/checkpoint.html", "Módulo 1 · Checkpoint", "Minha apresentação em seis frases", "A tarefa que fecha o módulo e libera o Módulo 2. Envie na aba Plano → Tarefas. Não tem nota: a correção humana chega no Desafio da Base, ao fim do Módulo 4.",
+    url = pagina_livre("m1/checkpoint.html", "Módulo 1 · Checkpoint", "Minha apresentação em seis frases", "A tarefa que fecha o módulo e libera o Módulo 2. Grave e envie no item seguinte, «Entregar o Checkpoint». Não tem nota: a correção humana chega no Desafio da Base, ao fim do Módulo 4.",
         '<div class="grid2"><div class="card"><p class="k">Versão guiada</p><p style="margin:0">Hola, me llamo ___. Soy ___ (nacionalidade), de ___. Vivo en ___. Soy ___ / Trabajo en ___. Hoy estoy ___. Mucho gusto.</p></div>'
         + '<div class="card dark"><p class="k">Versão oral · recomendada</p><p style="margin:0">Um áudio de até um minuto com as seis frases, sem ler, se possível.</p></div></div>'
         + '<div class="card"><p class="k">Versão profissional</p><p style="margin:0">As seis frases como você diria na abertura de uma reunião com um cliente novo, com usted: «Buenos días. Mi nombre es… Soy… Trabajo en el área de… de… Es un placer conocerlos.»</p></div>'
         + '<div class="card"><p class="k">Modelo · a Camila</p><p class="es" style="margin:0">Hola, me llamo Camila Rocha. Soy brasileña, de Belo Horizonte. Ahora vivo en la Ciudad de México. Soy diseñadora. Trabajo en una agencia de publicidad. Hoy estoy muy bien, ¡y un poco cansada! Mucho gusto.</p></div>'
         + '<div class="card"><p class="k">Antes de enviar</p>' + checklist(["Usei «me llamo» ou «soy» sem artigo antes do nome", "Escrevi a nacionalidade com minúscula e no gênero certo", "Usei «vivo en», e não «moro en»", "Usei «soy» para a profissão e «estoy» para como estou", "Falei as vogais finais sem fechar (Pablo, noche)", "Comparei com a minha gravação de partida"]) + "</div>", R)
-    return {"titulo": "Checkpoint · Minha apresentação", "itens": [{"tipo": "html", "titulo": "Checkpoint: minha apresentação em seis frases", "url": url}]}
+    return {"titulo": "Checkpoint · Minha apresentação", "itens": [
+        {"tipo": "html", "titulo": "Checkpoint: minha apresentação em seis frases", "url": url},
+        missao("Entregar o Checkpoint do Módulo 1", "Grave a sua apresentação em seis frases, de preferência sem ler: cumprimento, nome, nacionalidade e cidade, onde vive, o que faz e como está hoje. Até um minuto.\n\nAntes de enviar, confira a lista da página anterior e compare com a sua gravação de partida.", ("A abertura de uma reunião", "Se quiser, grave também a versão com usted, como na abertura de uma reunião com um cliente novo."), "audio"),
+    ]}
 
 
 def gerar():

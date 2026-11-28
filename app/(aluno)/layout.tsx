@@ -3,7 +3,7 @@ import { requireAluno, getUser } from "@/lib/dal";
 import AlunoNav from "@/components/aluno-nav";
 import BarraVoltar from "@/components/barra-voltar";
 import { createClient } from "@/lib/supabase/server";
-import { getNovidadesParaAluno } from "@/lib/notificacoes";
+import { getNovidadesParaAluno, getPendenciasDoAluno } from "@/lib/notificacoes";
 import { getIdiomaDoAluno } from "@/lib/idioma";
 
 export default async function AlunoLayout({ children }: { children: React.ReactNode }) {
@@ -11,9 +11,10 @@ export default async function AlunoLayout({ children }: { children: React.ReactN
   const user = await getUser();
 
   const supabase = await createClient();
-  const [{ data: config }, novidades, idioma] = await Promise.all([
+  const [{ data: config }, novidades, pendencias, idioma] = await Promise.all([
     supabase.from("configuracoes").select("chave, valor"),
     getNovidadesParaAluno(supabase, user!.id, profile.ultimo_acesso_novidades),
+    getPendenciasDoAluno(supabase, user!.id),
     getIdiomaDoAluno(supabase, user!.id),
   ]);
 
@@ -26,6 +27,7 @@ export default async function AlunoLayout({ children }: { children: React.ReactN
         nome={primeiroNome}
         idioma={idioma}
         novidades={novidades}
+        pendencias={pendencias}
         appUrl={valor("app_treino_url")}
         appLabel={valor("app_treino_label")}
         contatoUrl={valor("contato_url")}

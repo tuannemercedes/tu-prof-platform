@@ -5,6 +5,7 @@ import { getEmbedUrl } from "@/lib/embed";
 import ProgressCheckbox from "./progress-checkbox";
 import AccessTracker from "./access-tracker";
 import IconeTipo from "./icone-tipo";
+import type { EntregaMissao } from "./missao-entrega";
 
 export const TIPO_LABELS: Record<string, string> = {
   html: "Página interativa",
@@ -13,6 +14,7 @@ export const TIPO_LABELS: Record<string, string> = {
   playlist: "Playlist",
   podcast: "Podcast",
   link_externo: "Link",
+  missao: "Missão",
 };
 
 export type MaterialCardData = {
@@ -24,6 +26,8 @@ export type MaterialCardData = {
   signedUrl: string | null;
   concluido: boolean;
   capaUrl?: string | null;
+  entrega?: string | null;
+  entregas?: EntregaMissao[];
 };
 
 // Página pronta guardada no site (ex.: /chave/m1/a01-exercicios.html).

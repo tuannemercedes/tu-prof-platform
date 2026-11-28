@@ -1,5 +1,5 @@
 """Espanhol Chave · Módulo 2 · Minha rotina, meu trabalho (roteiro de 27/11/2026)."""
-from base import checklist, corr, fill, match, mc, montar_aula, multi, order, semaforo, vf, video
+from base import missao, checklist, corr, fill, match, mc, montar_aula, multi, order, semaforo, vf, video
 from gerar import audio, pagina_exercicios, pagina_livre, tabela
 
 R = "Espanhol Chave · Módulo 2"
@@ -8,6 +8,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 1
     {
         "n": 1,
+        "entrega": "texto",
         "titulo": "O presente que move a rotina: verbos em -ar",
         "lead": "Trabajar, hablar, llegar, terminar: os verbos que contam o seu dia e o da sua equipe.",
         "historia": [
@@ -63,6 +64,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 3
     {
         "n": 3,
+        "entrega": "texto",
         "titulo": "Me levanto, me ducho: a rotina da manhã",
         "lead": "Os verbos reflexivos não perdem o pronome. É o que separa «me levanto» de «levanto algo».",
         "historia": [
@@ -118,6 +120,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 5
     {
         "n": 5,
+        "entrega": "texto",
         "titulo": "Siempre, a veces, nunca: com que frequência",
         "lead": "Hábitos, rotinas de equipe e a dupla negação que o espanhol aceita.",
         "historia": [
@@ -201,6 +204,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 8
     {
         "n": 8,
+        "entrega": "feito",
         "titulo": "Me gusta, me encanta: gostos sem traduzir",
         "lead": "O gustar funciona ao contrário do português. É o erro mais clássico do brasileiro, inclusive em conversas de networking.",
         "historia": [
@@ -355,12 +359,15 @@ def revisao():
 def checkpoint():
     perguntas = [("¿A qué te dedicas y dónde trabajas?", "Soy diseñadora. Trabajo a distancia para una agencia."), ("¿A qué hora empiezas a trabajar?", "Empiezo a las nueve y media."), ("¿Qué haces por la mañana?", "Me levanto temprano, me ducho y desayuno."), ("¿Con qué frecuencia haces ejercicio?", "Practico yoga dos veces por semana."), ("¿Qué haces los fines de semana?", "Voy al parque y a veces voy al cine."), ("¿Qué te gusta comer?", "Me encantan los tacos, pero no me gusta el picante."), ("¿Tienes hermanos?", "Sí, tengo un hermano. Se llama Lucas."), ("¿Qué extrañas de tu ciudad? ¿O qué te gusta de ella?", "Extraño a mi familia y el pan de queso.")]
     linhas = [[f'<button type="button" class="ouvir" data-ouvir="{audio(p)}">▶</button> <span class="es">{p}</span>', r] for p, r in perguntas]
-    url = pagina_livre("m2/checkpoint.html", "Módulo 2 · Checkpoint", "Minha semana em espanhol", "A Valeria agora entrevista você. Ouça cada pergunta e responda em áudio, uma de cada vez. Envie na aba Plano → Tarefas. Não tem nota: a correção humana chega no Desafio da Base.",
+    url = pagina_livre("m2/checkpoint.html", "Módulo 2 · Checkpoint", "Minha semana em espanhol", "A Valeria agora entrevista você. Ouça cada pergunta e responda em áudio, uma de cada vez. Grave e envie no item seguinte, «Entregar o Checkpoint». Não tem nota: a correção humana chega no Desafio da Base.",
         tabela(["A Valeria pergunta", "Modelo da Camila"], linhas)
         + '<div class="grid2"><div class="card"><p class="k">Versões</p><ul class="lista"><li><b>Guiada:</b> por escrito, com os modelos visíveis.</li><li><b>Oral (recomendada):</b> em áudio, sem ler.</li><li><b>Ampliada:</b> depois de cada resposta, uma pergunta de volta («¿y tú?»).</li></ul></div>'
         + '<div class="card dark"><p class="k">Versão profissional</p><p style="margin:0">Responda às perguntas 1, 2, 4 e 5 pensando no seu trabalho: cargo, horário, rotinas fixas da equipe e o que você faz quando não está trabalhando.</p></div></div>'
         + '<div class="card"><p class="k">Antes de enviar</p>' + checklist(["Usei o pronome nos reflexivos (me levanto)", "Usei «tengo» para idade e sensações", "Usei «me gusta» ou «me gustan», nunca «yo gusto»", "Usei «nosotros vivimos», e não «vivemos»", "Fiz o R forte em palavras como «Rocha» e «perro»", "Comparei com o meu áudio «Mi lunes» da Aula 4"]) + "</div>", R)
-    return {"titulo": "Checkpoint · Minha semana em espanhol", "itens": [{"tipo": "html", "titulo": "Checkpoint: as perguntas da Valeria", "url": url}]}
+    return {"titulo": "Checkpoint · Minha semana em espanhol", "itens": [
+        {"tipo": "html", "titulo": "Checkpoint: as perguntas da Valeria", "url": url},
+        missao("Entregar o Checkpoint do Módulo 2", "Responda em áudio às oito perguntas da Valeria, uma depois da outra, como numa conversa. Ouça cada pergunta na página anterior, pause e responda. Até três minutos no total.\n\nNa versão ampliada, depois de cada resposta, faça uma pergunta de volta («¿y tú?»).", ("A sua semana de trabalho", "Nas perguntas 1, 2, 4 e 5, responda pensando no seu trabalho: cargo, horário, rotinas fixas da equipe."), "audio"),
+    ]}
 
 
 def gerar():

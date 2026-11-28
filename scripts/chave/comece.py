@@ -1,5 +1,6 @@
 """Espanhol Chave · Comece aqui (roteiro de 27/11/2026)."""
 from gerar import pagina_livre, tabela
+from base import missao
 
 R = "Espanhol Chave · Comece aqui"
 
@@ -17,7 +18,7 @@ def gerar():
         """
 <div class="missao"><p class="k">Para todos · 1 a 3 min</p><h3>A gravação de partida: <span class="es">¿Quién eres?</span></h3>
 <p>Grave um áudio de até um minuto respondendo <b>¿Quién eres?</b> (quem é você?). Fale como conseguir, sem preparar. Pode misturar português, pode travar.</p>
-<p style="margin:0">Ninguém vai avaliar este áudio. Ele fica guardado e volta para você no fim de cada etapa, para você ouvir o quanto mudou. Envie pela aba <b>Plano → Tarefas</b>.</p></div>
+<p style="margin:0">Ninguém vai avaliar este áudio. Ele fica guardado e volta para você no fim de cada etapa, para você ouvir o quanto mudou. Grave e envie no item seguinte, <b>«Gravação de partida»</b>.</p></div>
 <div class="grid2">
 <div class="card"><p class="k">Se você já estudou espanhol</p><h3>Teste de Ponto de Partida</h3><p style="margin:0">Três blocos de 12 questões, um por etapa, e uma gravação curta. Com 80% ou mais num bloco, os módulos daquela etapa ficam como revisão opcional. O monitor ouve a gravação e confirma o seu ponto de início em até um dia útil.</p></div>
 <div class="card dark"><p class="k">O que não muda</p><h3>Certificado e Club</h3><p style="margin:0">Para o certificado continuam valendo todos os Checkpoints e os três Desafios Finais. Quem começa na Ampliação faz o Desafio da Base para liberar o Club Hispano.</p></div>
@@ -57,7 +58,7 @@ def gerar():
 <div class="card"><h3>Seu acesso</h3><p style="margin:0">12 meses de acesso ao Espanhol Chave, contados a partir da compra. Nesse período, você assiste às aulas quantas vezes quiser.</p></div>
 <div class="card"><h3>Garantia</h3><p style="margin:0">Nos primeiros 7 dias, se a formação não for para você, devolvemos 100% do valor. É só falar com a gente.</p></div>
 <div class="card"><h3>Certificado</h3><p style="margin:0">Ao concluir os 12 módulos, com os Checkpoints, os três Desafios Finais e a gravação final.</p></div>
-<div class="card"><h3>Monitor</h3><p style="margin:0">Dúvidas sobre as aulas por texto, áudio de até 2 minutos ou vídeo de pronúncia, com resposta em até 1 dia útil. A correção completa dos seus textos e áudios acontece nos Desafios Finais.</p></div>
+<div class="card"><h3>Dúvidas e Missões</h3><p style="margin:0">Dúvidas sobre as aulas, no WhatsApp ou na central de dúvidas, por texto, áudio de até 2 minutos ou vídeo de pronúncia: resposta em até 1 dia útil. Missões que pedem correção recebem um comentário em até 2 dias úteis, na própria aula. As de «só marcar que fez» não têm correção. A correção completa dos seus textos e áudios acontece nos Desafios Finais.</p></div>
 <div class="card"><h3>Club Hispano</h3><p style="margin:0">Liberado ao concluir a Base. Encontro semanal ao vivo; quem perde um encontro participa do seguinte, sem reposição.</p></div>
 <div class="card"><h3>Comunidade</h3><p style="margin:0">Respeito sempre. Tente em espanhol, sem medo de errar. Dúvidas individuais vão para o monitor. Nada de divulgação ou venda no grupo.</p></div>
 </div>
@@ -78,6 +79,7 @@ def gerar():
             ]},
             {"titulo": "Antes da primeira aula", "itens": [
                 {"tipo": "html", "titulo": "Ponto de partida: ¿Quién eres?", "url": partida},
+                missao("Gravação de partida · ¿Quién eres?", "Grave um áudio de até um minuto respondendo: ¿Quién eres? (quem é você?). Fale como conseguir, sem preparar. Pode misturar português, pode travar.\n\nNinguém vai avaliar este áudio. Ele fica guardado e volta para você no fim de cada etapa, para você ouvir o quanto mudou.", None, "audio"),
                 {"tipo": "html", "titulo": "Monte sua semana", "url": semana},
                 {"tipo": "html", "titulo": "Combinados", "url": combinados},
             ]},

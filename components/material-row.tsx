@@ -5,6 +5,7 @@ import CampoIdioma from "./campo-idioma";
 import { duplicarMaterial, salvarLinkVideo, updateMaterial } from "@/app/(admin)/admin/(gestao)/materias/[id]/actions";
 import BotaoConfirmar from "./botao-confirmar";
 import SubmitButton from "./submit-button";
+import { CamposMissao } from "./material-form";
 import LiberacaoFields from "./liberacao-fields";
 
 const TIPO_LABELS: Record<string, string> = {
@@ -22,6 +23,7 @@ type Material = {
   tipo: string;
   conteudo_html: string | null;
   url: string | null;
+  entrega?: string | null;
   fase_id: string | null;
   visivel_todos: boolean;
   idioma?: string | null;
@@ -195,6 +197,8 @@ export default function MaterialRow({
             required
             className="bg-[var(--surface)] w-full rounded-md border border-[var(--border-strong)] px-3 py-2 text-sm"
           />
+
+          {material.tipo === "missao" && <CamposMissao enunciado={material.conteudo_html ?? ""} entrega={material.entrega ?? "audio_texto"} />}
 
           {material.tipo === "html" && !material.conteudo_html && material.url && (
             <>
