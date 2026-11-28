@@ -91,7 +91,7 @@ const ITENS_PROFESSOR: Item[] = [
   ITENS_ADMIN[3],
 ];
 
-export default function EquipeSidebar({ nome, papel }: { nome: string; papel: string }) {
+export default function EquipeSidebar({ nome, papel, contagens = {} }: { nome: string; papel: string; contagens?: Record<string, number> }) {
   const pathname = usePathname();
   const [menuAberto, setMenuAberto] = useState(false);
   const itens = papel === "admin" ? ITENS_ADMIN : ITENS_PROFESSOR;
@@ -147,6 +147,14 @@ export default function EquipeSidebar({ nome, papel }: { nome: string; papel: st
                 {ICONES[item.chave]}
               </svg>
               <span className="barra-texto">{item.label}</span>
+              {(contagens[item.chave] ?? 0) > 0 && (
+                <span
+                  className="ml-auto min-w-[22px] h-[22px] px-1.5 rounded-full bg-[#d9b866] text-[#0e1b33] text-[11px] font-bold flex items-center justify-center"
+                  aria-label={`${contagens[item.chave]} aguardando`}
+                >
+                  {contagens[item.chave]! > 99 ? "99+" : contagens[item.chave]}
+                </span>
+              )}
             </Link>
           );
         })}

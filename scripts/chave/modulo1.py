@@ -206,6 +206,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 8
     {
         "n": 8,
+        "entrega": "feito",
         "titulo": "¿Cómo estás?: ser e estar no primeiro contato",
         "lead": "Ser para quem você é, estar para como você está. A distinção que mais aparece já nas primeiras conversas.",
         "historia": [
@@ -263,6 +264,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 10
     {
         "n": 10,
+        "entrega": "feito",
         "titulo": "Frases para não travar",
         "lead": "Pedir repetição, calma, significado e tradução. Saber pedir ajuda é o que mantém uma reunião andando.",
         "historia": [

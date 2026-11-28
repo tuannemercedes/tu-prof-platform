@@ -15,6 +15,7 @@ type Props = {
   nome: string;
   idioma: { atual: "espanhol" | "ingles"; opcoes: ("espanhol" | "ingles")[] };
   novidades?: Novidade[];
+  pendencias?: Novidade[];
   appUrl?: string | null;
   appLabel?: string | null;
   contatoUrl?: string | null;
@@ -101,7 +102,7 @@ function Icone({ nome, ativo }: { nome: string; ativo: boolean }) {
   );
 }
 
-function LinksExtras({ appUrl, appLabel, contatoUrl, contatoLabel }: Omit<Props, "nome" | "novidades" | "idioma" | "base" | "previa">) {
+function LinksExtras({ appUrl, appLabel, contatoUrl, contatoLabel }: Omit<Props, "nome" | "novidades" | "pendencias" | "idioma" | "base" | "previa">) {
   return (
     <>
       {appUrl && (
@@ -128,7 +129,7 @@ function LinksExtras({ appUrl, appLabel, contatoUrl, contatoLabel }: Omit<Props,
   );
 }
 
-export default function AlunoNav({ nome, novidades = [], idioma: idiomaBase, base = "/aluno", previa = false, ...extras }: Props) {
+export default function AlunoNav({ nome, novidades = [], pendencias = [], idioma: idiomaBase, base = "/aluno", previa = false, ...extras }: Props) {
   const pathname = usePathname();
   const pedido = useSearchParams().get("idioma");
   // Na prévia o idioma escolhido vem do endereço.
@@ -193,7 +194,7 @@ export default function AlunoNav({ nome, novidades = [], idioma: idiomaBase, bas
               Meu perfil
             </Link>
             <div className="barra-topo flex items-center gap-3">
-              {!previa && <NotificationBell novidades={novidades} />}
+              {!previa && <NotificationBell novidades={novidades} pendencias={pendencias} />}
               <ThemeToggle />
             </div>
           </div>
@@ -207,7 +208,7 @@ export default function AlunoNav({ nome, novidades = [], idioma: idiomaBase, bas
       <header className="sm:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-[var(--navy)] text-[var(--on-navy)]">
         <Logo className="h-6" />
         <div className="flex items-center gap-2">
-          {!previa && <NotificationBell novidades={novidades} />}
+          {!previa && <NotificationBell novidades={novidades} pendencias={pendencias} />}
           <button
             type="button"
             onClick={() => setMaisAberto(true)}

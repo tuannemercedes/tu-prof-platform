@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { diasUteisDesde, PRAZO_MISSAO_DIAS_UTEIS } from "@/lib/dias-uteis";
 import { createClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/dal";
 import { getResumoEquipe } from "@/lib/equipe";
@@ -81,7 +82,27 @@ export default async function EquipeInicioPage({
       ];
 
   type Alerta = { chave: string; titulo: string; meta: string; acao: string; cor: string; href: string };
+  // Missões esperando comentário (a RLS já limita o professor aos alunos dele).
+  const { data: missoesAbertas } = await supabase
+    .from("missao_entregas")
+    .select("created_at")
+    .is("comentario_em", null)
+    .eq("precisa_correcao", true);
+  const missoesAtrasadas = (missoesAbertas ?? []).filter((m) => diasUteisDesde(m.created_at) >= PRAZO_MISSAO_DIAS_UTEIS).length;
+
   const alertas: Alerta[] = [
+    ...((missoesAbertas ?? []).length
+      ? [
+          {
+            chave: "missoes",
+            titulo: `${(missoesAbertas ?? []).length} ${(missoesAbertas ?? []).length === 1 ? "Missão espera" : "Missões esperam"} comentário`,
+            meta: missoesAtrasadas ? `${missoesAtrasadas} passaram do prazo de ${PRAZO_MISSAO_DIAS_UTEIS} dias úteis` : `Prazo: ${PRAZO_MISSAO_DIAS_UTEIS} dias úteis`,
+            acao: "Corrigir",
+            cor: missoesAtrasadas ? "#c2553e" : "#d9b866",
+            href: "/admin/missoes",
+          },
+        ]
+      : []),
     ...financeiro.atrasadas.map((c, i) => ({
       chave: `fin-${i}`,
       titulo: `Pagamento em atraso: ${c.cliente}`,

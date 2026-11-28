@@ -4,6 +4,7 @@ import { requireStaff } from "@/lib/dal";
 import SubmitButton from "@/components/submit-button";
 import { dataHora } from "@/lib/data-hora";
 import { comentarMissao } from "./actions";
+import { diasUteisDesde, PRAZO_MISSAO_DIAS_UTEIS } from "@/lib/dias-uteis";
 
 type Filtro = "pendentes" | "comentadas" | "todas";
 
@@ -28,16 +29,16 @@ export default async function MissoesPage({ searchParams }: { searchParams: Prom
   let q = supabase
     .from("missao_entregas")
     .select(
-      "id, created_at, texto, audio_path, comentario, comentario_em, comentario_nome, aluno_id, aluno:profiles!missao_entregas_aluno_id_fkey(nome), material:materiais(titulo, materia_id, fase:fases(titulo), materia:materias(titulo))",
+      "id, created_at, texto, audio_path, comentario, comentario_em, comentario_nome, precisa_correcao, aluno_id, aluno:profiles!missao_entregas_aluno_id_fkey(nome), material:materiais(titulo, materia_id, fase:fases(titulo), materia:materias(titulo))",
     )
     .order("created_at", { ascending: filtro === "pendentes" })
     .limit(100);
-  if (filtro === "pendentes") q = q.is("comentario_em", null);
+  if (filtro === "pendentes") q = q.is("comentario_em", null).eq("precisa_correcao", true);
   if (filtro === "comentadas") q = q.not("comentario_em", "is", null);
   if (aluno) q = q.eq("aluno_id", aluno);
   const [{ data: entregas }, { count: pendentes }] = await Promise.all([
     q,
-    supabase.from("missao_entregas").select("id", { count: "exact", head: true }).is("comentario_em", null),
+    supabase.from("missao_entregas").select("id", { count: "exact", head: true }).is("comentario_em", null).eq("precisa_correcao", true),
   ]);
 
   const lista = await Promise.all(
@@ -54,8 +55,9 @@ export default async function MissoesPage({ searchParams }: { searchParams: Prom
       <div className="flex flex-col gap-1.5">
         <h1 className="m-0 font-serif font-semibold text-[40px] leading-[1.05]">Missões</h1>
         <p className="m-0 text-[15px] text-[var(--text-secondary)] max-w-2xl">
-          As Missões que os alunos entregaram nas aulas. Ouça, deixe um comentário curto de correção e ele aparece para o aluno na própria aula. O
-          combinado é responder em até 1 dia útil; as mais antigas aparecem primeiro.
+          As Missões que os alunos entregaram nas aulas. Ouça, deixe um comentário curto de correção e ele aparece para o aluno na própria aula
+          (e chega por e-mail). O combinado é comentar em até {PRAZO_MISSAO_DIAS_UTEIS} dias úteis; as mais antigas aparecem primeiro. Missões de
+          «só marcar que fez» não entram aqui: aparecem em Todas.
         </p>
       </div>
 
@@ -88,7 +90,7 @@ export default async function MissoesPage({ searchParams }: { searchParams: Prom
           {lista.map((e) => {
             const al = um(e.aluno as Rel<{ nome: string | null }>);
             const mat = um(e.material as Rel<{ titulo: string; materia_id: string; fase: Rel<{ titulo: string }>; materia: Rel<{ titulo: string }> }>);
-            const atrasada = !e.comentario_em && horasDesde(e.created_at) > 24;
+            const atrasada = !e.comentario_em && e.precisa_correcao && diasUteisDesde(e.created_at) >= PRAZO_MISSAO_DIAS_UTEIS;
             return (
               <article key={e.id} className="rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-5 flex flex-col gap-3">
                 <header className="flex flex-wrap items-baseline justify-between gap-2">
@@ -101,7 +103,8 @@ export default async function MissoesPage({ searchParams }: { searchParams: Prom
                     </span>
                   </div>
                   <span className={`text-xs font-semibold ${atrasada ? "text-[var(--warning-text)]" : "text-[var(--text-secondary)]"}`}>
-                    Enviada em {dataHora(e.created_at)} · {espera(e.created_at)}
+                    {e.precisa_correcao ? "Enviada em" : "Marcou como feita em"} {dataHora(e.created_at)} · {espera(e.created_at)}
+                    {atrasada ? " · passou do prazo" : ""}
                   </span>
                 </header>
                 {e.audioUrl && <audio src={e.audioUrl} controls preload="none" className="w-full" />}

@@ -166,6 +166,7 @@ export function CamposMissao({ enunciado = "", entrega = "audio_texto" }: { enun
           <option value="audio_texto">Áudio (e texto opcional)</option>
           <option value="audio">Só áudio</option>
           <option value="texto">Só texto</option>
+          <option value="feito">Só marcar que fez (sem correção)</option>
         </select>
       </label>
     </div>

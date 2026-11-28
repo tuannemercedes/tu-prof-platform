@@ -204,7 +204,7 @@ AULAS = [
     # ---------------------------------------------------------------- AULA 8
     {
         "n": 8,
-        "entrega": "texto",
+        "entrega": "feito",
         "titulo": "Me gusta, me encanta: gostos sem traduzir",
         "lead": "O gustar funciona ao contrário do português. É o erro mais clássico do brasileiro, inclusive em conversas de networking.",
         "historia": [

@@ -284,5 +284,5 @@ export async function salvarLinkVideo(formData: FormData) {
 
 function lerEntrega(v: FormDataEntryValue | null) {
   const s = String(v || "");
-  return s === "audio" || s === "texto" ? s : "audio_texto";
+  return s === "audio" || s === "texto" || s === "feito" ? s : "audio_texto";
 }

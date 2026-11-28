@@ -64,8 +64,9 @@ export default function MissaoEntrega({
   readOnly: boolean;
   onEnviada: () => void;
 }) {
-  const pedeAudio = entrega !== "texto";
-  const pedeTexto = entrega === "texto" || entrega === "audio_texto";
+  const soMarcar = entrega === "feito";
+  const pedeAudio = entrega !== "texto" && !soMarcar;
+  const pedeTexto = entrega === "texto" || entrega === "audio_texto" || soMarcar;
   const router = useRouter();
   const [estado, setEstado] = useState<"parado" | "gravando" | "gravado">("parado");
   const [segundos, setSegundos] = useState(0);
@@ -148,7 +149,7 @@ export default function MissaoEntrega({
       setErro("Na prévia nada é enviado.");
       return;
     }
-    if (!audio && !texto.trim()) {
+    if (!soMarcar && !audio && !texto.trim()) {
       setErro(pedeAudio ? "Grave o áudio antes de enviar." : "Escreva a sua resposta antes de enviar.");
       return;
     }
@@ -186,10 +187,12 @@ export default function MissaoEntrega({
 
       {entregas.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-sm font-semibold">{entregas.length === 1 ? "A sua entrega" : "As suas entregas"}</span>
+          <span className="text-sm font-semibold">{soMarcar ? "Feita" : entregas.length === 1 ? "A sua entrega" : "As suas entregas"}</span>
           {entregas.map((e) => (
             <div key={e.id} className="rounded-2xl border border-[var(--border)] p-4 flex flex-col gap-3">
-              <span className="text-xs text-[var(--text-secondary)]">Enviada em {dataHora(e.created_at)}</span>
+              <span className="text-xs text-[var(--text-secondary)]">
+                {soMarcar ? "Você marcou como feita em" : "Enviada em"} {dataHora(e.created_at)}
+              </span>
               {e.audioUrl && <audio src={e.audioUrl} controls preload="none" className="w-full" />}
               {e.texto && <p className="m-0 text-[15px] whitespace-pre-wrap">{e.texto}</p>}
               {e.comentario ? (
@@ -200,12 +203,12 @@ export default function MissaoEntrega({
                   </span>
                   <p className="m-0 text-[15px] whitespace-pre-wrap">{e.comentario}</p>
                 </div>
-              ) : (
-                <span className="text-[13px] text-[var(--text-secondary)]">Aguardando o comentário da equipe (até 1 dia útil).</span>
+              ) : soMarcar ? null : (
+                <span className="text-[13px] text-[var(--text-secondary)]">Aguardando o comentário da equipe (até 2 dias úteis).</span>
               )}
             </div>
           ))}
-          {!aberto && (
+          {!aberto && !soMarcar && (
             <button type="button" onClick={() => setAberto(true)} className="self-start text-sm font-semibold text-[var(--gold-text)]">
               Enviar uma nova versão
             </button>
@@ -252,11 +255,16 @@ export default function MissaoEntrega({
           )}
           {pedeTexto && (
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-semibold">{pedeAudio ? "Quer escrever também? (opcional)" : "Escreva a sua resposta"}</span>
+              <span className="text-sm font-semibold">
+                {soMarcar ? "Quer contar como foi? (opcional)" : pedeAudio ? "Quer escrever também? (opcional)" : "Escreva a sua resposta"}
+              </span>
+              {soMarcar && (
+                <span className="text-[13px] text-[var(--text-secondary)]">Esta missão não precisa de correção: é só marcar quando fizer.</span>
+              )}
               <textarea
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
-                rows={5}
+                rows={soMarcar ? 3 : 5}
                 className="rounded-xl border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-2 text-[15px]"
               />
             </label>
@@ -268,7 +276,7 @@ export default function MissaoEntrega({
             disabled={enviando || estado === "gravando"}
             className={`${botao} self-start bg-[var(--accent)] text-[var(--accent-contrast)] disabled:opacity-50`}
           >
-            {enviando ? "Enviando…" : "Enviar missão"}
+            {enviando ? "Enviando…" : soMarcar ? "Fiz a missão" : "Enviar missão"}
           </button>
         </div>
       )}
