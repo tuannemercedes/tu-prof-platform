@@ -50,12 +50,14 @@ export default function PlayerModulo({ grupos, readOnly }: { grupos: GrupoModulo
     if (rolar) visor.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function marcar(valor: boolean) {
-    if (readOnly) return;
-    setFeitos((f) => ({ ...f, [atual.id]: valor }));
+  // Marca/desmarca uma aula. Na prévia muda só na tela (nada é salvo para o aluno).
+  function marcar(valor: boolean, id = atual.id) {
+    if (!!feitos[id] === valor) return;
+    setFeitos((f) => ({ ...f, [id]: valor }));
     trilha?.notificarConclusao(valor);
+    if (readOnly) return;
     startTransition(async () => {
-      await toggleProgresso(atual.id, valor);
+      await toggleProgresso(id, valor);
     });
   }
 
@@ -131,7 +133,6 @@ export default function PlayerModulo({ grupos, readOnly }: { grupos: GrupoModulo
           <button
             type="button"
             onClick={() => marcar(!feitos[atual.id])}
-            disabled={readOnly}
             className={`inline-flex items-center gap-2 h-11 px-4 rounded-xl text-sm font-semibold border transition-colors disabled:opacity-60 ${
               feitos[atual.id]
                 ? "bg-[var(--success-bg)] text-[var(--success-text)] border-transparent"
@@ -155,7 +156,7 @@ export default function PlayerModulo({ grupos, readOnly }: { grupos: GrupoModulo
               disabled={!proxima}
               onClick={() => {
                 if (!proxima) return;
-                if (!readOnly && !feitos[atual.id]) marcar(true);
+                if (!feitos[atual.id]) marcar(true);
                 abrir(proxima.id);
               }}
               className="botao-ouro h-11 px-5 rounded-xl text-sm font-semibold disabled:opacity-40"
@@ -192,16 +193,30 @@ export default function PlayerModulo({ grupos, readOnly }: { grupos: GrupoModulo
                 {g.itens.map((m) => {
                   const on = m.id === atual.id;
                   return (
-                    <li key={m.id}>
+                    <li
+                      key={m.id}
+                      className={`flex items-center transition-colors ${
+                        on ? "bg-[var(--navy)] text-[var(--on-navy)] shadow-[inset_3px_0_0_var(--gold)]" : "hover:bg-[var(--surface-2)]"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => marcar(!feitos[m.id], m.id)}
+                        aria-pressed={!!feitos[m.id]}
+                        aria-label={`${feitos[m.id] ? "Desmarcar" : "Marcar como concluída"}: ${m.titulo}`}
+                        title={feitos[m.id] ? "Desmarcar" : "Marcar como concluída"}
+                        className="shrink-0 self-stretch pl-5 pr-2 flex items-center group"
+                      >
+                        <span className="flex rounded-full transition-transform group-hover:scale-110 group-active:scale-95">
+                          <Circulo feito={!!feitos[m.id]} claro={on} />
+                        </span>
+                      </button>
                       <button
                         type="button"
                         onClick={() => abrir(m.id)}
                         aria-current={on ? "true" : undefined}
-                        className={`w-full text-left flex items-center gap-3 px-5 py-2.5 transition-colors ${
-                          on ? "bg-[var(--navy)] text-[var(--on-navy)] shadow-[inset_3px_0_0_var(--gold)]" : "hover:bg-[var(--surface-2)]"
-                        }`}
+                        className="min-w-0 flex-1 text-left flex items-center gap-3 pl-1 pr-5 py-2.5"
                       >
-                        <Circulo feito={!!feitos[m.id]} claro={on} />
                         <span className="min-w-0 flex-1">
                           <span className="block text-[14px] font-medium leading-snug line-clamp-2">{m.titulo}</span>
                           <span className={`flex items-center gap-1.5 text-xs ${on ? "text-[var(--gold-light)]" : "text-[var(--text-faint)]"}`}>
@@ -241,7 +256,7 @@ function Circulo({ feito, claro = false }: { feito: boolean; claro?: boolean }) 
     </span>
   ) : (
     <span
-      className={`shrink-0 w-[22px] h-[22px] rounded-full border-2 ${claro ? "border-white/40" : "border-[var(--border-strong)]"}`}
+      className={`block shrink-0 w-[22px] h-[22px] rounded-full border-2 ${claro ? "border-white/40" : "border-[var(--border-strong)]"}`}
       aria-hidden="true"
     />
   );
