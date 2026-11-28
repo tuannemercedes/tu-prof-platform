@@ -59,6 +59,7 @@ export default async function TelaCartas({ v }: { v: Visao }) {
         descricao="Escolha um tema, vire as cartas e ouça a pronúncia. As que você erra voltam mais vezes até ficarem naturais."
       />
       <JogoCartas
+        key={v.idioma}
         porIdioma={porIdioma}
         idiomaInicial={v.idioma}
         progresso={progresso}

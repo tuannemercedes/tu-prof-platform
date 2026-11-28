@@ -1,7 +1,8 @@
 import { urlCapa } from "@/lib/capas";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { doIdioma } from "@/lib/idioma";
 import { createClient } from "@/lib/supabase/server";
-import { getLiberados, liberado, type Visao } from "@/lib/visao";
+import { getLiberados, liberado, rota, type Visao } from "@/lib/visao";
 import { type MaterialCardData } from "@/components/material-card";
 import PlayerModulo from "@/components/player-modulo";
 import { TrilhaProgressProvider } from "@/components/trilha-progress-context";
@@ -14,7 +15,7 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
     supabase.from("materias").select("id, titulo, capa_path, descricao").eq("id", id).single(),
     supabase
       .from("materiais")
-      .select("id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, fase_id")
+      .select("id, titulo, tipo, conteudo_html, arquivo_path, capa_path, url, ordem, fase_id, idioma")
       .eq("materia_id", id)
       .order("ordem")
       .order("created_at"),
@@ -28,7 +29,7 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
 
   const materiaisComUrl: (MaterialCardData & { fase_id: string | null })[] = await Promise.all(
     (materiais ?? [])
-      .filter((m) => liberado(lib, m.id))
+      .filter((m) => liberado(lib, m.id) && doIdioma(m.idioma, v.idioma))
       .map(async (m) => {
         let signedUrl: string | null = null;
         if (m.tipo === "pdf" && m.arquivo_path) {
@@ -49,6 +50,9 @@ export default async function TelaModulo({ v, id }: { v: Visao; id: string }) {
         };
       }),
   );
+
+  // Módulo de outro idioma (ex.: trocou para inglês dentro de um módulo de espanhol): volta para a Trilha.
+  if (!materiaisComUrl.length && (materiais ?? []).some((m) => liberado(lib, m.id))) redirect(rota(v, "/trilha"));
 
   const semFase = materiaisComUrl.filter((m) => !m.fase_id);
   const totalConcluidos = materiaisComUrl.filter((m) => m.concluido).length;
